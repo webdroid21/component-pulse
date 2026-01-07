@@ -53,13 +53,12 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'Overview',
     items: [
       {
-        title: 'One',
-        path: paths.dashboard.root,
+        title: 'Dashboard',
+        path: paths.admin.dashboard,
         icon: ICONS.dashboard,
         info: <Label>v{CONFIG.appVersion}</Label>,
       },
-      { title: 'Two', path: paths.dashboard.two, icon: ICONS.ecommerce },
-      { title: 'Three', path: paths.dashboard.three, icon: ICONS.analytics },
+      { title: 'Analytics', path: paths.admin.reports, icon: ICONS.analytics },
     ],
   },
   /**
@@ -69,15 +68,39 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'Management',
     items: [
       {
-        title: 'Group',
-        path: paths.dashboard.group.root,
-        icon: ICONS.user,
+        title: 'Products',
+        path: paths.admin.products.root,
+        icon: ICONS.product,
         children: [
-          { title: 'Four', path: paths.dashboard.group.root },
-          { title: 'Five', path: paths.dashboard.group.five },
-          { title: 'Six', path: paths.dashboard.group.six },
+          { title: 'List', path: paths.admin.products.root },
+          { title: 'Create', path: paths.admin.products.new },
         ],
       },
+      { title: 'Categories', path: paths.admin.categories, icon: ICONS.folder },
+      {
+        title: 'Orders',
+        path: paths.admin.orders.root,
+        icon: ICONS.order,
+      },
+      {
+        title: 'Customers',
+        path: paths.admin.customers.root,
+        icon: ICONS.user,
+      },
+    ],
+  },
+  /**
+   * Settings
+   */
+  {
+    subheader: 'Settings',
+    items: [
+      { title: 'Delivery Zones', path: paths.admin.delivery, icon: ICONS.tour },
+      { title: 'Deals', path: paths.admin.deals, icon: ICONS.label },
+      { title: 'Coupons', path: paths.admin.coupons, icon: ICONS.invoice },
+      { title: 'Returns', path: paths.admin.returns, icon: ICONS.file },
+      { title: 'Admin Users', path: paths.admin.users.root, icon: ICONS.lock },
+      { title: 'Settings', path: paths.admin.settings, icon: ICONS.params },
     ],
   },
 ];

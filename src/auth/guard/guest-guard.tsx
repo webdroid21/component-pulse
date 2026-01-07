@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { safeReturnUrl } from 'minimal-shared/utils';
 
+import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
-
-import { CONFIG } from 'src/global-config';
 
 import { SplashScreen } from 'src/components/loading-screen';
 
@@ -20,12 +19,22 @@ type GuestGuardProps = {
 export function GuestGuard({ children }: GuestGuardProps) {
   const router = useRouter();
 
-  const { loading, authenticated } = useAuthContext();
+  const { user, loading, authenticated } = useAuthContext();
 
   const [isChecking, setIsChecking] = useState(true);
 
   const searchParams = useSearchParams();
-  const redirectUrl = safeReturnUrl(searchParams.get('returnTo'), CONFIG.auth.redirectPath);
+
+  // Determine redirect based on user type (admin vs customer)
+  const getRedirectPath = () => {
+    if (user?.isAdmin) {
+      return paths.admin.root;
+    }
+    return paths.account.root;
+  };
+
+  const defaultRedirect = getRedirectPath();
+  const redirectUrl = safeReturnUrl(searchParams.get('returnTo'), defaultRedirect);
 
   const checkPermissions = async (): Promise<void> => {
     if (loading) {

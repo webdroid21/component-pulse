@@ -4,11 +4,8 @@ import { m } from 'framer-motion';
 import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-
-import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
 
@@ -65,15 +62,6 @@ export function NavUpgrade({ sx, ...other }: BoxProps) {
             {user?.email}
           </Typography>
         </Box>
-
-        <Button
-          variant="contained"
-          href={paths.minimalStore}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Upgrade to Pro
-        </Button>
       </Box>
     </Box>
   );
@@ -141,7 +129,7 @@ export function UpgradeBlock({ sx, ...other }: BoxProps) {
         }}
       >
         <Box component="span" sx={{ typography: 'h5', color: 'common.white' }}>
-          35% OFF
+          ComponentPulse
         </Box>
 
         <Box
@@ -153,12 +141,8 @@ export function UpgradeBlock({ sx, ...other }: BoxProps) {
             typography: 'subtitle2',
           }}
         >
-          Power up Productivity!
+          E-Commerce Platform
         </Box>
-
-        <Button variant="contained" size="small" color="warning">
-          Upgrade to Pro
-        </Button>
       </Box>
     </Box>
   );

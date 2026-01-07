@@ -2,14 +2,28 @@
 
 const ROOTS = {
   AUTH: '/auth',
-  DASHBOARD: '/dashboard',
+  ADMIN: '/admin',
+  ACCOUNT: '/account',
 };
 
 // ----------------------------------------------------------------------
 
 export const paths = {
+  // Public pages
+  home: '/',
+  products: '/products',
+  product: (slug: string) => `/products/${slug}`,
+  categories: '/categories',
+  category: (slug: string) => `/categories/${slug}`,
+  deals: '/deals',
+  cart: '/cart',
+  checkout: '/checkout',
+  about: '/about',
+  contact: '/contact',
+  support: '/support',
   faqs: '/faqs',
-  minimalStore: 'https://mui.com/store/items/minimal-dashboard/',
+  trackOrder: '/track-order',
+
   // AUTH
   auth: {
     amplify: {
@@ -40,15 +54,61 @@ export const paths = {
       resetPassword: `${ROOTS.AUTH}/supabase/reset-password`,
     },
   },
-  // DASHBOARD
-  dashboard: {
-    root: ROOTS.DASHBOARD,
-    two: `${ROOTS.DASHBOARD}/two`,
-    three: `${ROOTS.DASHBOARD}/three`,
-    group: {
-      root: `${ROOTS.DASHBOARD}/group`,
-      five: `${ROOTS.DASHBOARD}/group/five`,
-      six: `${ROOTS.DASHBOARD}/group/six`,
+
+  // CUSTOMER ACCOUNT
+  account: {
+    root: ROOTS.ACCOUNT,
+    profile: `${ROOTS.ACCOUNT}/profile`,
+    orders: `${ROOTS.ACCOUNT}/orders`,
+    order: (id: string) => `${ROOTS.ACCOUNT}/orders/${id}`,
+    addresses: `${ROOTS.ACCOUNT}/addresses`,
+    wishlist: `${ROOTS.ACCOUNT}/wishlist`,
+  },
+
+  // ADMIN DASHBOARD
+  admin: {
+    root: ROOTS.ADMIN,
+    dashboard: `${ROOTS.ADMIN}/dashboard`,
+    // Products
+    products: {
+      root: `${ROOTS.ADMIN}/products`,
+      new: `${ROOTS.ADMIN}/products/new`,
+      edit: (id: string) => `${ROOTS.ADMIN}/products/${id}/edit`,
     },
+    // Categories
+    categories: `${ROOTS.ADMIN}/categories`,
+    // Orders
+    orders: {
+      root: `${ROOTS.ADMIN}/orders`,
+      details: (id: string) => `${ROOTS.ADMIN}/orders/${id}`,
+    },
+    // Customers
+    customers: {
+      root: `${ROOTS.ADMIN}/customers`,
+      details: (id: string) => `${ROOTS.ADMIN}/customers/${id}`,
+    },
+    // Delivery
+    delivery: `${ROOTS.ADMIN}/delivery`,
+    // Deals
+    deals: `${ROOTS.ADMIN}/deals`,
+    // Coupons
+    coupons: `${ROOTS.ADMIN}/coupons`,
+    // Returns
+    returns: `${ROOTS.ADMIN}/returns`,
+    // Reports
+    reports: `${ROOTS.ADMIN}/reports`,
+    // Settings
+    settings: `${ROOTS.ADMIN}/settings`,
+    // Admin Users (Super Admin only)
+    users: {
+      root: `${ROOTS.ADMIN}/users`,
+      new: `${ROOTS.ADMIN}/users/new`,
+      edit: (id: string) => `${ROOTS.ADMIN}/users/${id}/edit`,
+    },
+  },
+
+  // Legacy dashboard paths (for compatibility)
+  dashboard: {
+    root: ROOTS.ADMIN,
   },
 };
