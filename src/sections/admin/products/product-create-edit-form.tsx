@@ -160,26 +160,29 @@ export function ProductCreateEditForm({ currentProduct }: Props) {
 
       const category = categories.find((c) => c.id === data.categoryId);
 
-      const productData: ProductFormData = {
+      // Build product data, excluding undefined values to avoid Firestore errors
+      const productData: Partial<ProductFormData> = {
         name: data.name,
-        description: data.description,
-        shortDescription: data.shortDescription || undefined,
+        description: data.description || '',
         sku: data.sku,
-        price: Number(data.price),
-        compareAtPrice: data.compareAtPrice ? Number(data.compareAtPrice) : undefined,
-        costPrice: data.costPrice ? Number(data.costPrice) : undefined,
-        stock: Number(data.stock),
-        lowStockThreshold: data.lowStockThreshold ? Number(data.lowStockThreshold) : undefined,
-        categoryId: data.categoryId,
-        categoryName: category?.name,
-        brand: data.brand || undefined,
-        weight: data.weight ? Number(data.weight) : undefined,
-        weightUnit: data.weightUnit,
-        tags: data.tags,
+        price: Number(data.price) || 0,
+        stock: Number(data.stock) || 0,
+        categoryId: data.categoryId || '',
+        tags: data.tags || [],
         isActive: data.isActive,
         isFeatured: data.isFeatured,
         images: uploadedImages,
+        weightUnit: data.weightUnit,
       };
+
+      // Add optional fields only if they have values
+      if (data.shortDescription) productData.shortDescription = data.shortDescription;
+      if (data.compareAtPrice) productData.compareAtPrice = Number(data.compareAtPrice);
+      if (data.costPrice) productData.costPrice = Number(data.costPrice);
+      if (data.lowStockThreshold) productData.lowStockThreshold = Number(data.lowStockThreshold);
+      if (category?.name) productData.categoryName = category.name;
+      if (data.brand) productData.brand = data.brand;
+      if (data.weight) productData.weight = Number(data.weight);
 
       let success = false;
       if (currentProduct) {

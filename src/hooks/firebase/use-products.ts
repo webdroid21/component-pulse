@@ -128,12 +128,12 @@ export function useProductMutations() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createProduct = async (data: ProductFormData): Promise<string | null> => {
+  const createProduct = async (data: Partial<ProductFormData>): Promise<string | null> => {
     try {
       setLoading(true);
       setError(null);
 
-      const slug = generateSlug(data.name);
+      const slug = generateSlug(data.name || 'product');
       const docRef = await addDoc(collection(FIRESTORE, COLLECTION), {
         ...data,
         slug,

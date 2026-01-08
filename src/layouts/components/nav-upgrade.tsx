@@ -11,12 +11,31 @@ import { CONFIG } from 'src/global-config';
 
 import { Label } from 'src/components/label';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
+function getRoleLabel(user: any): { label: string; color: 'error' | 'warning' | 'info' | 'success' } {
+  if (!user) return { label: 'Guest', color: 'info' };
+  if (user.isAdmin) {
+    switch (user.role) {
+      case 'super_admin':
+        return { label: 'Super Admin', color: 'error' };
+      case 'admin':
+        return { label: 'Admin', color: 'warning' };
+      case 'staff':
+        return { label: 'Staff', color: 'info' };
+      default:
+        return { label: 'Admin', color: 'warning' };
+    }
+  }
+  return { label: 'Customer', color: 'success' };
+}
+
 export function NavUpgrade({ sx, ...other }: BoxProps) {
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
+
+  const roleInfo = getRoleLabel(user);
 
   return (
     <Box
@@ -30,7 +49,7 @@ export function NavUpgrade({ sx, ...other }: BoxProps) {
           </Avatar>
 
           <Label
-            color="success"
+            color={roleInfo.color}
             variant="filled"
             sx={{
               top: -6,
@@ -41,7 +60,7 @@ export function NavUpgrade({ sx, ...other }: BoxProps) {
               borderBottomLeftRadius: 2,
             }}
           >
-            Free
+            {roleInfo.label}
           </Label>
         </Box>
 

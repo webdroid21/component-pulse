@@ -36,14 +36,16 @@ export type ForgotPasswordParams = {
 
 /**
  * Check if this is the first user in the system (for dev mode - first user becomes super admin)
+ * Only returns true if there are NO admins in the system
  */
 async function isFirstUser(): Promise<boolean> {
   try {
     const adminsSnapshot = await getDocs(collection(FIRESTORE, 'admins'));
-    const usersSnapshot = await getDocs(collection(FIRESTORE, 'users'));
-    return adminsSnapshot.empty && usersSnapshot.empty;
+    // Only check admins collection - if any admin exists, new users should be customers
+    return adminsSnapshot.empty;
   } catch (error) {
     console.error('Error checking first user:', error);
+    // On error, default to customer to be safe
     return false;
   }
 }
