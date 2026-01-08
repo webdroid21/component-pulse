@@ -1,18 +1,24 @@
-'use client';
+import type { Metadata } from 'next';
 
-import { useEffect } from 'react';
+import { MainLayout } from 'src/layouts/main';
 
-import { useRouter } from 'src/routes/hooks';
+import { HomeView } from 'src/sections/home/view';
+import { CheckoutProvider } from 'src/sections/checkout/context';
 
 // ----------------------------------------------------------------------
 
+export const metadata: Metadata = {
+  title: 'ComponentPulse - Quality Electronic Components & Solar Solutions in Uganda',
+  description:
+    'Your trusted source for solar panels, inverters, batteries, and electrical components. Fast delivery across Uganda with competitive prices.',
+};
+
 export default function Page() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect to the public home page
-    router.replace('/home');
-  }, [router]);
-
-  return null;
+  return (
+    <CheckoutProvider>
+      <MainLayout>
+        <HomeView />
+      </MainLayout>
+    </CheckoutProvider>
+  );
 }

@@ -6,11 +6,9 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   doc,
   query,
-  where,
   addDoc,
   getDoc,
   getDocs,
-  orderBy,
   updateDoc,
   deleteDoc,
   collection,
