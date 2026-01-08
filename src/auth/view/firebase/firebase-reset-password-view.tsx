@@ -17,8 +17,8 @@ import { Form, Field, schemaUtils } from 'src/components/hook-form';
 
 import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
-import { FormReturnLink } from '../../components/form-return-link';
 import { sendPasswordResetEmail } from '../../context/firebase';
+import { FormReturnLink } from '../../components/form-return-link';
 
 // ----------------------------------------------------------------------
 

@@ -20,13 +20,13 @@ import { RouterLink } from 'src/routes/components';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field, schemaUtils } from 'src/components/hook-form';
 
+import { useAuthContext } from '../../hooks';
 import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
 import { FormDivider } from '../../components/form-divider';
 import { FormSocials } from '../../components/form-socials';
 import { SignUpTerms } from '../../components/sign-up-terms';
 import { signUp, signInWithGoogle } from '../../context/firebase';
-import { useAuthContext } from '../../hooks';
 
 // ----------------------------------------------------------------------
 

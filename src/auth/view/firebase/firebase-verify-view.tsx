@@ -14,8 +14,8 @@ import { EmailInboxIcon } from 'src/assets/icons';
 
 import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
-import { FormReturnLink } from '../../components/form-return-link';
 import { resendVerificationEmail } from '../../context/firebase';
+import { FormReturnLink } from '../../components/form-return-link';
 
 // ----------------------------------------------------------------------
 

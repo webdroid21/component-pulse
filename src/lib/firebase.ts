@@ -5,8 +5,8 @@ import type { FirebaseStorage as StorageType } from 'firebase/storage';
 
 import { getAuth } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getFirestore } from 'firebase/firestore';
 
 import { CONFIG } from 'src/global-config';
 

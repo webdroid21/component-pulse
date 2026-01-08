@@ -2,10 +2,10 @@
 
 import type { AuthState } from '../../types';
 
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useSetState } from 'minimal-shared/hooks';
 import { useMemo, useEffect, useCallback } from 'react';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 import { AUTH, FIRESTORE } from 'src/lib/firebase';
 

@@ -1,0 +1,220 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===========================================
+    // Helper Functions
+    // ===========================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is the owner of the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user is an admin
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Check if user is a super admin
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'super_admin';
+    }
+    
+    // Check if admin is active
+    function isActiveAdmin() {
+      return isAdmin() && 
+        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isActive == true;
+    }
+    
+    // ===========================================
+    // Users Collection (Customers)
+    // ===========================================
+    match /users/{userId} {
+      // Users can read their own profile
+      // Admins can read all users
+      allow read: if isOwner(userId) || isActiveAdmin();
+      
+      // Users can create their own profile (on signup)
+      allow create: if isOwner(userId);
+      
+      // Users can update their own profile
+      // Admins can update any user
+      allow update: if isOwner(userId) || isActiveAdmin();
+      
+      // Only admins can delete users
+      allow delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Admins Collection
+    // ===========================================
+    match /admins/{adminId} {
+      // Admins can read their own profile
+      // Super admins can read all admin profiles
+      allow read: if isOwner(adminId) || isSuperAdmin();
+      
+      // Only super admins can create new admin accounts
+      // Exception: First user creation (handled in code with empty check)
+      allow create: if isSuperAdmin() || 
+        (!exists(/databases/$(database)/documents/admins/$(adminId)) && 
+         !exists(/databases/$(database)/documents/users/$(request.auth.uid)));
+      
+      // Admins can update their own profile (limited fields)
+      // Super admins can update any admin
+      allow update: if isOwner(adminId) || isSuperAdmin();
+      
+      // Only super admins can delete admin accounts
+      allow delete: if isSuperAdmin();
+    }
+    
+    // ===========================================
+    // Products Collection
+    // ===========================================
+    match /products/{productId} {
+      // Anyone can read active products
+      // Admins can read all products
+      allow read: if resource.data.isActive == true || isActiveAdmin();
+      
+      // Only admins can create products
+      allow create: if isActiveAdmin();
+      
+      // Only admins can update products
+      allow update: if isActiveAdmin();
+      
+      // Only admins can delete products
+      allow delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Categories Collection
+    // ===========================================
+    match /categories/{categoryId} {
+      // Anyone can read active categories
+      // Admins can read all categories
+      allow read: if resource.data.isActive == true || isActiveAdmin();
+      
+      // Only admins can create categories
+      allow create: if isActiveAdmin();
+      
+      // Only admins can update categories
+      allow update: if isActiveAdmin();
+      
+      // Only admins can delete categories
+      allow delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Orders Collection
+    // ===========================================
+    match /orders/{orderId} {
+      // Users can read their own orders
+      // Admins can read all orders
+      allow read: if isAuthenticated() && 
+        (resource.data.customerId == request.auth.uid || isActiveAdmin());
+      
+      // Authenticated users can create orders
+      allow create: if isAuthenticated() && 
+        request.resource.data.customerId == request.auth.uid;
+      
+      // Only admins can update orders (status changes)
+      allow update: if isActiveAdmin();
+      
+      // Only super admins can delete orders
+      allow delete: if isSuperAdmin();
+    }
+    
+    // ===========================================
+    // Delivery Zones Collection
+    // ===========================================
+    match /delivery_zones/{zoneId} {
+      // Anyone can read active delivery zones
+      allow read: if resource.data.isActive == true || isActiveAdmin();
+      
+      // Only admins can manage delivery zones
+      allow create, update, delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Deals Collection
+    // ===========================================
+    match /deals/{dealId} {
+      // Anyone can read active deals
+      allow read: if resource.data.isActive == true || isActiveAdmin();
+      
+      // Only admins can manage deals
+      allow create, update, delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Coupons Collection
+    // ===========================================
+    match /coupons/{couponId} {
+      // Authenticated users can read active coupons (to validate)
+      // Admins can read all coupons
+      allow read: if (isAuthenticated() && resource.data.isActive == true) || isActiveAdmin();
+      
+      // Only admins can manage coupons
+      allow create, update, delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Returns Collection
+    // ===========================================
+    match /returns/{returnId} {
+      // Users can read their own returns
+      // Admins can read all returns
+      allow read: if isAuthenticated() && 
+        (resource.data.customerId == request.auth.uid || isActiveAdmin());
+      
+      // Users can create return requests for their orders
+      allow create: if isAuthenticated() && 
+        request.resource.data.customerId == request.auth.uid;
+      
+      // Only admins can update returns
+      allow update: if isActiveAdmin();
+      
+      // Only super admins can delete returns
+      allow delete: if isSuperAdmin();
+    }
+    
+    // ===========================================
+    // Reviews Collection
+    // ===========================================
+    match /reviews/{reviewId} {
+      // Anyone can read approved reviews
+      allow read: if resource.data.isApproved == true || isActiveAdmin();
+      
+      // Authenticated users can create reviews
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      
+      // Users can update their own reviews, admins can update any
+      allow update: if (isAuthenticated() && resource.data.userId == request.auth.uid) || 
+        isActiveAdmin();
+      
+      // Only admins can delete reviews
+      allow delete: if isActiveAdmin();
+    }
+    
+    // ===========================================
+    // Settings Collection (Store settings)
+    // ===========================================
+    match /settings/{settingId} {
+      // Anyone can read public settings
+      allow read: if true;
+      
+      // Only super admins can manage settings
+      allow create, update, delete: if isSuperAdmin();
+    }
+  }
+}

@@ -1,0 +1,123 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ===========================================
+    // Helper Functions
+    // ===========================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check file size (max 5MB)
+    function isValidSize() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+    
+    // Check if file is an image
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Check if file is a valid document type
+    function isDocument() {
+      return request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('image/.*');
+    }
+    
+    // ===========================================
+    // Product Images
+    // ===========================================
+    match /products/{productId}/{allPaths=**} {
+      // Anyone can read product images
+      allow read: if true;
+      
+      // Only authenticated users can upload (admin check done in app)
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+      
+      // Allow delete for authenticated users
+      allow delete: if isAuthenticated();
+    }
+    
+    // ===========================================
+    // Category Images
+    // ===========================================
+    match /categories/{categoryId}/{allPaths=**} {
+      // Anyone can read category images
+      allow read: if true;
+      
+      // Only authenticated users can upload
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+      
+      // Allow delete for authenticated users
+      allow delete: if isAuthenticated();
+    }
+    
+    // ===========================================
+    // User Profile Images
+    // ===========================================
+    match /users/{userId}/{allPaths=**} {
+      // Anyone can read user profile images
+      allow read: if true;
+      
+      // Users can upload their own profile images
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId && 
+                      isImage() && 
+                      isValidSize();
+      
+      // Users can delete their own images
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ===========================================
+    // Admin Profile Images
+    // ===========================================
+    match /admins/{adminId}/{allPaths=**} {
+      // Authenticated users can read admin images
+      allow read: if isAuthenticated();
+      
+      // Admins can upload their own profile images
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == adminId && 
+                      isImage() && 
+                      isValidSize();
+      
+      // Admins can delete their own images
+      allow delete: if isAuthenticated() && request.auth.uid == adminId;
+    }
+    
+    // ===========================================
+    // Deal/Banner Images
+    // ===========================================
+    match /deals/{dealId}/{allPaths=**} {
+      // Anyone can read deal images
+      allow read: if true;
+      
+      // Only authenticated users can upload
+      allow write: if isAuthenticated() && isImage() && isValidSize();
+      
+      // Allow delete for authenticated users
+      allow delete: if isAuthenticated();
+    }
+    
+    // ===========================================
+    // Temporary Uploads (for processing)
+    // ===========================================
+    match /temp/{userId}/{allPaths=**} {
+      // Users can read their own temp files
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      
+      // Users can upload to their temp folder
+      allow write: if isAuthenticated() && 
+                      request.auth.uid == userId && 
+                      isValidSize();
+      
+      // Users can delete their temp files
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}
