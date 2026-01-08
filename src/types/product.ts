@@ -28,9 +28,11 @@ export type Product = {
   shortDescription?: string;
   sku: string;
   price: number;
+  salePrice?: number;
   compareAtPrice?: number;
   costPrice?: number;
   stock: number;
+  quantity: number;
   lowStockThreshold?: number;
   categoryId: string;
   categoryName?: string;
@@ -69,4 +71,5 @@ export type ProductFilters = {
   minPrice?: number;
   maxPrice?: number;
   inStock?: boolean;
+  limit?: number;
 };

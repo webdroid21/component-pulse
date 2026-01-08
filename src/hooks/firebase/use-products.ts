@@ -40,15 +40,9 @@ export function useProducts(filters?: ProductFilters) {
       setLoading(true);
       setError(null);
 
-      let q = query(collection(FIRESTORE, COLLECTION), orderBy('createdAt', 'desc'));
-
-      if (filters?.categoryId) {
-        q = query(q, where('categoryId', '==', filters.categoryId));
-      }
-
-      if (filters?.isActive !== undefined) {
-        q = query(q, where('isActive', '==', filters.isActive));
-      }
+      // Build query - avoid combining where + orderBy without proper indexes
+      // Fetch all and sort/filter client-side to avoid index requirements
+      const q = query(collection(FIRESTORE, COLLECTION));
 
       const snapshot = await getDocs(q);
       let data = snapshot.docs.map((docSnap) => ({
@@ -56,18 +50,45 @@ export function useProducts(filters?: ProductFilters) {
         ...docSnap.data(),
       })) as Product[];
 
+      // Client-side filtering for isActive
+      if (filters?.isActive !== undefined) {
+        data = data.filter((product) => product.isActive === filters.isActive);
+      }
+
+      // Client-side filtering for isFeatured
+      if (filters?.isFeatured !== undefined) {
+        data = data.filter((product) => product.isFeatured === filters.isFeatured);
+      }
+
+      // Client-side filtering for category
+      if (filters?.categoryId) {
+        data = data.filter((product) => product.categoryId === filters.categoryId);
+      }
+
       // Client-side filtering for search
       if (filters?.search) {
         const searchLower = filters.search.toLowerCase();
         data = data.filter(
           (product) =>
             product.name.toLowerCase().includes(searchLower) ||
-            product.sku.toLowerCase().includes(searchLower)
+            product.sku?.toLowerCase().includes(searchLower)
         );
       }
 
       if (filters?.inStock) {
-        data = data.filter((product) => product.stock > 0);
+        data = data.filter((product) => product.stock > 0 || product.quantity > 0);
+      }
+
+      // Sort by createdAt descending (client-side)
+      data.sort((a, b) => {
+        const aTime = a.createdAt?.toMillis?.() || 0;
+        const bTime = b.createdAt?.toMillis?.() || 0;
+        return bTime - aTime;
+      });
+
+      // Apply limit if specified
+      if (filters?.limit) {
+        data = data.slice(0, filters.limit);
       }
 
       setProducts(data);
@@ -77,7 +98,7 @@ export function useProducts(filters?: ProductFilters) {
     } finally {
       setLoading(false);
     }
-  }, [filters?.categoryId, filters?.isActive, filters?.search, filters?.inStock]);
+  }, [filters?.categoryId, filters?.isActive, filters?.isFeatured, filters?.search, filters?.inStock, filters?.limit]);
 
   useEffect(() => {
     fetchProducts();
