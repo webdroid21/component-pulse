@@ -16,7 +16,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1920&q=80';
+const HERO_IMAGE = 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=1920&q=80';
 
 export function HomeHero() {
   return (
@@ -70,7 +70,7 @@ export function HomeHero() {
                 display: 'block',
               }}
             >
-              ⚡ Powering Uganda&apos;s Future
+              ⚡ Quality Components for Every Project
             </Typography>
           </m.div>
 
@@ -89,9 +89,9 @@ export function HomeHero() {
                 mb: 3,
               }}
             >
-              Quality Electronic
-              <Box component="span" sx={{ color: 'primary.main' }}> Components </Box>
-              & Solar Solutions
+              Essential
+              <Box component="span" sx={{ color: 'primary.main' }}> Electronics </Box>
+              & Electrical Parts
             </Typography>
           </m.div>
 
@@ -109,8 +109,8 @@ export function HomeHero() {
                 maxWidth: 520,
               }}
             >
-              Your trusted partner for solar panels, inverters, batteries, and electrical components. 
-              Fast delivery across Uganda with competitive prices.
+              Find the right wires, fuses, switches, and components for your repairs and DIY projects.
+              Reliable parts at great prices.
             </Typography>
           </m.div>
 

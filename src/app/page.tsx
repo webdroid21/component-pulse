@@ -8,9 +8,9 @@ import { CheckoutProvider } from 'src/sections/checkout/context';
 // ----------------------------------------------------------------------
 
 export const metadata: Metadata = {
-  title: 'ComponentPulse - Quality Electronic Components & Solar Solutions in Uganda',
+  title: 'ComponentPulse - Quality Electronic Components, Wires & Fuses',
   description:
-    'Your trusted source for solar panels, inverters, batteries, and electrical components. Fast delivery across Uganda with competitive prices.',
+    'Your trusted source for electrical components, wires, fuses, connectors, and tools. Fast delivery across Uganda with competitive prices.',
 };
 
 export default function Page() {
