@@ -1,6 +1,6 @@
 'use client';
 
-import type { Order, OrderStatus, OrderFilters } from 'src/types/order';
+import type { Order, OrderItem, OrderStatus, OrderFilters, OrderAddress, PaymentMethod, PaymentStatus } from 'src/types/order';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -11,8 +11,10 @@ import {
   getDocs,
   orderBy,
   updateDoc,
+  increment,
   Timestamp,
   collection,
+  runTransaction,
   serverTimestamp,
 } from 'firebase/firestore';
 
@@ -212,4 +214,180 @@ export function useOrderMutations() {
 
 export function useCustomerOrders(customerId: string | null) {
   return useOrders(customerId ? { customerId } : undefined);
+}
+
+// ----------------------------------------------------------------------
+
+export type CreateOrderData = {
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  items: OrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  discount: number;
+  couponCode?: string;
+  total: number;
+  paymentMethod: PaymentMethod;
+  shippingAddress: OrderAddress;
+  notes?: string;
+  deliveryZoneId?: string;
+  deliveryZoneName?: string;
+};
+
+function generateOrderNumber(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `CP-${timestamp}-${random}`;
+}
+
+export function useCreateOrder() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createOrder = async (data: CreateOrderData): Promise<{ orderId: string; orderNumber: string } | null> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const orderNumber = generateOrderNumber();
+
+      // Use transaction to create order and update stock atomically
+      const result = await runTransaction(FIRESTORE, async (transaction) => {
+        // First, verify stock availability for all items
+        for (const item of data.items) {
+          const productRef = doc(FIRESTORE, 'products', item.productId);
+          const productSnap = await transaction.get(productRef);
+          
+          if (!productSnap.exists()) {
+            throw new Error(`Product ${item.productName} no longer exists`);
+          }
+          
+          const productData = productSnap.data();
+          const currentStock = productData.stock || productData.quantity || 0;
+          
+          if (currentStock < item.quantity) {
+            throw new Error(`Insufficient stock for ${item.productName}. Available: ${currentStock}`);
+          }
+        }
+
+        // Create the order
+        const orderRef = doc(collection(FIRESTORE, COLLECTION));
+        const orderData: Omit<Order, 'id'> = {
+          orderNumber,
+          customerId: data.customerId,
+          customerName: data.customerName,
+          customerEmail: data.customerEmail,
+          customerPhone: data.customerPhone,
+          items: data.items,
+          subtotal: data.subtotal,
+          deliveryFee: data.deliveryFee,
+          discount: data.discount,
+          couponCode: data.couponCode,
+          total: data.total,
+          status: 'pending',
+          paymentStatus: data.paymentMethod === 'cash_on_delivery' ? 'pending' : 'pending',
+          paymentMethod: data.paymentMethod,
+          shippingAddress: data.shippingAddress,
+          deliveryZoneId: data.deliveryZoneId,
+          deliveryZoneName: data.deliveryZoneName,
+          notes: data.notes,
+          statusHistory: [
+            {
+              status: 'pending',
+              timestamp: Timestamp.now(),
+              note: 'Order placed',
+            },
+          ],
+          createdAt: Timestamp.now() as any,
+          updatedAt: Timestamp.now() as any,
+        };
+
+        transaction.set(orderRef, {
+          ...orderData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+
+        // Reduce stock for each product
+        for (const item of data.items) {
+          const productRef = doc(FIRESTORE, 'products', item.productId);
+          transaction.update(productRef, {
+            stock: increment(-item.quantity),
+            quantity: increment(-item.quantity),
+            updatedAt: serverTimestamp(),
+          });
+        }
+
+        return { orderId: orderRef.id, orderNumber };
+      });
+
+      return result;
+    } catch (err: any) {
+      console.error('Error creating order:', err);
+      setError(err.message || 'Failed to create order');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { createOrder, loading, error };
+}
+
+export function useUpdatePaymentStatus() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updatePaymentStatus = async (
+    orderId: string,
+    paymentStatus: PaymentStatus,
+    paymentReference?: string
+  ): Promise<boolean> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const docRef = doc(FIRESTORE, COLLECTION, orderId);
+      const updateData: Record<string, any> = {
+        paymentStatus,
+        updatedAt: serverTimestamp(),
+      };
+
+      if (paymentReference) {
+        updateData.paymentReference = paymentReference;
+      }
+
+      // If payment is successful, also update order status to confirmed
+      if (paymentStatus === 'paid') {
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const currentOrder = docSnap.data() as Order;
+          if (currentOrder.status === 'pending') {
+            updateData.status = 'confirmed';
+            updateData.statusHistory = [
+              ...(currentOrder.statusHistory || []),
+              {
+                status: 'confirmed',
+                timestamp: serverTimestamp(),
+                note: 'Payment confirmed',
+              },
+            ];
+          }
+        }
+      }
+
+      await updateDoc(docRef, updateData);
+      return true;
+    } catch (err) {
+      console.error('Error updating payment status:', err);
+      setError('Failed to update payment status');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { updatePaymentStatus, loading, error };
 }

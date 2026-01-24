@@ -2,10 +2,13 @@
 
 import type { OrderStatus } from 'src/types/order';
 
+import { useRouter } from 'next/navigation';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -14,10 +17,14 @@ import Typography from '@mui/material/Typography';
 import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import { paths } from 'src/routes/paths';
+
 import { useCustomerOrders } from 'src/hooks/firebase';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+
+import { Iconify } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
 
@@ -48,8 +55,13 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 // ----------------------------------------------------------------------
 
 export function AccountOrdersView() {
+  const router = useRouter();
   const { user } = useAuthContext();
   const { orders, loading } = useCustomerOrders(user?.uid || null);
+
+  const handleViewOrder = (orderId: string) => {
+    router.push(paths.account.order(orderId));
+  };
 
   if (loading) {
     return (
@@ -84,12 +96,18 @@ export function AccountOrdersView() {
                 <TableCell>Items</TableCell>
                 <TableCell>Total</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {orders.map((order) => (
-                <TableRow key={order.id} hover>
+                <TableRow 
+                  key={order.id} 
+                  hover 
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => handleViewOrder(order.id)}
+                >
                   <TableCell>
                     <Typography variant="subtitle2">#{order.orderNumber}</Typography>
                   </TableCell>
@@ -116,6 +134,16 @@ export function AccountOrdersView() {
                       label={STATUS_LABELS[order.status]}
                       color={STATUS_COLORS[order.status]}
                     />
+                  </TableCell>
+                  <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => handleViewOrder(order.id)}
+                      endIcon={<Iconify icon="solar:arrow-right-bold" width={16} />}
+                    >
+                      View
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

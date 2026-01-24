@@ -1,6 +1,9 @@
 'use client';
 
+import type { PaymentMethod } from 'src/types/order';
+
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -17,14 +20,21 @@ import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import RadioGroup from '@mui/material/RadioGroup';
+import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { useCreateOrder } from 'src/hooks/firebase';
+
 import { fCurrency } from 'src/utils/format-number';
 
+import { generateTxRef, initiateFlutterwavePayment, FLUTTERWAVE_PAYMENT_OPTIONS } from 'src/lib/flutterwave';
+
 import { Iconify } from 'src/components/iconify';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 import { useCheckoutContext } from '../context';
 
@@ -48,11 +58,11 @@ const DELIVERY_OPTIONS = [
   },
 ];
 
-const PAYMENT_OPTIONS = [
+const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; description: string; icon: string }[] = [
   {
     value: 'flutterwave',
-    label: 'Pay with Flutterwave',
-    description: 'Card, Mobile Money, Bank Transfer',
+    label: 'Pay with Card',
+    description: 'Visa, Mastercard, Verve',
     icon: 'solar:card-bold-duotone',
   },
   {
@@ -62,7 +72,7 @@ const PAYMENT_OPTIONS = [
     icon: 'solar:smartphone-bold-duotone',
   },
   {
-    value: 'cash',
+    value: 'cash_on_delivery',
     label: 'Cash on Delivery',
     description: 'Pay when you receive',
     icon: 'solar:money-bag-bold-duotone',
@@ -70,13 +80,16 @@ const PAYMENT_OPTIONS = [
 ];
 
 export function CheckoutView() {
+  const router = useRouter();
   const checkout = useCheckoutContext();
+  const { user, authenticated } = useAuthContext();
+  const { createOrder, loading: creatingOrder, error: orderError } = useCreateOrder();
 
   const [activeStep, setActiveStep] = useState(0);
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
     lastName: '',
-    email: '',
+    email: user?.email || '',
     phone: '',
     address: '',
     city: '',
@@ -84,8 +97,9 @@ export function CheckoutView() {
     notes: '',
   });
   const [deliveryOption, setDeliveryOption] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState('flutterwave');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('flutterwave');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { items, subtotal, discount } = checkout.state;
   const shipping = deliveryOption;
@@ -93,7 +107,39 @@ export function CheckoutView() {
 
   const steps = ['Shipping', 'Delivery', 'Payment'];
 
+  const validateShippingInfo = (): boolean => {
+    if (!shippingInfo.firstName.trim()) {
+      setError('First name is required');
+      return false;
+    }
+    if (!shippingInfo.lastName.trim()) {
+      setError('Last name is required');
+      return false;
+    }
+    if (!shippingInfo.email.trim() || !shippingInfo.email.includes('@')) {
+      setError('Valid email is required');
+      return false;
+    }
+    if (!shippingInfo.phone.trim()) {
+      setError('Phone number is required');
+      return false;
+    }
+    if (!shippingInfo.address.trim()) {
+      setError('Address is required');
+      return false;
+    }
+    if (!shippingInfo.city.trim()) {
+      setError('City is required');
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
   const handleNext = () => {
+    if (activeStep === 0 && !validateShippingInfo()) {
+      return;
+    }
     if (activeStep === steps.length - 1) {
       handlePlaceOrder();
     } else {
@@ -107,48 +153,169 @@ export function CheckoutView() {
 
   const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value });
+    setError(null);
+  };
+
+  const buildOrderData = () => ({
+    customerId: user?.uid || '',
+    customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+    customerEmail: shippingInfo.email,
+    customerPhone: shippingInfo.phone,
+    items: items.map((item) => ({
+      productId: item.id,
+      productName: item.name,
+      productImage: item.coverUrl,
+      sku: item.id,
+      quantity: item.quantity,
+      unitPrice: item.price,
+      totalPrice: item.price * item.quantity,
+    })),
+    subtotal,
+    deliveryFee: shipping,
+    discount,
+    total,
+    paymentMethod,
+    shippingAddress: {
+      fullName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+      phone: shippingInfo.phone,
+      email: shippingInfo.email,
+      addressLine1: shippingInfo.address,
+      city: shippingInfo.city,
+      district: shippingInfo.district,
+      country: 'Uganda',
+      deliveryInstructions: shippingInfo.notes,
+    },
+    notes: shippingInfo.notes,
+  });
+
+  const sendConfirmationEmail = async (orderNumber: string) => {
+    try {
+      await fetch('/api/orders/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNumber,
+          customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          customerEmail: shippingInfo.email,
+          items: items.map((item) => ({
+            productName: item.name,
+            quantity: item.quantity,
+            unitPrice: item.price,
+            totalPrice: item.price * item.quantity,
+          })),
+          subtotal,
+          deliveryFee: shipping,
+          discount,
+          total,
+          shippingAddress: {
+            fullName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+            addressLine1: shippingInfo.address,
+            city: shippingInfo.city,
+            phone: shippingInfo.phone,
+          },
+          paymentMethod,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to send confirmation email:', err);
+    }
   };
 
   const handlePlaceOrder = async () => {
-    setLoading(true);
-
-    if (paymentMethod === 'flutterwave') {
-      // Initialize Flutterwave payment
-      initializeFlutterwavePayment();
-    } else {
-      // Handle other payment methods
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      // Redirect to success page
-      window.location.href = `${paths.checkout}?step=3`;
+    if (!authenticated || !user) {
+      router.push(paths.auth.firebase.signIn);
+      return;
     }
 
-    setLoading(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (paymentMethod === 'cash_on_delivery') {
+        // For cash on delivery, create order directly
+        const result = await createOrder(buildOrderData());
+        if (result) {
+          await sendConfirmationEmail(result.orderNumber);
+          checkout.onResetCart();
+          router.push(`/checkout/success?orderId=${result.orderId}&orderNumber=${result.orderNumber}`);
+        } else {
+          setError(orderError || 'Failed to create order');
+        }
+      } else {
+        // For Flutterwave payments (card or mobile money)
+        await initializeFlutterwavePayment();
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const initializeFlutterwavePayment = () => {
-    // Flutterwave payment integration placeholder
-    // This will be implemented with actual Flutterwave SDK
-    const paymentConfig = {
-      public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || 'FLWPUBK_TEST-PLACEHOLDER',
-      tx_ref: `CP-${Date.now()}`,
-      amount: total,
-      currency: 'UGX',
-      payment_options: 'card,mobilemoneyuganda,banktransfer',
-      customer: {
-        email: shippingInfo.email,
-        phone_number: shippingInfo.phone,
-        name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-      },
-      customizations: {
-        title: 'ComponentPulse',
-        description: 'Payment for order',
-        logo: 'https://componentpulse.com/logo.png',
-      },
-    };
+  const initializeFlutterwavePayment = async () => {
+    const publicKey = process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
+    
+    if (!publicKey) {
+      setError('Payment configuration error. Please contact support.');
+      return;
+    }
 
-    // For now, show alert - actual implementation will use Flutterwave SDK
-    alert(`Flutterwave payment would be initiated with amount: ${fCurrency(total)}\n\nTo complete integration, add NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY to your environment variables.`);
-    console.log('Payment config:', paymentConfig);
+    const txRef = generateTxRef('CP');
+    const paymentOptions = paymentMethod === 'mobile_money' 
+      ? FLUTTERWAVE_PAYMENT_OPTIONS.mobileMoney 
+      : FLUTTERWAVE_PAYMENT_OPTIONS.card;
+
+    try {
+      await initiateFlutterwavePayment(
+        {
+          public_key: publicKey,
+          tx_ref: txRef,
+          amount: total,
+          currency: 'UGX',
+          payment_options: paymentOptions,
+          customer: {
+            email: shippingInfo.email,
+            phone_number: shippingInfo.phone,
+            name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          },
+          customizations: {
+            title: 'ComponentPulse',
+            description: `Payment for ${items.length} item(s)`,
+            logo: `${process.env.NEXT_PUBLIC_APP_URL}/logo/logo-single.svg`,
+          },
+          meta: {
+            consumer_id: user?.uid,
+            consumer_email: shippingInfo.email,
+          },
+        },
+        async (response) => {
+          // Payment successful
+          if (response.status === 'successful') {
+            const orderData = {
+              ...buildOrderData(),
+              paymentReference: response.flw_ref,
+            };
+            
+            const result = await createOrder(orderData);
+            if (result) {
+              await sendConfirmationEmail(result.orderNumber);
+              checkout.onResetCart();
+              router.push(`/checkout/success?orderId=${result.orderId}&orderNumber=${result.orderNumber}`);
+            } else {
+              setError('Payment successful but order creation failed. Please contact support with reference: ' + response.flw_ref);
+            }
+          } else {
+            setError('Payment was not successful. Please try again.');
+          }
+        },
+        () => {
+          // Payment modal closed
+          setLoading(false);
+        }
+      );
+    } catch (err: any) {
+      setError(err.message || 'Failed to initialize payment');
+    }
   };
 
   const isEmpty = items.length === 0;
@@ -327,7 +494,7 @@ export function CheckoutView() {
 
       <RadioGroup
         value={paymentMethod}
-        onChange={(e) => setPaymentMethod(e.target.value)}
+        onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
       >
         <Stack spacing={2}>
           {PAYMENT_OPTIONS.map((option) => (
@@ -381,7 +548,7 @@ export function CheckoutView() {
         </Alert>
       )}
 
-      {paymentMethod === 'cash' && (
+      {paymentMethod === 'cash_on_delivery' && (
         <Alert severity="warning" sx={{ mt: 3 }}>
           Cash on Delivery is only available within Kampala. An additional UGX 5,000 handling fee may apply.
         </Alert>
@@ -490,11 +657,23 @@ export function CheckoutView() {
             {activeStep === 1 && renderDeliveryStep()}
             {activeStep === 2 && renderPaymentStep()}
 
+            {error && (
+              <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError(null)}>
+                {error}
+              </Alert>
+            )}
+
+            {!authenticated && activeStep === steps.length - 1 && (
+              <Alert severity="warning" sx={{ mt: 2 }}>
+                Please <RouterLink href={paths.auth.firebase.signIn} style={{ fontWeight: 'bold' }}>sign in</RouterLink> to complete your order.
+              </Alert>
+            )}
+
             <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
               <Button
                 variant="outlined"
                 onClick={handleBack}
-                disabled={activeStep === 0}
+                disabled={activeStep === 0 || loading || creatingOrder}
                 startIcon={<Iconify icon="solar:arrow-left-bold" />}
               >
                 Back
@@ -503,16 +682,22 @@ export function CheckoutView() {
               <Button
                 variant="contained"
                 onClick={handleNext}
-                disabled={loading}
+                disabled={loading || creatingOrder}
                 endIcon={
-                  activeStep === steps.length - 1 ? (
+                  loading || creatingOrder ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : activeStep === steps.length - 1 ? (
                     <Iconify icon="solar:card-bold" />
                   ) : (
                     <Iconify icon="solar:arrow-right-bold" />
                   )
                 }
               >
-                {activeStep === steps.length - 1 ? 'Place Order' : 'Continue'}
+                {loading || creatingOrder 
+                  ? 'Processing...' 
+                  : activeStep === steps.length - 1 
+                    ? 'Place Order' 
+                    : 'Continue'}
               </Button>
             </Stack>
           </Grid>

@@ -2,6 +2,7 @@
 
 import type { Order, OrderStatus } from 'src/types/order';
 
+import { useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -22,6 +23,8 @@ import FormControl from '@mui/material/FormControl';
 import TableContainer from '@mui/material/TableContainer';
 import InputAdornment from '@mui/material/InputAdornment';
 import CircularProgress from '@mui/material/CircularProgress';
+
+import { paths } from 'src/routes/paths';
 
 import { useOrders, useOrderMutations } from 'src/hooks/firebase';
 
@@ -60,6 +63,7 @@ const STATUS_COLORS: Record<OrderStatus, 'default' | 'primary' | 'secondary' | '
 // ----------------------------------------------------------------------
 
 export function OrderListView() {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<OrderStatus | ''>('');
 
@@ -68,6 +72,10 @@ export function OrderListView() {
     status: statusFilter || undefined,
   });
   const { updateOrderStatus, loading: mutating } = useOrderMutations();
+
+  const handleViewOrder = (orderId: string) => {
+    router.push(paths.admin.orders.details(orderId));
+  };
 
   const handleStatusChange = useCallback(async (order: Order, newStatus: OrderStatus) => {
     const success = await updateOrderStatus(order.id, newStatus);
@@ -185,7 +193,7 @@ export function OrderListView() {
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
-                      <IconButton>
+                      <IconButton onClick={() => handleViewOrder(order.id)}>
                         <Iconify icon="solar:eye-bold" />
                       </IconButton>
                     </TableCell>
