@@ -236,7 +236,7 @@ export function MainLayout({
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
         slotProps={{
-          container: { maxWidth: 'xl' },
+          container: { maxWidth: 'lg' },
           ...slotProps?.header?.slotProps,
         }}
         sx={slotProps?.header?.sx}

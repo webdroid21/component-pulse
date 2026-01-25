@@ -6,23 +6,19 @@ import { useRouter } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Chip from '@mui/material/Chip';
-import Table from '@mui/material/Table';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
+import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
-import TableContainer from '@mui/material/TableContainer';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { useCustomerOrders } from 'src/hooks/firebase';
 
-import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
+import { fDate, fDateTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -30,26 +26,20 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-const STATUS_COLORS: Record<OrderStatus, 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'> = {
-  pending: 'warning',
-  confirmed: 'info',
-  processing: 'info',
-  ready_for_pickup: 'secondary',
-  out_for_delivery: 'primary',
-  delivered: 'success',
-  cancelled: 'error',
-  refunded: 'default',
-};
-
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: 'Pending',
-  confirmed: 'Confirmed',
-  processing: 'Processing',
-  ready_for_pickup: 'Ready for Pickup',
-  out_for_delivery: 'Out for Delivery',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-  refunded: 'Refunded',
+const STATUS_CONFIG: Record<OrderStatus, { 
+  label: string; 
+  color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
+  icon: string;
+  bgColor: string;
+}> = {
+  pending: { label: 'Pending', color: 'warning', icon: 'solar:clock-circle-bold', bgColor: 'warning.lighter' },
+  confirmed: { label: 'Confirmed', color: 'info', icon: 'solar:check-circle-bold', bgColor: 'info.lighter' },
+  processing: { label: 'Processing', color: 'info', icon: 'solar:box-bold', bgColor: 'info.lighter' },
+  ready_for_pickup: { label: 'Ready for Pickup', color: 'secondary', icon: 'solar:bag-check-bold', bgColor: 'secondary.lighter' },
+  out_for_delivery: { label: 'Out for Delivery', color: 'primary', icon: 'solar:delivery-bold', bgColor: 'primary.lighter' },
+  delivered: { label: 'Delivered', color: 'success', icon: 'solar:verified-check-bold', bgColor: 'success.lighter' },
+  cancelled: { label: 'Cancelled', color: 'error', icon: 'solar:close-circle-bold', bgColor: 'error.lighter' },
+  refunded: { label: 'Refunded', color: 'default', icon: 'solar:undo-left-bold', bgColor: 'grey.200' },
 };
 
 // ----------------------------------------------------------------------
@@ -57,7 +47,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 export function AccountOrdersView() {
   const router = useRouter();
   const { user } = useAuthContext();
-  const { orders, loading } = useCustomerOrders(user?.uid || null);
+  const { orders, loading, error } = useCustomerOrders(user?.uid || null);
 
   const handleViewOrder = (orderId: string) => {
     router.push(paths.account.order(orderId));
@@ -65,92 +55,190 @@ export function AccountOrdersView() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 10 }}>
         <CircularProgress />
       </Box>
     );
   }
 
-  return (
-    <Card sx={{ p: 3 }}>
-      <Typography variant="h6" sx={{ mb: 3 }}>
-        Order History
-      </Typography>
+  if (error) {
+    return (
+      <Card sx={{ p: 4, textAlign: 'center' }}>
+        <Iconify icon="solar:danger-triangle-bold" width={48} sx={{ color: 'error.main', mb: 2 }} />
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Failed to load orders
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Please try again later or contact support if the problem persists.
+        </Typography>
+      </Card>
+    );
+  }
 
-      {orders.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 5 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            You haven&apos;t placed any orders yet.
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-            Start shopping to see your orders here!
-          </Typography>
+  if (orders.length === 0) {
+    return (
+      <Card sx={{ p: 5, textAlign: 'center' }}>
+        <Box
+          sx={{
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            bgcolor: 'grey.100',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mx: 'auto',
+            mb: 3,
+          }}
+        >
+          <Iconify icon="solar:bag-4-bold-duotone" width={40} sx={{ color: 'text.disabled' }} />
         </Box>
-      ) : (
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          No orders yet
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+          When you place orders, they will appear here for you to track.
+        </Typography>
+        <Button
+          component={RouterLink}
+          href={paths.products}
+          variant="contained"
+          startIcon={<Iconify icon="solar:shop-bold" />}
+        >
+          Start Shopping
+        </Button>
+      </Card>
+    );
+  }
 
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow 
-                  key={order.id} 
-                  hover 
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => handleViewOrder(order.id)}
-                >
-                  <TableCell>
-                    <Typography variant="subtitle2">#{order.orderNumber}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {order.createdAt ? fDateTime(order.createdAt.toDate()) : '-'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">
-                      {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+  return (
+    <Stack spacing={3}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h6">
+          Order History ({orders.length})
+        </Typography>
+      </Box>
+
+      <Stack spacing={2}>
+        {orders.map((order) => {
+          const statusConfig = STATUS_CONFIG[order.status];
+          
+          return (
+            <Card
+              key={order.id}
+              sx={{
+                p: 0,
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                '&:hover': {
+                  boxShadow: (theme) => theme.shadows[8],
+                  transform: 'translateY(-2px)',
+                },
+              }}
+              onClick={() => handleViewOrder(order.id)}
+            >
+              {/* Status Banner */}
+              <Box
+                sx={{
+                  px: 2,
+                  py: 1,
+                  bgcolor: statusConfig.bgColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Iconify icon={statusConfig.icon} width={18} sx={{ color: `${statusConfig.color}.main` }} />
+                  <Typography variant="subtitle2" sx={{ color: `${statusConfig.color}.dark` }}>
+                    {statusConfig.label}
+                  </Typography>
+                </Stack>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                  {order.createdAt ? fDate(order.createdAt.toDate()) : '-'}
+                </Typography>
+              </Box>
+
+              {/* Order Content */}
+              <Box sx={{ p: 2 }}>
+                <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      Order #{order.orderNumber}
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      {order.items.map((item) => item.productName).slice(0, 2).join(', ')}
-                      {order.items.length > 2 && '...'}
+                      {order.createdAt ? fDateTime(order.createdAt.toDate()) : '-'}
                     </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{fCurrency(order.total)}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={STATUS_LABELS[order.status]}
-                      color={STATUS_COLORS[order.status]}
+                  </Box>
+                  <Typography variant="h6" sx={{ color: 'primary.main' }}>
+                    {fCurrency(order.total)}
+                  </Typography>
+                </Stack>
+
+                {/* Items Preview */}
+                <Stack direction="row" spacing={1} sx={{ mb: 2, overflow: 'hidden' }}>
+                  {order.items.slice(0, 4).map((item, index) => (
+                    <Box
+                      key={index}
+                      component="img"
+                      src={item.productImage || '/assets/placeholder.png'}
+                      alt={item.productName}
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 1,
+                        objectFit: 'cover',
+                        bgcolor: 'grey.100',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                      }}
                     />
-                  </TableCell>
-                  <TableCell align="right" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => handleViewOrder(order.id)}
-                      endIcon={<Iconify icon="solar:arrow-right-bold" width={16} />}
+                  ))}
+                  {order.items.length > 4 && (
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 1,
+                        bgcolor: 'grey.100',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                      }}
                     >
-                      View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Card>
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        +{order.items.length - 4}
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
+
+                <Divider sx={{ my: 1.5 }} />
+
+                {/* Footer */}
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                    {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                  </Typography>
+                  <Button
+                    size="small"
+                    endIcon={<Iconify icon="solar:arrow-right-bold" width={16} />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewOrder(order.id);
+                    }}
+                  >
+                    View Details
+                  </Button>
+                </Stack>
+              </Box>
+            </Card>
+          );
+        })}
+      </Stack>
+    </Stack>
   );
 }

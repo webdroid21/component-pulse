@@ -34,19 +34,25 @@ export function useOrders(filters?: OrderFilters) {
       setLoading(true);
       setError(null);
 
-      let q = query(collection(FIRESTORE, COLLECTION), orderBy('createdAt', 'desc'));
+      // Build query constraints - where clauses must come before orderBy
+      const constraints: any[] = [];
+
+      if (filters?.customerId) {
+        constraints.push(where('customerId', '==', filters.customerId));
+      }
 
       if (filters?.status) {
-        q = query(q, where('status', '==', filters.status));
+        constraints.push(where('status', '==', filters.status));
       }
 
       if (filters?.paymentStatus) {
-        q = query(q, where('paymentStatus', '==', filters.paymentStatus));
+        constraints.push(where('paymentStatus', '==', filters.paymentStatus));
       }
 
-      if (filters?.customerId) {
-        q = query(q, where('customerId', '==', filters.customerId));
-      }
+      // Add orderBy last
+      constraints.push(orderBy('createdAt', 'desc'));
+
+      const q = query(collection(FIRESTORE, COLLECTION), ...constraints);
 
       const snapshot = await getDocs(q);
       let data = snapshot.docs.map((docSnap) => ({
@@ -274,7 +280,7 @@ export function useCreateOrder() {
 
         // Create the order
         const orderRef = doc(collection(FIRESTORE, COLLECTION));
-        const orderData: Omit<Order, 'id'> = {
+        const orderData: Record<string, any> = {
           orderNumber,
           customerId: data.customerId,
           customerName: data.customerName,
@@ -284,15 +290,11 @@ export function useCreateOrder() {
           subtotal: data.subtotal,
           deliveryFee: data.deliveryFee,
           discount: data.discount,
-          couponCode: data.couponCode,
           total: data.total,
           status: 'pending',
-          paymentStatus: data.paymentMethod === 'cash_on_delivery' ? 'pending' : 'pending',
+          paymentStatus: 'pending',
           paymentMethod: data.paymentMethod,
           shippingAddress: data.shippingAddress,
-          deliveryZoneId: data.deliveryZoneId,
-          deliveryZoneName: data.deliveryZoneName,
-          notes: data.notes,
           statusHistory: [
             {
               status: 'pending',
@@ -300,15 +302,17 @@ export function useCreateOrder() {
               note: 'Order placed',
             },
           ],
-          createdAt: Timestamp.now() as any,
-          updatedAt: Timestamp.now() as any,
-        };
-
-        transaction.set(orderRef, {
-          ...orderData,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-        });
+        };
+
+        // Only add optional fields if they have values (Firestore doesn't accept undefined)
+        if (data.couponCode) orderData.couponCode = data.couponCode;
+        if (data.deliveryZoneId) orderData.deliveryZoneId = data.deliveryZoneId;
+        if (data.deliveryZoneName) orderData.deliveryZoneName = data.deliveryZoneName;
+        if (data.notes) orderData.notes = data.notes;
+
+        transaction.set(orderRef, orderData);
 
         // Reduce stock for each product
         for (const item of data.items) {
