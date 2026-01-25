@@ -63,7 +63,7 @@ export function ProductDetailsView({ slug }: Props) {
 
   if (loading) {
     return (
-      <Container maxWidth="xl" sx={{ py: 5 }}>
+      <Container maxWidth="lg" sx={{ py: 5 }}>
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Skeleton variant="rectangular" height={500} sx={{ borderRadius: 2 }} />
@@ -81,7 +81,7 @@ export function ProductDetailsView({ slug }: Props) {
 
   if (!product) {
     return (
-      <Container maxWidth="xl" sx={{ py: 10, textAlign: 'center' }}>
+      <Container maxWidth="lg" sx={{ py: 10, textAlign: 'center' }}>
         <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
         <Typography variant="h5" sx={{ mb: 1 }}>
           Product not found
@@ -102,7 +102,7 @@ export function ProductDetailsView({ slug }: Props) {
 
   return (
     <Box sx={{ py: { xs: 3, md: 5 } }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         {/* Breadcrumbs */}
         <Breadcrumbs sx={{ mb: 4 }}>
           <Link component={RouterLink} href="/" color="inherit" underline="hover">

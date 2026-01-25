@@ -160,7 +160,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 export function MyView() {
   return (
-    <DashboardContent maxWidth="xl">
+    <DashboardContent maxWidth="lg">
       <CustomBreadcrumbs heading="Title" links={[...]} />
       {/* Content */}
     </DashboardContent>

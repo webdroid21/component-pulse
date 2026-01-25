@@ -137,7 +137,7 @@ export function ProductShopView() {
 
   return (
     <Box sx={{ py: { xs: 4, md: 6 } }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         {/* Header */}
         <Box sx={{ mb: 5 }}>
           <Typography variant="h3" sx={{ mb: 1 }}>
@@ -220,25 +220,25 @@ export function ProductShopView() {
         >
           {loading
             ? Array.from({ length: 8 }).map((_, index) => (
-                <Card key={index}>
-                  <Skeleton variant="rectangular" height={220} />
-                  <CardContent>
-                    <Skeleton variant="text" width="40%" height={16} />
-                    <Skeleton variant="text" width="80%" height={24} />
-                    <Skeleton variant="text" width="50%" height={28} sx={{ mt: 1 }} />
-                  </CardContent>
-                </Card>
-              ))
+              <Card key={index}>
+                <Skeleton variant="rectangular" height={220} />
+                <CardContent>
+                  <Skeleton variant="text" width="40%" height={16} />
+                  <Skeleton variant="text" width="80%" height={24} />
+                  <Skeleton variant="text" width="50%" height={28} sx={{ mt: 1 }} />
+                </CardContent>
+              </Card>
+            ))
             : paginatedProducts.map((product, index) => (
-                <m.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <ProductItem product={product} />
-                </m.div>
-              ))}
+              <m.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+              >
+                <ProductItem product={product} />
+              </m.div>
+            ))}
         </Box>
 
         {/* Empty state */}

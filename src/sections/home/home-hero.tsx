@@ -53,7 +53,7 @@ export function HomeHero() {
       />
 
       {/* Content */}
-      <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
         <Box sx={{ maxWidth: 680 }}>
           <m.div
             initial={{ opacity: 0, y: 40 }}

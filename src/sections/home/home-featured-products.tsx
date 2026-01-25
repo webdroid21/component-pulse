@@ -44,7 +44,7 @@ export function HomeFeaturedProducts() {
 
   return (
     <Box sx={{ py: { xs: 8, md: 12 } }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 6 }}>
           <m.div
             initial={{ opacity: 0, x: -20 }}
@@ -91,145 +91,145 @@ export function HomeFeaturedProducts() {
         >
           {loading
             ? Array.from({ length: 8 }).map((_, index) => (
-                <Card key={index}>
-                  <Skeleton variant="rectangular" height={200} />
-                  <CardContent>
-                    <Skeleton variant="text" width="60%" />
-                    <Skeleton variant="text" width="40%" />
-                    <Skeleton variant="text" width="30%" />
-                  </CardContent>
-                </Card>
-              ))
+              <Card key={index}>
+                <Skeleton variant="rectangular" height={200} />
+                <CardContent>
+                  <Skeleton variant="text" width="60%" />
+                  <Skeleton variant="text" width="40%" />
+                  <Skeleton variant="text" width="30%" />
+                </CardContent>
+              </Card>
+            ))
             : products.slice(0, 8).map((product, index) => (
-                <m.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      '&:hover': {
-                        '& .product-image': {
-                          transform: 'scale(1.05)',
-                        },
-                        '& .add-to-cart': {
-                          opacity: 1,
-                          transform: 'translateY(0)',
-                        },
+              <m.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    '&:hover': {
+                      '& .product-image': {
+                        transform: 'scale(1.05)',
                       },
-                    }}
-                  >
-                    <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                      <CardMedia
-                        className="product-image"
-                        component="img"
-                        height="200"
-                        image={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80'}
-                        alt={product.name}
-                        sx={{ transition: 'transform 0.3s' }}
-                      />
+                      '& .add-to-cart': {
+                        opacity: 1,
+                        transform: 'translateY(0)',
+                      },
+                    },
+                  }}
+                >
+                  <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                    <CardMedia
+                      className="product-image"
+                      component="img"
+                      height="200"
+                      image={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80'}
+                      alt={product.name}
+                      sx={{ transition: 'transform 0.3s' }}
+                    />
 
-                      {product.salePrice && product.salePrice < product.price && (
-                        <Chip
-                          label={`-${Math.round(((product.price - product.salePrice) / product.price) * 100)}%`}
-                          color="error"
-                          size="small"
-                          sx={{
-                            position: 'absolute',
-                            top: 12,
-                            left: 12,
-                            fontWeight: 700,
-                          }}
-                        />
-                      )}
-
-                      <IconButton
+                    {product.salePrice && product.salePrice < product.price && (
+                      <Chip
+                        label={`-${Math.round(((product.price - product.salePrice) / product.price) * 100)}%`}
+                        color="error"
+                        size="small"
                         sx={{
                           position: 'absolute',
                           top: 12,
-                          right: 12,
-                          bgcolor: 'background.paper',
-                          '&:hover': { bgcolor: 'background.paper', color: 'error.main' },
+                          left: 12,
+                          fontWeight: 700,
                         }}
-                      >
-                        <Iconify icon="solar:heart-bold" width={20} />
-                      </IconButton>
+                      />
+                    )}
 
-                      <Button
-                        className="add-to-cart"
-                        variant="contained"
-                        size="small"
-                        startIcon={<Iconify icon="solar:cart-plus-bold" />}
-                        onClick={() => handleAddToCart(product)}
-                        sx={{
-                          position: 'absolute',
-                          bottom: 12,
-                          left: '50%',
-                          transform: 'translateX(-50%) translateY(20px)',
-                          opacity: 0,
-                          transition: 'all 0.3s',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        Add to Cart
-                      </Button>
-                    </Box>
+                    <IconButton
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        bgcolor: 'background.paper',
+                        '&:hover': { bgcolor: 'background.paper', color: 'error.main' },
+                      }}
+                    >
+                      <Iconify icon="solar:heart-bold" width={20} />
+                    </IconButton>
 
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography
-                        variant="caption"
-                        sx={{ color: 'text.secondary', textTransform: 'uppercase' }}
-                      >
-                        {product.categoryName || 'Electronics'}
-                      </Typography>
+                    <Button
+                      className="add-to-cart"
+                      variant="contained"
+                      size="small"
+                      startIcon={<Iconify icon="solar:cart-plus-bold" />}
+                      onClick={() => handleAddToCart(product)}
+                      sx={{
+                        position: 'absolute',
+                        bottom: 12,
+                        left: '50%',
+                        transform: 'translateX(-50%) translateY(20px)',
+                        opacity: 0,
+                        transition: 'all 0.3s',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Add to Cart
+                    </Button>
+                  </Box>
 
-                      <Typography
-                        component={RouterLink}
-                        href={paths.product(product.slug || product.id)}
-                        variant="subtitle1"
-                        sx={{
-                          display: 'block',
-                          mt: 0.5,
-                          mb: 1,
-                          color: 'text.primary',
-                          textDecoration: 'none',
-                          '&:hover': { color: 'primary.main' },
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {product.name}
-                      </Typography>
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: 'text.secondary', textTransform: 'uppercase' }}
+                    >
+                      {product.categoryName || 'Electronics'}
+                    </Typography>
 
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        {product.salePrice && product.salePrice < product.price ? (
-                          <>
-                            <Typography variant="h6" sx={{ color: 'error.main' }}>
-                              {fCurrency(product.salePrice)}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
-                            >
-                              {fCurrency(product.price)}
-                            </Typography>
-                          </>
-                        ) : (
-                          <Typography variant="h6">
+                    <Typography
+                      component={RouterLink}
+                      href={paths.product(product.slug || product.id)}
+                      variant="subtitle1"
+                      sx={{
+                        display: 'block',
+                        mt: 0.5,
+                        mb: 1,
+                        color: 'text.primary',
+                        textDecoration: 'none',
+                        '&:hover': { color: 'primary.main' },
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {product.name}
+                    </Typography>
+
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      {product.salePrice && product.salePrice < product.price ? (
+                        <>
+                          <Typography variant="h6" sx={{ color: 'error.main' }}>
+                            {fCurrency(product.salePrice)}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                          >
                             {fCurrency(product.price)}
                           </Typography>
-                        )}
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                </m.div>
-              ))}
+                        </>
+                      ) : (
+                        <Typography variant="h6">
+                          {fCurrency(product.price)}
+                        </Typography>
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </m.div>
+            ))}
         </Box>
       </Container>
     </Box>

@@ -130,7 +130,7 @@ export function MainLayout({
             display: { xs: 'none', md: 'block' },
           }}
         >
-          <Container maxWidth="xl">
+          <Container maxWidth="lg">
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Typography variant="caption">
                 ⚡ Free shipping on orders over UGX 500,000
@@ -253,7 +253,7 @@ export function MainLayout({
         color: 'common.white',
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Box
           sx={{
             display: 'grid',

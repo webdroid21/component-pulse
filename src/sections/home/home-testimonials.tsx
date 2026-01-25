@@ -62,7 +62,7 @@ const TESTIMONIALS = [
 export function HomeTestimonials() {
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'grey.900', color: 'common.white' }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 8 }}>
           <m.div
             initial={{ opacity: 0, y: 20 }}

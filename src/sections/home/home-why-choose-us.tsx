@@ -73,7 +73,7 @@ export function HomeWhyChooseUs() {
         }}
       />
 
-      <Container maxWidth="xl" sx={{ position: 'relative' }}>
+      <Container maxWidth="lg" sx={{ position: 'relative' }}>
         <Box sx={{ textAlign: 'center', mb: 8 }}>
           <m.div
             initial={{ opacity: 0, y: 20 }}

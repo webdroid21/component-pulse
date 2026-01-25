@@ -23,7 +23,7 @@ export function AdminDashboardView() {
   const { user } = useAuthContext();
 
   return (
-    <DashboardContent maxWidth="xl">
+    <DashboardContent maxWidth="lg">
       <Box sx={{ mb: 5 }}>
         <Typography variant="h4">
           Welcome back, {user?.displayName || 'Admin'} 👋

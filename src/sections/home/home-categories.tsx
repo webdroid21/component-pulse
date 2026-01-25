@@ -70,7 +70,7 @@ const CATEGORIES = [
 export function HomeCategories() {
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'grey.100' }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 8 }}>
           <m.div
             initial={{ opacity: 0, y: 20 }}

@@ -20,7 +20,7 @@ const BRANDS = [
 export function HomeBrands() {
   return (
     <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'grey.50' }}>
-      <Container maxWidth="xl">
+      <Container maxWidth="lg">
         <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
