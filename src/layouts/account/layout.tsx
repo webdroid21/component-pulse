@@ -40,7 +40,7 @@ export function AccountLayout({ children }: AccountLayoutProps) {
   const { user } = useAuthContext();
 
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'Customer';
-  const initials = displayName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+  const initials = displayName.split(' ').map((n: any) => n[0]).join('').toUpperCase().slice(0, 2);
 
   const renderSidebar = (
     <Card sx={{ p: 3 }}>
