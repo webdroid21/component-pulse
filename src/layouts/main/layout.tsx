@@ -17,6 +17,7 @@ import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { paths } from 'src/routes/paths';
@@ -65,6 +66,9 @@ export function MainLayout({
   const { value: mobileOpen, onFalse: onMobileClose, onTrue: onMobileOpen } = useBoolean();
 
   const isHomePage = pathname === '/';
+
+
+  const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
   const renderMobileNav = () => (
     <Drawer
@@ -132,14 +136,22 @@ export function MainLayout({
         >
           <Container maxWidth="lg">
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="caption">
-                ⚡ Free shipping on orders over UGX 500,000
-              </Typography>
+              <Typography variant="caption">⚡ Free shipping on orders over UGX 500,000</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Link href="tel:+256700000000" color="inherit" underline="hover" sx={{ typography: 'caption' }}>
+                <Link
+                  href="tel:+256700000000"
+                  color="inherit"
+                  underline="hover"
+                  sx={{ typography: 'caption' }}
+                >
                   📞 +256 700 000 000
                 </Link>
-                <Link href="mailto:info@componentpulse.com" color="inherit" underline="hover" sx={{ typography: 'caption' }}>
+                <Link
+                  href="mailto:info@componentpulse.com"
+                  color="inherit"
+                  underline="hover"
+                  sx={{ typography: 'caption' }}
+                >
                   ✉️ info@componentpulse.com
                 </Link>
               </Box>
@@ -149,13 +161,14 @@ export function MainLayout({
       ),
       leftArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton
-            onClick={onMobileOpen}
-            sx={{ display: { [layoutQuery]: 'none' } }}
-          >
+          <IconButton onClick={onMobileOpen} sx={{ display: { [layoutQuery]: 'none' } }}>
             <Iconify icon="solar:hamburger-menu-bold-duotone" width={24} />
           </IconButton>
+          {mdUp ?
+          <Logo isSingle={false} />
+            :
           <Logo />
+          }
         </Box>
       ),
       rightArea: (
@@ -267,7 +280,7 @@ export function MainLayout({
         >
           {/* Company Info */}
           <Box>
-            <Logo sx={{ mb: 3 }} />
+            <Logo isSingle={false} sx={{ mb: 3 }} />
             <Typography variant="body2" sx={{ color: 'grey.400', mb: 2 }}>
               Your trusted source for quality electronic components, solar equipment, and electrical supplies in Uganda.
             </Typography>
