@@ -155,6 +155,24 @@ export function useAdminMutations() {
     }
   };
 
+  const demoteToCustomer = async (admin: AdminUser): Promise<boolean> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Delete admin record - the user record in 'users' collection remains
+      await deleteDoc(doc(FIRESTORE, COLLECTION, admin.id));
+
+      return true;
+    } catch (err) {
+      console.error('Error demoting admin to customer:', err);
+      setError('Failed to demote admin to customer');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
@@ -163,5 +181,6 @@ export function useAdminMutations() {
     updateAdminRole,
     toggleAdminStatus,
     deleteAdmin,
+    demoteToCustomer,
   };
 }

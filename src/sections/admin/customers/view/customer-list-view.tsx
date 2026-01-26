@@ -1,14 +1,18 @@
 'use client';
 
+import type { Customer, AdminRole } from 'src/hooks/firebase';
+
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Table from '@mui/material/Table';
+import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Avatar from '@mui/material/Avatar';
+import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
 import TableBody from '@mui/material/TableBody';
@@ -33,12 +37,20 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
+const ROLE_OPTIONS: { value: AdminRole; label: string; description: string }[] = [
+  { value: 'staff', label: 'Staff', description: 'Basic admin access' },
+  { value: 'admin', label: 'Admin', description: 'Full admin access' },
+  { value: 'super_admin', label: 'Super Admin', description: 'Complete system access' },
+];
+
 export function CustomerListView() {
   const { customers, loading, refetch } = useCustomers();
-  const { toggleCustomerStatus, deleteCustomer, loading: mutating } = useCustomerMutations();
+  const { toggleCustomerStatus, deleteCustomer, promoteToAdmin, loading: mutating } = useCustomerMutations();
 
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [promoteTarget, setPromoteTarget] = useState<Customer | null>(null);
+  const [selectedRole, setSelectedRole] = useState<AdminRole>('staff');
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -58,6 +70,17 @@ export function CustomerListView() {
       if (success) {
         refetch();
         setDeleteConfirm(null);
+      }
+    }
+  };
+
+  const handlePromote = async () => {
+    if (promoteTarget) {
+      const success = await promoteToAdmin(promoteTarget, selectedRole);
+      if (success) {
+        refetch();
+        setPromoteTarget(null);
+        setSelectedRole('staff');
       }
     }
   };
@@ -151,10 +174,18 @@ export function CustomerListView() {
                     <TableCell align="right">
                       <IconButton
                         size="small"
+                        color="primary"
+                        onClick={() => setPromoteTarget(customer)}
+                        title="Promote to Admin"
+                      >
+                        <Iconify icon="solar:shield-user-bold" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
                         onClick={() => handleToggleStatus(customer.id, customer.isActive)}
                         title={customer.isActive ? 'Deactivate' : 'Activate'}
                       >
-                        <Iconify icon="solar:settings-bold" />
+                        <Iconify icon={customer.isActive ? 'solar:user-block-bold' : 'solar:user-check-bold'} />
                       </IconButton>
                       <IconButton
                         size="small"
@@ -172,6 +203,41 @@ export function CustomerListView() {
           </TableContainer>
         )}
       </Card>
+
+      {/* Promote to Admin Dialog */}
+      <Dialog open={!!promoteTarget} onClose={() => setPromoteTarget(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Promote to Admin</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 2 }}>
+            Promote <strong>{promoteTarget?.displayName || promoteTarget?.email}</strong> to admin?
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+            Select the admin role for this user:
+          </Typography>
+          <Select
+            fullWidth
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
+          >
+            {ROLE_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <Box>
+                  <Typography variant="body2">{option.label}</Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    {option.description}
+                  </Typography>
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPromoteTarget(null)}>Cancel</Button>
+          <Button variant="contained" onClick={handlePromote} disabled={mutating}>
+            Promote
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>

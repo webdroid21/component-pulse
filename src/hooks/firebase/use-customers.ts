@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   doc,
   query,
+  setDoc,
   getDoc,
   getDocs,
   updateDoc,
@@ -13,6 +14,8 @@ import {
   collection,
   serverTimestamp,
 } from 'firebase/firestore';
+
+import type { AdminRole } from './use-admins';
 
 import { FIRESTORE } from 'src/lib/firebase';
 
@@ -175,11 +178,42 @@ export function useCustomerMutations() {
     }
   };
 
+  const promoteToAdmin = async (customer: Customer, role: AdminRole = 'staff'): Promise<boolean> => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Create admin record
+      await setDoc(doc(FIRESTORE, 'admins', customer.id), {
+        uid: customer.id,
+        email: customer.email,
+        displayName: customer.displayName || `${customer.firstName} ${customer.lastName}`,
+        phone: customer.phone || '',
+        photoURL: customer.photoURL || '',
+        role,
+        permissions: [],
+        isActive: true,
+        createdBy: 'promotion',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      return true;
+    } catch (err) {
+      console.error('Error promoting customer to admin:', err);
+      setError('Failed to promote customer to admin');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
     updateCustomer,
     toggleCustomerStatus,
     deleteCustomer,
+    promoteToAdmin,
   };
 }

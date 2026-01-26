@@ -40,11 +40,12 @@ const ROLE_OPTIONS: { value: AdminRole; label: string; color: 'error' | 'warning
 
 export function AdminUsersListView() {
   const { admins, loading, refetch } = useAdmins();
-  const { updateAdminRole, toggleAdminStatus, deleteAdmin, loading: mutating } = useAdminMutations();
+  const { updateAdminRole, toggleAdminStatus, deleteAdmin, demoteToCustomer, loading: mutating } = useAdminMutations();
 
   const [editingAdmin, setEditingAdmin] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<AdminRole>('admin');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [demoteTarget, setDemoteTarget] = useState<typeof admins[0] | null>(null);
 
   const handleRoleChange = async () => {
     if (editingAdmin) {
@@ -67,6 +68,16 @@ export function AdminUsersListView() {
       if (success) {
         refetch();
         setDeleteConfirm(null);
+      }
+    }
+  };
+
+  const handleDemote = async () => {
+    if (demoteTarget) {
+      const success = await demoteToCustomer(demoteTarget);
+      if (success) {
+        refetch();
+        setDemoteTarget(null);
       }
     }
   };
@@ -135,10 +146,18 @@ export function AdminUsersListView() {
                       </IconButton>
                       <IconButton
                         size="small"
+                        color="warning"
+                        onClick={() => setDemoteTarget(admin)}
+                        title="Demote to Customer"
+                      >
+                        <Iconify icon="solar:user-minus-bold" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
                         onClick={() => handleToggleStatus(admin.id, admin.isActive)}
                         title={admin.isActive ? 'Deactivate' : 'Activate'}
                       >
-                        <Iconify icon="solar:settings-bold" />
+                        <Iconify icon={admin.isActive ? 'solar:user-block-bold' : 'solar:user-check-bold'} />
                       </IconButton>
                       <IconButton
                         size="small"
@@ -178,6 +197,25 @@ export function AdminUsersListView() {
           <Button onClick={() => setEditingAdmin(null)}>Cancel</Button>
           <Button variant="contained" onClick={handleRoleChange} disabled={mutating}>
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Demote to Customer Dialog */}
+      <Dialog open={!!demoteTarget} onClose={() => setDemoteTarget(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Demote to Customer</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to demote <strong>{demoteTarget?.displayName || demoteTarget?.email}</strong> to a regular customer?
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2 }}>
+            This will remove their admin privileges. They will still be able to access the site as a customer.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDemoteTarget(null)}>Cancel</Button>
+          <Button variant="contained" color="warning" onClick={handleDemote} disabled={mutating}>
+            Demote
           </Button>
         </DialogActions>
       </Dialog>
