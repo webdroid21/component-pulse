@@ -1,12 +1,14 @@
 'use client';
 
+import type { UserAddress } from 'src/types/user';
 import type { PaymentMethod } from 'src/types/order';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Chip from '@mui/material/Chip';
 import Step from '@mui/material/Step';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -15,6 +17,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Stepper from '@mui/material/Stepper';
 import Divider from '@mui/material/Divider';
+import Collapse from '@mui/material/Collapse';
 import StepLabel from '@mui/material/StepLabel';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
@@ -26,7 +29,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useCreateOrder } from 'src/hooks/firebase';
+import { useCreateOrder, useUserProfile } from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -83,9 +86,12 @@ export function CheckoutView() {
   const router = useRouter();
   const checkout = useCheckoutContext();
   const { user, authenticated } = useAuthContext();
+  const { profile } = useUserProfile();
   const { createOrder, loading: creatingOrder, error: orderError } = useCreateOrder();
 
   const [activeStep, setActiveStep] = useState(0);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [useNewAddress, setUseNewAddress] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
     lastName: '',
@@ -101,13 +107,45 @@ export function CheckoutView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const savedAddresses = profile?.addresses || [];
+  const defaultAddressId = profile?.defaultAddressId;
+
+  // Auto-select default address on load
+  useEffect(() => {
+    if (savedAddresses.length > 0 && !selectedAddressId && !useNewAddress) {
+      const defaultAddr = savedAddresses.find((addr) => addr.id === defaultAddressId);
+      setSelectedAddressId(defaultAddr?.id || savedAddresses[0].id);
+    }
+  }, [savedAddresses, defaultAddressId, selectedAddressId, useNewAddress]);
+
   const { items, subtotal, discount } = checkout.state;
   const shipping = deliveryOption;
   const total = subtotal - discount + shipping;
 
   const steps = ['Shipping', 'Delivery', 'Payment'];
 
+  const getSelectedAddress = (): UserAddress | null => {
+    if (useNewAddress || !selectedAddressId) return null;
+    return savedAddresses.find((addr) => addr.id === selectedAddressId) || null;
+  };
+
   const validateShippingInfo = (): boolean => {
+    // If using saved address, check if one is selected
+    if (!useNewAddress && savedAddresses.length > 0) {
+      if (!selectedAddressId) {
+        setError('Please select a delivery address');
+        return false;
+      }
+      // Validate email is still required
+      if (!shippingInfo.email.trim() || !shippingInfo.email.includes('@')) {
+        setError('Valid email is required');
+        return false;
+      }
+      setError(null);
+      return true;
+    }
+
+    // Validate new address form
     if (!shippingInfo.firstName.trim()) {
       setError('First name is required');
       return false;
@@ -156,26 +194,21 @@ export function CheckoutView() {
     setError(null);
   };
 
-  const buildOrderData = () => ({
-    customerId: user?.uid || '',
-    customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-    customerEmail: shippingInfo.email,
-    customerPhone: shippingInfo.phone,
-    items: items.map((item) => ({
-      productId: item.id,
-      productName: item.name,
-      productImage: item.coverUrl,
-      sku: item.id,
-      quantity: item.quantity,
-      unitPrice: item.price,
-      totalPrice: item.price * item.quantity,
-    })),
-    subtotal,
-    deliveryFee: shipping,
-    discount,
-    total,
-    paymentMethod,
-    shippingAddress: {
+  const buildOrderData = () => {
+    const selectedAddr = getSelectedAddress();
+    
+    // Use selected saved address or new address form
+    const shippingAddress = selectedAddr ? {
+      fullName: selectedAddr.fullName,
+      phone: selectedAddr.phone,
+      email: shippingInfo.email,
+      addressLine1: selectedAddr.addressLine1,
+      addressLine2: selectedAddr.addressLine2,
+      city: selectedAddr.city,
+      district: selectedAddr.district,
+      country: selectedAddr.country,
+      deliveryInstructions: selectedAddr.deliveryInstructions || shippingInfo.notes,
+    } : {
       fullName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
       phone: shippingInfo.phone,
       email: shippingInfo.email,
@@ -184,9 +217,31 @@ export function CheckoutView() {
       district: shippingInfo.district,
       country: 'Uganda',
       deliveryInstructions: shippingInfo.notes,
-    },
-    notes: shippingInfo.notes,
-  });
+    };
+
+    return {
+      customerId: user?.uid || '',
+      customerName: selectedAddr?.fullName || `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+      customerEmail: shippingInfo.email,
+      customerPhone: selectedAddr?.phone || shippingInfo.phone,
+      items: items.map((item) => ({
+        productId: item.id,
+        productName: item.name,
+        productImage: item.coverUrl,
+        sku: item.id,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalPrice: item.price * item.quantity,
+      })),
+      subtotal,
+      deliveryFee: shipping,
+      discount,
+      total,
+      paymentMethod,
+      shippingAddress,
+      notes: shippingInfo.notes,
+    };
+  };
 
   const sendConfirmationEmail = async (orderNumber: string) => {
     try {
@@ -348,93 +403,198 @@ export function CheckoutView() {
         Shipping Information
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="First Name"
-            name="firstName"
-            value={shippingInfo.firstName}
-            onChange={handleShippingChange}
-            required
-          />
+      {/* Email field - always required */}
+      <TextField
+        fullWidth
+        label="Email Address"
+        name="email"
+        type="email"
+        value={shippingInfo.email}
+        onChange={handleShippingChange}
+        required
+        sx={{ mb: 3 }}
+      />
+
+      {/* Saved Addresses Section */}
+      {authenticated && savedAddresses.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+            Select a delivery address
+          </Typography>
+          <Stack spacing={2}>
+            {savedAddresses.map((address) => (
+              <Card
+                key={address.id}
+                sx={{
+                  p: 2,
+                  cursor: 'pointer',
+                  border: 2,
+                  borderColor: selectedAddressId === address.id && !useNewAddress ? 'primary.main' : 'divider',
+                  bgcolor: selectedAddressId === address.id && !useNewAddress ? 'primary.lighter' : 'transparent',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: 'primary.light',
+                  },
+                }}
+                onClick={() => {
+                  setSelectedAddressId(address.id);
+                  setUseNewAddress(false);
+                  setError(null);
+                }}
+              >
+                <Stack direction="row" alignItems="flex-start" spacing={2}>
+                  <Radio
+                    checked={selectedAddressId === address.id && !useNewAddress}
+                    sx={{ p: 0, mt: 0.5 }}
+                  />
+                  <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                      <Typography variant="subtitle2">{address.label}</Typography>
+                      {address.id === defaultAddressId && (
+                        <Chip size="small" label="Default" color="primary" />
+                      )}
+                    </Stack>
+                    <Typography variant="body2">{address.fullName}</Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {address.phone}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {address.addressLine1}
+                      {address.addressLine2 && `, ${address.addressLine2}`}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {address.city}, {address.country}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Card>
+            ))}
+
+            {/* Add New Address Option */}
+            <Card
+              sx={{
+                p: 2,
+                cursor: 'pointer',
+                border: 2,
+                borderColor: useNewAddress ? 'primary.main' : 'divider',
+                bgcolor: useNewAddress ? 'primary.lighter' : 'transparent',
+                borderStyle: 'dashed',
+                transition: 'all 0.2s',
+                '&:hover': {
+                  borderColor: 'primary.light',
+                },
+              }}
+              onClick={() => {
+                setUseNewAddress(true);
+                setSelectedAddressId(null);
+                setError(null);
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Radio checked={useNewAddress} sx={{ p: 0 }} />
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Iconify icon="mingcute:add-line" width={20} />
+                  <Typography variant="subtitle2">Use a different address</Typography>
+                </Stack>
+              </Stack>
+            </Card>
+          </Stack>
+        </Box>
+      )}
+
+      {/* New Address Form - Show if no saved addresses or user chooses new address */}
+      <Collapse in={!authenticated || savedAddresses.length === 0 || useNewAddress}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="First Name"
+              name="firstName"
+              value={shippingInfo.firstName}
+              onChange={handleShippingChange}
+              required
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="Last Name"
+              name="lastName"
+              value={shippingInfo.lastName}
+              onChange={handleShippingChange}
+              required
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="Phone Number"
+              name="phone"
+              value={shippingInfo.phone}
+              onChange={handleShippingChange}
+              required
+              placeholder="+256..."
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <TextField
+              fullWidth
+              label="Address"
+              name="address"
+              value={shippingInfo.address}
+              onChange={handleShippingChange}
+              required
+              placeholder="Street address, building, floor..."
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="City"
+              name="city"
+              value={shippingInfo.city}
+              onChange={handleShippingChange}
+              required
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              label="District"
+              name="district"
+              value={shippingInfo.district}
+              onChange={handleShippingChange}
+            />
+          </Grid>
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="Last Name"
-            name="lastName"
-            value={shippingInfo.lastName}
-            onChange={handleShippingChange}
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="Email Address"
-            name="email"
-            type="email"
-            value={shippingInfo.email}
-            onChange={handleShippingChange}
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="Phone Number"
-            name="phone"
-            value={shippingInfo.phone}
-            onChange={handleShippingChange}
-            required
-            placeholder="+256..."
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <TextField
-            fullWidth
-            label="Address"
-            name="address"
-            value={shippingInfo.address}
-            onChange={handleShippingChange}
-            required
-            placeholder="Street address, building, floor..."
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="City"
-            name="city"
-            value={shippingInfo.city}
-            onChange={handleShippingChange}
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
-            label="District"
-            name="district"
-            value={shippingInfo.district}
-            onChange={handleShippingChange}
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            label="Order Notes (Optional)"
-            name="notes"
-            value={shippingInfo.notes}
-            onChange={handleShippingChange}
-            placeholder="Special instructions for delivery..."
-          />
-        </Grid>
-      </Grid>
+      </Collapse>
+
+      {/* Order Notes - Always visible */}
+      <TextField
+        fullWidth
+        multiline
+        rows={3}
+        label="Order Notes (Optional)"
+        name="notes"
+        value={shippingInfo.notes}
+        onChange={handleShippingChange}
+        placeholder="Special instructions for delivery..."
+        sx={{ mt: 3 }}
+      />
+
+      {/* Link to manage addresses */}
+      {authenticated && (
+        <Box sx={{ mt: 2 }}>
+          <Button
+            component={RouterLink}
+            href={paths.account.addresses}
+            size="small"
+            startIcon={<Iconify icon="solar:settings-bold" width={18} />}
+          >
+            Manage saved addresses
+          </Button>
+        </Box>
+      )}
     </Card>
   );
 
