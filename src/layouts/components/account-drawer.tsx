@@ -42,7 +42,7 @@ export type AccountDrawerProps = IconButtonProps & {
 export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const pathname = usePathname();
 
-  const { user } = useAuthContext();
+  const { user, loading, authenticated, checkUserSession } = useAuthContext();
 
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
@@ -175,7 +175,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
               }}
             >
               <Typography variant="caption" sx={{ color: 'primary.dark' }}>
-                {user?.role === 'super_admin' ? 'Super Administrator' : 
+                {user?.role === 'super_admin' ? 'Super Administrator' :
                  user?.role === 'admin' ? 'Administrator' : 'Staff Member'}
               </Typography>
             </Box>
