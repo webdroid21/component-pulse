@@ -2,6 +2,8 @@ import type { BoxProps } from '@mui/material/Box';
 import type { Theme, SxProps } from '@mui/material/styles';
 import type { Product } from 'src/types/product';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
@@ -10,7 +12,6 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
-import { varAlpha } from 'minimal-shared/utils';
 
 import { ProductCountdownBlock } from './product-countdown-block';
 

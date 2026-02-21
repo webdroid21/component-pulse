@@ -29,6 +29,8 @@ import { CustomPopover } from 'src/components/custom-popover';
 
 import { TicketChatDialog } from 'src/sections/account/tickets/ticket-chat-dialog';
 
+import { DashboardContent } from '../../../layouts/dashboard';
+
 // ----------------------------------------------------------------------
 
 export function AdminTicketsView() {
@@ -61,7 +63,7 @@ export function AdminTicketsView() {
     }
 
     return (
-        <>
+        <DashboardContent>
             <Typography variant="h4" sx={{ mb: 5 }}>
                 Support Ticket Triage
             </Typography>
@@ -199,6 +201,6 @@ export function AdminTicketsView() {
                     onClose={() => setSelectedTicketId(null)}
                 />
             )}
-        </>
+        </DashboardContent>
     );
 }

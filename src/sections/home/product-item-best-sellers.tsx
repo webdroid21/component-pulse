@@ -3,9 +3,9 @@ import type { Product } from 'src/types/product';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Stack from '@mui/material/Stack';
 import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';

@@ -1,10 +1,10 @@
 'use client';
 
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
 
 import { useProducts } from 'src/hooks/firebase';
 

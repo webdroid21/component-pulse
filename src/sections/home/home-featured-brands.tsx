@@ -1,12 +1,12 @@
 'use client';
 
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
