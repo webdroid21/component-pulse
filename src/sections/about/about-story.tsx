@@ -22,27 +22,17 @@ export function AboutStory() {
               transition={{ duration: 0.6 }}
             >
               <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700 }}>
-                Our Story
+                Our Mission
               </Typography>
-              <Typography variant="h2" sx={{ mt: 1, mb: 3 }}>
-                Building Uganda&apos;s Energy Future
+              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 5, mt: 1 }}>
+                To democratize access to high-quality electronic components and embedded systems knowledge across Uganda and East Africa, empowering innovators, students, and professionals to build the technology solutions of tomorrow.
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
-                Founded in 2018, ComponentPulse started with a simple vision: to make reliable, 
-                affordable electronic components and solar solutions accessible to every Ugandan. 
-                What began as a small shop in Kampala has grown into one of the country&apos;s most 
-                trusted suppliers of electrical equipment.
+
+              <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700 }}>
+                Our Vision
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
-                Today, we serve thousands of customers ranging from individual homeowners to 
-                large-scale commercial projects. Our commitment to quality products, competitive 
-                pricing, and exceptional customer service has made us the preferred choice for 
-                solar installers, electrical contractors, and DIY enthusiasts across Uganda.
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                We believe that access to clean, reliable energy is a right, not a privilege. 
-                That&apos;s why we work tirelessly to source the best products at the most competitive 
-                prices, making sustainable energy solutions affordable for everyone.
+              <Typography variant="body1" sx={{ color: 'text.secondary', mt: 1 }}>
+                To become the leading hub for embedded systems education and components supply in East Africa, fostering a thriving ecosystem of innovation and technological advancement.
               </Typography>
             </m.div>
           </Grid>

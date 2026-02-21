@@ -2,8 +2,8 @@
 
 import { AboutHero } from '../about-hero';
 import { AboutStory } from '../about-story';
-import { AboutStats } from '../about-stats';
 import { AboutValues } from '../about-values';
+import { AboutContact } from '../about-contact';
 
 // ----------------------------------------------------------------------
 
@@ -12,7 +12,7 @@ export function AboutView() {
     <>
       <AboutHero />
       <AboutStory />
-      <AboutStats />
+      <AboutContact />
       <AboutValues />
     </>
   );

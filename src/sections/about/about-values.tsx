@@ -15,26 +15,26 @@ const VALUES = [
   {
     icon: 'solar:verified-check-bold-duotone',
     title: 'Quality First',
-    description: 'We never compromise on quality. Every product we sell meets international standards and comes with proper warranties.',
+    description: 'We source only genuine, high-quality components from trusted manufacturers.',
     color: '#2196F3',
   },
   {
     icon: 'solar:users-group-rounded-bold-duotone',
     title: 'Customer Focus',
-    description: 'Our customers are at the heart of everything we do. We listen, we learn, and we continuously improve to serve you better.',
+    description: "Our customers' success is our priority. We provide expert support and guidance.",
     color: '#4CAF50',
-  },
-  {
-    icon: 'solar:hand-shake-bold-duotone',
-    title: 'Integrity',
-    description: 'We believe in honest dealings, transparent pricing, and keeping our promises. Trust is the foundation of our business.',
-    color: '#FF9800',
   },
   {
     icon: 'solar:lightbulb-bolt-bold-duotone',
     title: 'Innovation',
-    description: 'We stay ahead of industry trends and continuously expand our product range to bring you the latest technologies.',
+    description: 'We stay at the forefront of technology to bring you the latest solutions.',
     color: '#9C27B0',
+  },
+  {
+    icon: 'solar:shield-check-bold-duotone',
+    title: 'Reliability',
+    description: 'Count on us for consistent supply, competitive pricing, and dependable service.',
+    color: '#FF9800',
   },
 ];
 
@@ -52,8 +52,8 @@ export function AboutValues() {
             <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700 }}>
               Our Values
             </Typography>
-            <Typography variant="h2" sx={{ mt: 1, mb: 2 }}>
-              What Drives Us
+            <Typography variant="body1" sx={{ color: 'text.secondary', mt: 2, maxWidth: 640, mx: 'auto' }}>
+              These core values guide everything we do and shape our relationships with customers, partners, and the community.
             </Typography>
           </m.div>
         </Box>
