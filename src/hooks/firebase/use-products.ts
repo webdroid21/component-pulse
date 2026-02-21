@@ -121,14 +121,27 @@ export function useProduct(productId: string | null) {
         setLoading(true);
         setError(null);
 
+        // First, attempt to fetch directly by Document ID (O(1) lookup)
         const docRef = doc(FIRESTORE, COLLECTION, productId);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           setProduct({ id: docSnap.id, ...docSnap.data() } as Product);
+          return; // Early return on success
+        }
+
+        // If not found by ID, it might be a slug passed from the public router.
+        // Perform a query where slug == productId
+        const slugQuery = query(collection(FIRESTORE, COLLECTION));
+        const slugSnapshot = await getDocs(slugQuery);
+        const match = slugSnapshot.docs.find((d) => d.data().slug === productId);
+
+        if (match) {
+          setProduct({ id: match.id, ...match.data() } as Product);
         } else {
           setError('Product not found');
         }
+
       } catch (err) {
         console.error('Error fetching product:', err);
         setError('Failed to fetch product');
