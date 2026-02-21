@@ -58,7 +58,6 @@ export const navData: NavSectionProps['data'] = [
         icon: ICONS.dashboard,
         info: <Label>v{CONFIG.appVersion}</Label>,
       },
-      { title: 'Analytics', path: paths.admin.reports, icon: ICONS.analytics },
     ],
   },
   /**
