@@ -111,6 +111,13 @@ export function CheckoutView() {
   const savedAddresses = profile?.addresses || [];
   const defaultAddressId = profile?.defaultAddressId;
 
+  // Sync email from auth whenever user resolves (auth may load after component mounts)
+  useEffect(() => {
+    if (user?.email) {
+      setShippingInfo((prev) => ({ ...prev, email: prev.email || user.email || '' }));
+    }
+  }, [user?.email]);
+
   // Auto-select default address on load
   useEffect(() => {
     if (savedAddresses.length > 0 && !selectedAddressId && !useNewAddress) {

@@ -264,7 +264,7 @@ export function useCreateOrder() {
 
       // Use transaction to create order and update stock atomically
       const result = await runTransaction(FIRESTORE, async (transaction) => {
-        // First, verify stock availability for all items
+        // Pre-fetch all product docs to verify they still exist
         for (const item of data.items) {
           const productRef = doc(FIRESTORE, 'products', item.productId);
           const productSnap = await transaction.get(productRef);
@@ -273,11 +273,15 @@ export function useCreateOrder() {
             throw new Error(`Product ${item.productName} no longer exists`);
           }
 
+          // SOFT stock check: log a warning but don't block the order.
+          // If a customer has already paid, failing here would leave them
+          // without an order. Admin should manage stock separately.
           const productData = productSnap.data();
-          const currentStock = productData.stock || productData.quantity || 0;
-
+          const currentStock = productData.stock ?? productData.quantity ?? 0;
           if (currentStock < item.quantity) {
-            throw new Error(`Insufficient stock for ${item.productName}. Available: ${currentStock}`);
+            console.warn(
+              `Low/negative stock for "${item.productName}": ${currentStock} available, ${item.quantity} ordered. Order will still be created.`
+            );
           }
         }
 
