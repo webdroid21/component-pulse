@@ -4,12 +4,9 @@ import type { IconButtonProps } from '@mui/material/IconButton';
 import type { NotificationRecord } from 'src/hooks/firebase';
 
 import { m } from 'framer-motion';
-import { useState, useCallback } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import Tabs from '@mui/material/Tabs';
 import Badge from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
@@ -19,20 +16,11 @@ import IconButton from '@mui/material/IconButton';
 
 import { useNotificationMutations } from 'src/hooks/firebase';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { varTap, varHover, transitionTap } from 'src/components/animate';
 
 import { NotificationItem } from './notification-item';
-
-// ----------------------------------------------------------------------
-
-const TABS = [
-  { value: 'all', label: 'All', count: 22 },
-  { value: 'unread', label: 'Unread', count: 12 },
-  { value: 'archived', label: 'Archived', count: 10 },
-];
 
 // ----------------------------------------------------------------------
 
@@ -43,11 +31,6 @@ export type NotificationsDrawerProps = IconButtonProps & {
 export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDrawerProps) {
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const [currentTab, setCurrentTab] = useState('all');
-
-  const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
-    setCurrentTab(newValue);
-  }, []);
   const { markAllAsRead } = useNotificationMutations();
 
   const totalUnRead = data.filter((item) => item.isUnRead === true).length;
@@ -91,31 +74,6 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
     </Box>
   );
 
-  const renderTabs = () => (
-    <Tabs variant="fullWidth" value={currentTab} onChange={handleChangeTab} indicatorColor="custom">
-      {TABS.map((tab) => (
-        <Tab
-          key={tab.value}
-          iconPosition="end"
-          value={tab.value}
-          label={tab.label}
-          icon={
-            <Label
-              variant={((tab.value === 'all' || tab.value === currentTab) && 'filled') || 'soft'}
-              color={
-                (tab.value === 'unread' && 'info') ||
-                (tab.value === 'archived' && 'success') ||
-                'default'
-              }
-            >
-              {tab.count}
-            </Label>
-          }
-        />
-      ))}
-    </Tabs>
-  );
-
   const renderList = () => (
     <Scrollbar>
       <Box component="ul">
@@ -155,7 +113,6 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
         }}
       >
         {renderHead()}
-        {renderTabs()}
         {renderList()}
 
         <Box sx={{ p: 1 }}>

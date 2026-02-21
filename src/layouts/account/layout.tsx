@@ -18,7 +18,7 @@ import { Iconify } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
 
-import { SimpleLayout } from '../simple';
+import { MainLayout } from '../main';
 import { SignOutButton } from '../components/sign-out-button';
 
 // ----------------------------------------------------------------------
@@ -113,7 +113,7 @@ export function AccountLayout({ children }: AccountLayoutProps) {
   );
 
   return (
-    <SimpleLayout>
+    <MainLayout>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 }, minHeight: '80vh' }}>
         {/* Mobile Header */}
         <Box sx={{ display: { md: 'none' }, mb: 3 }}>
@@ -189,6 +189,6 @@ export function AccountLayout({ children }: AccountLayoutProps) {
           <SignOutButton />
         </Box>
       </Container>
-    </SimpleLayout>
+    </MainLayout>
   );
 }

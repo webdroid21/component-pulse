@@ -53,6 +53,7 @@ const NAV_ITEMS = [
 type LayoutBaseProps = Pick<LayoutSectionProps, 'sx' | 'children' | 'cssVars'>;
 
 export type MainLayoutProps = LayoutBaseProps & {
+  hasFooter?: boolean;
   layoutQuery?: Breakpoint;
   slotProps?: {
     header?: HeaderSectionProps;
@@ -66,14 +67,13 @@ export function MainLayout({
   children,
   slotProps,
   layoutQuery = 'md',
+  hasFooter = true,
 }: MainLayoutProps) {
   const pathname = usePathname();
   const { user, authenticated } = useAuthContext();
   const { notifications } = useGetNotifications();
 
   const { value: mobileOpen, onFalse: onMobileClose, onTrue: onMobileOpen } = useBoolean();
-
-  const isHomePage = pathname === '/';
 
 
   const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
@@ -385,7 +385,7 @@ export function MainLayout({
       {renderMobileNav()}
       <LayoutSection
         headerSection={renderHeader()}
-        footerSection={renderFooter()}
+        footerSection={hasFooter && renderFooter()}
         cssVars={cssVars}
         sx={sx}
       >

@@ -1,6 +1,5 @@
 import { MainLayout } from 'src/layouts/main';
 
-import { CheckoutProvider } from 'src/sections/checkout/context';
 
 // ----------------------------------------------------------------------
 
@@ -9,9 +8,5 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return (
-    <CheckoutProvider>
-      <MainLayout>{children}</MainLayout>
-    </CheckoutProvider>
-  );
+  return (<MainLayout>{children}</MainLayout>);
 }
