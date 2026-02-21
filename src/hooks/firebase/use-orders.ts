@@ -381,7 +381,7 @@ export function useUpdatePaymentStatus() {
               ...(currentOrder.statusHistory || []),
               {
                 status: 'confirmed',
-                timestamp: serverTimestamp(),
+                timestamp: Timestamp.now(),
                 note: 'Payment confirmed',
               },
             ];
