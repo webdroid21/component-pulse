@@ -86,12 +86,11 @@ export function ProductItem({ product }: Props) {
             sx={{
               width: 1,
               height: 1,
-              objectFit: 'contain',
+              objectFit: 'cover',
               aspectRatio: '1/1',
               flexShrink: 0,
               borderRadius: 1.5,
               bgcolor: 'background.neutral',
-              p: 2,
             }}
           />
         </Link>

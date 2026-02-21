@@ -91,11 +91,10 @@ export function ProductListItem({ product }: Props) {
                         mr: 2.5,
                         width: 160,
                         height: 160,
-                        objectFit: 'contain',
+                        objectFit: 'cover',
                         flexShrink: 0,
                         borderRadius: 1.5,
                         bgcolor: 'background.neutral',
-                        p: 2,
                     }}
                 />
             </Link>
