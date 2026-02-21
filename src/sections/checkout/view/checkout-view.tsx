@@ -22,6 +22,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import RadioGroup from '@mui/material/RadioGroup';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -29,7 +30,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useCreateOrder, useUserProfile, useUpdatePaymentStatus } from 'src/hooks/firebase';
+import { useCreateOrder, useUserProfile, useUpdatePaymentStatus, useDeliveryZones, useValidateCoupon } from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -42,24 +43,6 @@ import { useAuthContext } from 'src/auth/hooks';
 import { useCheckoutContext } from '../context';
 
 // ----------------------------------------------------------------------
-
-const DELIVERY_OPTIONS = [
-  {
-    value: 0,
-    label: 'Free Delivery',
-    description: 'Delivered in 3-5 business days',
-  },
-  {
-    value: 15000,
-    label: 'Express Delivery',
-    description: 'Delivered in 1-2 business days',
-  },
-  {
-    value: 25000,
-    label: 'Same Day Delivery',
-    description: 'Delivered today (Kampala only)',
-  },
-];
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; description: string; icon: string }[] = [
   {
@@ -89,6 +72,8 @@ export function CheckoutView() {
   const { profile } = useUserProfile();
   const { createOrder, loading: creatingOrder, error: orderError } = useCreateOrder();
   const { updatePaymentStatus } = useUpdatePaymentStatus();
+  const { zones, loading: zonesLoading } = useDeliveryZones(true); // active zones only
+  const { validateCoupon, incrementCouponUsage, validating: couponValidating } = useValidateCoupon();
 
   const [activeStep, setActiveStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -103,10 +88,15 @@ export function CheckoutView() {
     district: '',
     notes: '',
   });
-  const [deliveryOption, setDeliveryOption] = useState(0);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('flutterwave');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   const savedAddresses = profile?.addresses || [];
   const defaultAddressId = profile?.defaultAddressId;
@@ -126,8 +116,11 @@ export function CheckoutView() {
     }
   }, [savedAddresses, defaultAddressId, selectedAddressId, useNewAddress]);
 
-  const { items, subtotal, discount } = checkout.state;
-  const shipping = deliveryOption;
+  const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
+  const shipping = selectedZone?.fee ?? 0;
+  const couponDiscount = appliedCoupon?.discount ?? 0;
+  const { items, subtotal, discount: cartDiscount } = checkout.state;
+  const discount = cartDiscount + couponDiscount;
   const total = subtotal - discount + shipping;
 
   const steps = ['Shipping', 'Delivery', 'Payment'];
@@ -202,6 +195,35 @@ export function CheckoutView() {
     setError(null);
   };
 
+  // Auto-select first zone when zones load
+  useEffect(() => {
+    if (zones.length > 0 && !selectedZoneId) {
+      setSelectedZoneId(zones[0].id);
+    }
+  }, [zones, selectedZoneId]);
+
+  const handleApplyCoupon = async () => {
+    setCouponError(null);
+    const { coupon, error: err } = await validateCoupon(couponInput, subtotal);
+    if (err || !coupon) {
+      setCouponError(err || 'Invalid coupon');
+      setAppliedCoupon(null);
+      return;
+    }
+    const discountAmount =
+      coupon.type === 'percentage'
+        ? Math.round((subtotal * coupon.value) / 100)
+        : coupon.value;
+    setAppliedCoupon({ id: coupon.id, code: coupon.code, discount: discountAmount });
+    setCouponError(null);
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError(null);
+  };
+
   // Helper: remove undefined/empty optional fields so Firestore doesn't reject them
   const stripUndefined = (obj: Record<string, any>): Record<string, any> =>
     Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== ''));
@@ -258,6 +280,8 @@ export function CheckoutView() {
       paymentMethod,
       shippingAddress: shippingAddress as any,
       ...(shippingInfo.notes ? { notes: shippingInfo.notes } : {}),
+      ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
+      ...(selectedZone ? { deliveryZoneId: selectedZone.id, deliveryZoneName: selectedZone.name } : {}),
     };
   };
 
@@ -624,45 +648,62 @@ export function CheckoutView() {
         Delivery Options
       </Typography>
 
-      <RadioGroup
-        value={deliveryOption}
-        onChange={(e) => setDeliveryOption(Number(e.target.value))}
-      >
-        <Stack spacing={2}>
-          {DELIVERY_OPTIONS.map((option) => (
-            <Card
-              key={option.value}
-              sx={{
-                p: 2.5,
-                cursor: 'pointer',
-                border: 2,
-                borderColor: deliveryOption === option.value ? 'primary.main' : 'divider',
-                bgcolor: deliveryOption === option.value ? 'primary.lighter' : 'transparent',
-              }}
-              onClick={() => setDeliveryOption(option.value)}
-            >
-              <FormControlLabel
-                value={option.value}
-                control={<Radio />}
-                label={
-                  <Box sx={{ ml: 1 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between">
-                      <Typography variant="subtitle1">{option.label}</Typography>
-                      <Typography variant="subtitle1" sx={{ color: 'primary.main' }}>
-                        {option.value === 0 ? 'FREE' : fCurrency(option.value)}
+      {zonesLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : zones.length === 0 ? (
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          No delivery zones available at the moment.
+        </Typography>
+      ) : (
+        <RadioGroup
+          value={selectedZoneId || ''}
+          onChange={(e) => setSelectedZoneId(e.target.value)}
+        >
+          <Stack spacing={2}>
+            {zones.map((zone) => (
+              <Card
+                key={zone.id}
+                sx={{
+                  p: 2.5,
+                  cursor: 'pointer',
+                  border: 2,
+                  borderColor: selectedZoneId === zone.id ? 'primary.main' : 'divider',
+                  bgcolor: selectedZoneId === zone.id ? 'primary.lighter' : 'transparent',
+                }}
+                onClick={() => setSelectedZoneId(zone.id)}
+              >
+                <FormControlLabel
+                  value={zone.id}
+                  control={<Radio />}
+                  label={
+                    <Box sx={{ ml: 1 }}>
+                      <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <Typography variant="subtitle1">{zone.name}</Typography>
+                        </Stack>
+                        <Typography variant="subtitle1" sx={{ color: 'primary.main' }}>
+                          {zone.fee === 0 ? 'FREE' : fCurrency(zone.fee)}
+                        </Typography>
+                      </Stack>
+                      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                        {zone.estimatedDays}
                       </Typography>
-                    </Stack>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      {option.description}
-                    </Typography>
-                  </Box>
-                }
-                sx={{ width: '100%', m: 0 }}
-              />
-            </Card>
-          ))}
-        </Stack>
-      </RadioGroup>
+                      {zone.areas.length > 0 && (
+                        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                          Covers: {zone.areas.join(', ')}
+                        </Typography>
+                      )}
+                    </Box>
+                  }
+                  sx={{ width: '100%', m: 0 }}
+                />
+              </Card>
+            ))}
+          </Stack>
+        </RadioGroup>
+      )}
     </Card>
   );
 
@@ -776,6 +817,44 @@ export function CheckoutView() {
 
       <Divider sx={{ my: 2 }} />
 
+      {!appliedCoupon ? (
+        <Box sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Discount code"
+              value={couponInput}
+              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+            />
+            <Button
+              variant="contained"
+              onClick={handleApplyCoupon}
+              disabled={!couponInput.trim() || couponValidating}
+            >
+              {couponValidating ? 'Checking...' : 'Apply'}
+            </Button>
+          </Stack>
+          {couponError && (
+            <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+              {couponError}
+            </Typography>
+          )}
+        </Box>
+      ) : (
+        <Card sx={{ p: 2, bgcolor: 'success.lighter', color: 'success.darker', mb: 3 }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Iconify icon="solar:ticket-sale-bold" />
+              <Typography variant="subtitle2">{appliedCoupon.code}</Typography>
+            </Stack>
+            <IconButton size="small" onClick={handleRemoveCoupon} sx={{ color: 'success.darker' }}>
+              <Iconify icon="mingcute:close-line" />
+            </IconButton>
+          </Stack>
+        </Card>
+      )}
+
       <Stack spacing={1.5}>
         <Stack direction="row" justifyContent="space-between">
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -796,7 +875,7 @@ export function CheckoutView() {
         {discount > 0 && (
           <Stack direction="row" justifyContent="space-between">
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              Discount
+              Discount {appliedCoupon && `(${appliedCoupon.code})`}
             </Typography>
             <Typography variant="body2" sx={{ color: 'error.main' }}>
               -{fCurrency(discount)}

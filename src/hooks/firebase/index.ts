@@ -5,4 +5,6 @@ export * from './use-products';
 export * from './use-settings';
 export * from './use-customers';
 export * from './use-categories';
+export * from './use-coupons';
+export * from './use-delivery-zones';
 export * from './use-user-profile';
