@@ -241,13 +241,10 @@ export function ProductShopView() {
   );
 
   return (
-    <Box sx={{ py: { xs: 4, md: 6 } }}>
+    <Box sx={{ pb: { xs: 4, md: 6 }, pt: { xs: 1, md: 2 } }}>
       <Container>
         {/* Header */}
-        <Box display="flex" alignItems="center" sx={{ py: 5 }}>
-          <Typography variant="h3" sx={{ flexGrow: 1 }}>
-            Shop All Products
-          </Typography>
+        <Box display="flex" alignItems="center" sx={{ pb: 5 }}>
           <Button
             color="inherit"
             variant="contained"

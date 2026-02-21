@@ -1,6 +1,7 @@
 'use client';
 
 import type { Timestamp } from 'firebase/firestore';
+import type { AdminRole } from './use-admins';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -14,8 +15,6 @@ import {
   collection,
   serverTimestamp,
 } from 'firebase/firestore';
-
-import type { AdminRole } from './use-admins';
 
 import { FIRESTORE } from 'src/lib/firebase';
 

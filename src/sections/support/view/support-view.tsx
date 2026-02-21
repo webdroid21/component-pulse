@@ -3,11 +3,12 @@
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { useSettings } from 'src/hooks/firebase';
+
 import { Iconify } from 'src/components/iconify';
 
 import { SupportContactForm } from '../support-contact-form';

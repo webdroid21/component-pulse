@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import type { TrainingModule } from 'src/types/training-module';
+
+import { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
-import { FIRESTORE } from 'src/lib/firebase';
 
+import { FIRESTORE } from 'src/lib/firebase';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { TrainingModule } from 'src/types/training-module';
 
 import { TrainingModuleForm } from '../training-module-form';
 

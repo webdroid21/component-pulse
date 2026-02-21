@@ -1,3 +1,5 @@
+import type { Product } from 'src/types/product';
+
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
@@ -18,7 +20,6 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
-import type { Product } from 'src/types/product';
 
 // ----------------------------------------------------------------------
 

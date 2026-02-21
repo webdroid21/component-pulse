@@ -2,15 +2,11 @@
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
-
+import { useTrainingModules } from 'src/hooks/firebase/use-training-modules';
 
 import { EmptyContent } from 'src/components/empty-content';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { useTrainingModules } from 'src/hooks/firebase/use-training-modules';
 
 import { TrainingModuleCard } from '../training-module-card';
 import { EmbeddedSystemsHero } from '../embedded-systems-hero';

@@ -20,6 +20,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
+import { useTrainingModules, useTrainingModuleMutations } from 'src/hooks/firebase/use-training-modules';
+
 import { fCurrency } from 'src/utils/format-number';
 
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -27,8 +29,6 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-
-import { useTrainingModules, useTrainingModuleMutations } from 'src/hooks/firebase/use-training-modules';
 
 // ----------------------------------------------------------------------
 

@@ -1,9 +1,9 @@
 'use client';
 
-import type { TrainingModule, TrainingModuleFormData, TrainingMaterial } from 'src/types/training-module';
+import type { TrainingModule, TrainingMaterial, TrainingModuleFormData } from 'src/types/training-module';
 
 import { useState, useEffect } from 'react';
-import { ref, getDownloadURL, uploadBytesResumable, deleteObject } from 'firebase/storage';
+import { ref, deleteObject, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import {
     doc,
     query,

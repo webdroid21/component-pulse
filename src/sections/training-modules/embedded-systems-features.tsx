@@ -5,11 +5,11 @@ import type { BoxProps } from '@mui/material/Box';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 
-import { Carousel, useCarousel, CarouselArrowBasicButtons } from 'src/components/carousel';
 import { Iconify } from 'src/components/iconify';
+import { Carousel, useCarousel, CarouselArrowBasicButtons } from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
 

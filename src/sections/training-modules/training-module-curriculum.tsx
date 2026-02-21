@@ -2,11 +2,10 @@
 
 import type { TimelineItem } from 'src/types/training-module';
 
-import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Timeline, TimelineDot, TimelineItem as MuiTimelineItem, TimelineContent, TimelineSeparator, TimelineConnector } from '@mui/lab';
+import { Timeline, TimelineDot, TimelineContent, TimelineSeparator, TimelineConnector, TimelineItem as MuiTimelineItem } from '@mui/lab';
 
 import { Iconify } from 'src/components/iconify';
 

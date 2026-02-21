@@ -8,7 +8,6 @@ import {
   query,
   where,
   getDoc,
-  getDocs,
   orderBy,
   updateDoc,
   increment,
@@ -87,7 +86,7 @@ export function useOrders(filters?: OrderFilters) {
     );
 
     return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [filters?.status, filters?.paymentStatus, filters?.customerId, filters?.search, filters?.dateFrom, filters?.dateTo]);
 
   // refetch is a no-op with real-time listeners but kept for API compatibility

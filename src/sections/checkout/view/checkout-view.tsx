@@ -30,7 +30,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useCreateOrder, useUserProfile, useUpdatePaymentStatus, useDeliveryZones, useValidateCoupon } from 'src/hooks/firebase';
+import { useCreateOrder, useUserProfile, useDeliveryZones, useValidateCoupon, useUpdatePaymentStatus } from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 

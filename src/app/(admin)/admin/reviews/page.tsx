@@ -1,4 +1,5 @@
 import { CONFIG } from 'src/global-config';
+
 import { AdminReviewsView } from 'src/sections/admin/reviews/view';
 
 // ----------------------------------------------------------------------

@@ -1,5 +1,7 @@
 'use client';
 
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -7,7 +9,6 @@ import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { useBoolean } from 'minimal-shared/hooks';
 import { useGetApprovedReviews } from 'src/hooks/firebase/use-reviews';
 
 import { Iconify } from 'src/components/iconify';

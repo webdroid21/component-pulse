@@ -1,8 +1,7 @@
 'use client';
 
-import AutoScroll from 'embla-carousel-auto-scroll';
-
 import { m } from 'framer-motion';
+import AutoScroll from 'embla-carousel-auto-scroll';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';

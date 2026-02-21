@@ -1,7 +1,7 @@
 'use client';
 
 import type { IconButtonProps } from '@mui/material/IconButton';
-import type { NotificationItemProps } from './notification-item';
+import type { NotificationRecord } from 'src/hooks/firebase';
 
 import { m } from 'framer-motion';
 import { useState, useCallback } from 'react';
@@ -17,11 +17,13 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 
+import { useNotificationMutations } from 'src/hooks/firebase';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { varTap, varHover, transitionTap } from 'src/components/animate';
-import { useNotificationMutations, NotificationRecord } from 'src/hooks/firebase';
+
 import { NotificationItem } from './notification-item';
 
 // ----------------------------------------------------------------------

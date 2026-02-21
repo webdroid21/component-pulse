@@ -1,9 +1,9 @@
 'use client';
 
-import type { TrainingModule, TrainingModuleFormData, TrainingMaterial } from 'src/types/training-module';
+import type { TrainingModule, TrainingMaterial, TrainingModuleFormData } from 'src/types/training-module';
 
-import { useForm, useFieldArray } from 'react-hook-form';
 import { useBoolean } from 'minimal-shared/hooks';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -15,20 +15,20 @@ import Switch from '@mui/material/Switch';
 import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
 import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CircularProgress from '@mui/material/CircularProgress';
-import TextField from '@mui/material/TextField';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import {
-    useTrainingModuleMutations,
     useTrainingImageUpload,
+    useTrainingModuleMutations,
     useTrainingMaterialsUpload,
 } from 'src/hooks/firebase/use-training-modules';
 

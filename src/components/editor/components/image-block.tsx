@@ -4,12 +4,12 @@ import type { EditorToolbarItemProps } from '../types';
 import { useState, useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
+import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { useStorageUpload } from 'src/hooks/firebase/use-storage';

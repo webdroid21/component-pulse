@@ -1,3 +1,5 @@
+import type { NotificationRecord } from 'src/hooks/firebase';
+
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -12,8 +14,6 @@ import { Label } from 'src/components/label';
 import { FileThumbnail } from 'src/components/file-thumbnail';
 
 import { notificationIcons } from './icons';
-
-import { NotificationRecord } from 'src/hooks/firebase';
 
 // ----------------------------------------------------------------------
 
