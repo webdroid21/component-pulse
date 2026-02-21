@@ -96,9 +96,7 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'Settings',
     items: [
       { title: 'Delivery Zones', path: paths.admin.delivery, icon: ICONS.tour },
-      { title: 'Deals', path: paths.admin.deals, icon: ICONS.label },
       { title: 'Coupons', path: paths.admin.coupons, icon: ICONS.invoice },
-      { title: 'Returns', path: paths.admin.returns, icon: ICONS.file },
       { title: 'Admin Users', path: paths.admin.users.root, icon: ICONS.lock },
       { title: 'Settings', path: paths.admin.settings, icon: ICONS.params },
     ],
