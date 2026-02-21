@@ -195,30 +195,40 @@ export function CheckoutView() {
     setError(null);
   };
 
+  // Helper: remove undefined/empty optional fields so Firestore doesn't reject them
+  const stripUndefined = (obj: Record<string, any>): Record<string, any> =>
+    Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== ''));
+
   const buildOrderData = () => {
     const selectedAddr = getSelectedAddress();
 
-    // Use selected saved address or new address form
-    const shippingAddress = selectedAddr ? {
-      fullName: selectedAddr.fullName,
-      phone: selectedAddr.phone,
-      email: shippingInfo.email,
-      addressLine1: selectedAddr.addressLine1,
-      addressLine2: selectedAddr.addressLine2,
-      city: selectedAddr.city,
-      district: selectedAddr.district,
-      country: selectedAddr.country,
-      deliveryInstructions: selectedAddr.deliveryInstructions || shippingInfo.notes,
-    } : {
-      fullName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-      phone: shippingInfo.phone,
-      email: shippingInfo.email,
-      addressLine1: shippingInfo.address,
-      city: shippingInfo.city,
-      district: shippingInfo.district,
-      country: 'Uganda',
-      deliveryInstructions: shippingInfo.notes,
-    };
+    // Build shipping address — conditionally include optional fields to avoid undefined
+    const rawAddress = selectedAddr
+      ? {
+        fullName: selectedAddr.fullName,
+        phone: selectedAddr.phone,
+        email: shippingInfo.email,
+        addressLine1: selectedAddr.addressLine1,
+        city: selectedAddr.city,
+        country: selectedAddr.country || 'Uganda',
+        ...(selectedAddr.addressLine2 ? { addressLine2: selectedAddr.addressLine2 } : {}),
+        ...(selectedAddr.district ? { district: selectedAddr.district } : {}),
+        ...((selectedAddr.deliveryInstructions || shippingInfo.notes)
+          ? { deliveryInstructions: selectedAddr.deliveryInstructions || shippingInfo.notes }
+          : {}),
+      }
+      : {
+        fullName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+        phone: shippingInfo.phone,
+        email: shippingInfo.email,
+        addressLine1: shippingInfo.address,
+        city: shippingInfo.city,
+        country: 'Uganda',
+        ...(shippingInfo.district ? { district: shippingInfo.district } : {}),
+        ...(shippingInfo.notes ? { deliveryInstructions: shippingInfo.notes } : {}),
+      };
+
+    const shippingAddress = stripUndefined(rawAddress);
 
     return {
       customerId: user?.uid || '',
@@ -228,7 +238,7 @@ export function CheckoutView() {
       items: items.map((item) => ({
         productId: item.id,
         productName: item.name,
-        productImage: item.coverUrl,
+        productImage: item.coverUrl || '',
         sku: item.id,
         quantity: item.quantity,
         unitPrice: item.price,
@@ -239,8 +249,8 @@ export function CheckoutView() {
       discount,
       total,
       paymentMethod,
-      shippingAddress,
-      notes: shippingInfo.notes,
+      shippingAddress: shippingAddress as any,
+      ...(shippingInfo.notes ? { notes: shippingInfo.notes } : {}),
     };
   };
 
