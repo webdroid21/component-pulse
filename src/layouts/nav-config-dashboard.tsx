@@ -83,6 +83,11 @@ export const navData: NavSectionProps['data'] = [
         icon: ICONS.order,
       },
       {
+        title: 'Reviews',
+        path: paths.admin.reviews,
+        icon: ICONS.chat,
+      },
+      {
         title: 'Training Modules',
         path: paths.admin.trainingModules.root,
         icon: ICONS.course,
