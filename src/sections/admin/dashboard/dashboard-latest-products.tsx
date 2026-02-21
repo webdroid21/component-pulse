@@ -7,8 +7,8 @@ import Card from '@mui/material/Card';
 import Avatar from '@mui/material/Avatar';
 import CardHeader from '@mui/material/CardHeader';
 
-import { RouterLink } from 'src/routes/components';
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 

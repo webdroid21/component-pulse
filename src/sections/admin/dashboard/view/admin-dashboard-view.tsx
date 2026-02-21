@@ -4,11 +4,8 @@ import { useMemo } from 'react';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-
-import { DashboardContent } from 'src/layouts/dashboard';
-import { useAuthContext } from 'src/auth/hooks';
+import Typography from '@mui/material/Typography';
 
 import {
   useOrders,
@@ -21,9 +18,13 @@ import {
   useTrainingModules,
 } from 'src/hooks/firebase';
 
+import { DashboardContent } from 'src/layouts/dashboard';
+
+import { useAuthContext } from 'src/auth/hooks';
+
 import { DashboardMetricCard } from '../dashboard-metric-card';
-import { DashboardLatestProducts } from '../dashboard-latest-products';
 import { DashboardSalesOverview } from '../dashboard-sales-overview';
+import { DashboardLatestProducts } from '../dashboard-latest-products';
 
 // ----------------------------------------------------------------------
 
