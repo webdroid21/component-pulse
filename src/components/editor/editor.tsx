@@ -63,6 +63,7 @@ export function Editor({
     content: initialContent,
     shouldRerenderOnTransaction: !!rerenderKey,
     onUpdate: (ctx) => {
+      if (ctx.editor.isDestroyed) return;
       const html = ctx.editor.getHTML();
       debouncedOnChange(html);
     },
@@ -124,7 +125,7 @@ export function Editor({
   }, [initialContent, editor]);
 
   useEffect(() => {
-    if (resetValue && !initialContent) {
+    if (resetValue && !initialContent && !editor?.isDestroyed) {
       editor?.commands.clearContent();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

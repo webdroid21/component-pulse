@@ -23,6 +23,10 @@ export const paths = {
   support: '/support',
   faqs: '/faqs',
   trackOrder: '/track-order',
+  trainingModules: {
+    root: '/training-modules',
+    details: (id: string) => `/training-modules/${id}`,
+  },
 
   // AUTH
   auth: {
@@ -74,6 +78,12 @@ export const paths = {
       root: `${ROOTS.ADMIN}/products`,
       new: `${ROOTS.ADMIN}/products/new`,
       edit: (id: string) => `${ROOTS.ADMIN}/products/${id}/edit`,
+    },
+    // Training Modules
+    trainingModules: {
+      root: `${ROOTS.ADMIN}/training-modules`,
+      new: `${ROOTS.ADMIN}/training-modules/new`,
+      edit: (id: string) => `${ROOTS.ADMIN}/training-modules/${id}/edit`,
     },
     // Categories
     categories: `${ROOTS.ADMIN}/categories`,

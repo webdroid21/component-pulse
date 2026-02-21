@@ -38,6 +38,7 @@ import { MainSection, LayoutSection, HeaderSection } from '../core';
 const NAV_ITEMS = [
   { title: 'Home', path: '/' },
   { title: 'Shop', path: paths.products },
+  { title: 'Training', path: paths.trainingModules.root },
   { title: 'About', path: paths.about },
   { title: 'Contact', path: paths.contact },
   { title: 'FAQs', path: paths.faqs },
@@ -165,9 +166,9 @@ export function MainLayout({
             <Iconify icon="solar:hamburger-menu-bold-duotone" width={24} />
           </IconButton>
           {mdUp ?
-          <Logo isSingle={false} />
+            <Logo isSingle={false} />
             :
-          <Logo />
+            <Logo />
           }
         </Box>
       ),
