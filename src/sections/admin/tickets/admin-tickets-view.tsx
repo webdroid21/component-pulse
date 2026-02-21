@@ -24,7 +24,8 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { EmptyContent } from 'src/components/empty-content';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { usePopover } from 'minimal-shared/hooks';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { TicketChatDialog } from 'src/sections/account/tickets/ticket-chat-dialog';
 
