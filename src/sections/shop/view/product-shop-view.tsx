@@ -3,6 +3,7 @@
 import { m } from 'framer-motion';
 import { useMemo, useState } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
+import { useSearchParams } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -42,9 +43,22 @@ export function ProductShopView() {
 
   const filtersOpen = useBoolean();
 
-  const [search, setSearch] = useState('');
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('q') || '';
+
+  const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('newest');
   const [page, setPage] = useState(1);
+
+  // Sync with URL query param if it changes
+  useMemo(() => {
+    const q = searchParams.get('q');
+    if (q !== null) {
+      setSearch(q);
+      setPage(1);
+    }
+  }, [searchParams]);
+
   const [filters, setFilters] = useState({
     categories: [] as string[],
     priceRange: [0, 10000000],

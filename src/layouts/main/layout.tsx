@@ -24,23 +24,30 @@ import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
+import { useGetNotifications } from 'src/hooks/firebase';
+
 import { Logo } from 'src/components/logo';
 import { Iconify } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
 
 import { CartIcon } from './cart-icon';
+import { HeaderSearch } from './header-search';
+import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
+import { _account, _adminAccount } from '../nav-config-account';
 import { MainSection, LayoutSection, HeaderSection } from '../core';
+import { NotificationsDrawer } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
 
 const NAV_ITEMS = [
-  { title: 'Home', path: '/' },
-  { title: 'Shop', path: paths.products },
+  { title: 'Categories', path: paths.products },
+  { title: 'Products', path: paths.products },
+  { title: 'Deals', path: paths.products },
   { title: 'Training', path: paths.trainingModules.root },
   { title: 'About', path: paths.about },
-  { title: 'Support', path: paths.support },
+  { title: 'Contact & Support', path: paths.support },
 ];
 
 type LayoutBaseProps = Pick<LayoutSectionProps, 'sx' | 'children' | 'cssVars'>;
@@ -62,6 +69,7 @@ export function MainLayout({
 }: MainLayoutProps) {
   const pathname = usePathname();
   const { user, authenticated } = useAuthContext();
+  const { notifications } = useGetNotifications();
 
   const { value: mobileOpen, onFalse: onMobileClose, onTrue: onMobileOpen } = useBoolean();
 
@@ -124,39 +132,42 @@ export function MainLayout({
   );
 
   const renderHeader = () => {
+    const headerSlotProps: HeaderSectionProps['slotProps'] = {
+      container: {
+        maxWidth: 'lg',
+      },
+      centerArea: {
+        sx: {
+          px: { xs: 2, md: 5 },
+        }
+      }
+    };
+
     const headerSlots: HeaderSectionProps['slots'] = {
       topArea: (
         <Box
           sx={{
-            py: 0.75,
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-            display: { xs: 'none', md: 'block' },
+            py: 1,
+            px: 3,
+            bgcolor: 'grey.900',
+            color: 'common.white',
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            typography: 'caption',
           }}
         >
-          <Container maxWidth="lg">
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="caption">⚡ Free shipping on orders over UGX 500,000</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Link
-                  href="tel:+256700000000"
-                  color="inherit"
-                  underline="hover"
-                  sx={{ typography: 'caption' }}
-                >
-                  📞 +256 700 000 000
-                </Link>
-                <Link
-                  href="mailto:info@componentpulse.com"
-                  color="inherit"
-                  underline="hover"
-                  sx={{ typography: 'caption' }}
-                >
-                  ✉️ info@componentpulse.com
-                </Link>
-              </Box>
+          <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Iconify icon="solar:phone-bold" />
+              +256 790 270 840
             </Box>
-          </Container>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#25D366' }}>
+              <Iconify icon="logos:whatsapp-icon" />
+              Chat on WhatsApp
+            </Box>
+          </Box>
+          <Box>Free delivery within Kampala for orders above UGX 500,000</Box>
         </Box>
       ),
       leftArea: (
@@ -164,81 +175,67 @@ export function MainLayout({
           <IconButton onClick={onMobileOpen} sx={{ display: { [layoutQuery]: 'none' } }}>
             <Iconify icon="solar:hamburger-menu-bold-duotone" width={24} />
           </IconButton>
-          {mdUp ?
-            <Logo isSingle={false} />
-            :
-            <Logo />
-          }
+          {mdUp ? <Logo isSingle={false} /> : <Logo />}
+        </Box>
+      ),
+      centerArea: (
+        <Box sx={{ display: { xs: 'none', md: 'block' }, width: '100%', maxWidth: 700 }}>
+          <HeaderSearch />
         </Box>
       ),
       rightArea: (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
-          {/* Desktop Navigation */}
-          <Box
-            component="nav"
-            sx={{
-              display: { xs: 'none', [layoutQuery]: 'flex' },
-              alignItems: 'center',
-              gap: 3,
-              mr: 3,
-            }}
-          >
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.title}
-                component={RouterLink}
-                href={item.path}
-                color={pathname === item.path ? 'primary' : 'inherit'}
-                underline="none"
-                sx={{
-                  typography: 'subtitle2',
-                  fontWeight: pathname === item.path ? 700 : 500,
-                  transition: 'color 0.2s',
-                  '&:hover': { color: 'primary.main' },
-                }}
-              >
-                {item.title}
-              </Link>
-            ))}
-          </Box>
-
-          {/* Cart Icon */}
-          <CartIcon />
-
-          {/* Settings */}
           <SettingsButton />
 
-          {/* Auth buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center', ml: { xs: 0, sm: 1 } }}>
+            <CartIcon />
+            <Box sx={{ ml: 1, typography: 'subtitle2', display: { xs: 'none', sm: 'block' } }}>
+              Cart
+            </Box>
+          </Box>
+
           {authenticated ? (
-            <Button
-              variant="outlined"
-              size="small"
-              component={RouterLink}
-              href={user?.isAdmin ? paths.admin.dashboard : paths.account.root}
-              sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
-            >
-              {user?.isAdmin ? 'Dashboard' : 'Account'}
-            </Button>
+            <>
+              <NotificationsDrawer data={notifications} />
+              <AccountDrawer data={user?.isAdmin ? _adminAccount : _account} />
+            </>
           ) : (
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
+            <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1, alignItems: 'center' }}>
               <Button
-                variant="outlined"
-                size="small"
                 component={RouterLink}
                 href={paths.auth.firebase.signIn}
+                color="inherit"
+                startIcon={<Iconify icon="solar:user-circle-bold" />}
               >
-                Sign In
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                component={RouterLink}
-                href={paths.auth.firebase.signUp}
-              >
-                Sign Up
+                Account
               </Button>
             </Box>
           )}
+        </Box>
+      ),
+      bottomArea: (
+        <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', display: { xs: 'none', md: 'block' } }}>
+          <Container maxWidth="lg">
+            <Box component="nav" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, py: 1.5 }}>
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.title}
+                  component={RouterLink}
+                  href={item.path}
+                  color={pathname === item.path ? 'primary' : 'text.primary'}
+                  underline="none"
+                  sx={{
+                    typography: 'subtitle2',
+                    fontWeight: pathname === item.path ? 700 : 600,
+                    transition: 'color 0.2s',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </Box>
+          </Container>
         </Box>
       ),
     };
@@ -249,7 +246,7 @@ export function MainLayout({
         {...slotProps?.header}
         slots={{ ...headerSlots, ...slotProps?.header?.slots }}
         slotProps={{
-          container: { maxWidth: 'lg' },
+          ...headerSlotProps,
           ...slotProps?.header?.slotProps,
         }}
         sx={slotProps?.header?.sx}
