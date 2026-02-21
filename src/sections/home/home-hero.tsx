@@ -132,7 +132,7 @@ export function HomeHero() {
               </Button>
               <Button
                 component={RouterLink}
-                href={paths.contact}
+                href={paths.support}
                 variant="outlined"
                 size="large"
                 sx={{

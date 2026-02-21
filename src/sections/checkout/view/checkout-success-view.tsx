@@ -101,7 +101,7 @@ export function CheckoutSuccessView() {
         <Box sx={{ mt: 4, textAlign: 'center' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             Need help?{' '}
-            <RouterLink href={paths.contact} style={{ color: 'inherit', fontWeight: 'bold' }}>
+            <RouterLink href={paths.support} style={{ color: 'inherit', fontWeight: 'bold' }}>
               Contact our support team
             </RouterLink>
           </Typography>

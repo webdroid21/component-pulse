@@ -81,7 +81,7 @@ export function HomeCTA() {
                 mx: 'auto',
               }}
             >
-              Get in touch with our team for bulk orders, custom solutions, or technical consultations. 
+              Get in touch with our team for bulk orders, custom solutions, or technical consultations.
               We&apos;re here to help you succeed.
             </Typography>
           </m.div>
@@ -95,7 +95,7 @@ export function HomeCTA() {
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
               <Button
                 component={RouterLink}
-                href={paths.contact}
+                href={paths.support}
                 variant="contained"
                 size="large"
                 sx={{

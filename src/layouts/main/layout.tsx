@@ -40,8 +40,7 @@ const NAV_ITEMS = [
   { title: 'Shop', path: paths.products },
   { title: 'Training', path: paths.trainingModules.root },
   { title: 'About', path: paths.about },
-  { title: 'Contact', path: paths.contact },
-  { title: 'FAQs', path: paths.faqs },
+  { title: 'Support', path: paths.support },
 ];
 
 type LayoutBaseProps = Pick<LayoutSectionProps, 'sx' | 'children' | 'cssVars'>;
@@ -327,11 +326,8 @@ export function MainLayout({
               <Link component={RouterLink} href={paths.account.orders} color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
                 Track Order
               </Link>
-              <Link component={RouterLink} href={paths.faqs} color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
-                FAQs
-              </Link>
-              <Link component={RouterLink} href={paths.contact} color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
-                Contact Us
+              <Link component={RouterLink} href={paths.support} color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
+                Support Center
               </Link>
               <Link component={RouterLink} href="/terms" color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
                 Terms & Conditions

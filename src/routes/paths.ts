@@ -19,9 +19,7 @@ export const paths = {
   cart: '/cart',
   checkout: '/checkout',
   about: '/about',
-  contact: '/contact',
   support: '/support',
-  faqs: '/faqs',
   trackOrder: '/track-order',
   trainingModules: {
     root: '/training-modules',
