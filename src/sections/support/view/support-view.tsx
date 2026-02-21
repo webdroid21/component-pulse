@@ -10,6 +10,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useSettings } from 'src/hooks/firebase';
 import { Iconify } from 'src/components/iconify';
 
+import { SupportContactForm } from '../support-contact-form';
+
 // ----------------------------------------------------------------------
 
 const faqs = [
@@ -53,6 +55,7 @@ export function SupportView() {
             <SupportHero />
             <Container>
                 <SupportContactInfo />
+                <SupportContactForm />
                 <SupportFaqs />
             </Container>
         </Box>

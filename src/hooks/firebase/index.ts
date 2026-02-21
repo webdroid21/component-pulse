@@ -9,3 +9,5 @@ export * from './use-coupons';
 export * from './use-delivery-zones';
 export * from './use-user-profile';
 export * from './use-training-modules';
+export * from './use-tickets';
+export * from './use-notifications';

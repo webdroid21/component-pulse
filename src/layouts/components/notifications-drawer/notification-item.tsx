@@ -13,18 +13,12 @@ import { FileThumbnail } from 'src/components/file-thumbnail';
 
 import { notificationIcons } from './icons';
 
+import { NotificationRecord } from 'src/hooks/firebase';
+
 // ----------------------------------------------------------------------
 
 export type NotificationItemProps = {
-  notification: {
-    id: string;
-    type: string;
-    title: string;
-    category: string;
-    isUnRead: boolean;
-    avatarUrl: string | null;
-    createdAt: string | number | null;
-  };
+  notification: NotificationRecord;
 };
 
 const readerContent = (data: string) => (

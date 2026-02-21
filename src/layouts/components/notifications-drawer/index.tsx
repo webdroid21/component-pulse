@@ -21,7 +21,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { varTap, varHover, transitionTap } from 'src/components/animate';
-
+import { useNotificationMutations, NotificationRecord } from 'src/hooks/firebase';
 import { NotificationItem } from './notification-item';
 
 // ----------------------------------------------------------------------
@@ -35,7 +35,7 @@ const TABS = [
 // ----------------------------------------------------------------------
 
 export type NotificationsDrawerProps = IconButtonProps & {
-  data?: NotificationItemProps['notification'][];
+  data?: NotificationRecord[];
 };
 
 export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDrawerProps) {
@@ -46,13 +46,14 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
   const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);
   }, []);
+  const { markAllAsRead } = useNotificationMutations();
 
-  const [notifications, setNotifications] = useState(data);
+  const totalUnRead = data.filter((item) => item.isUnRead === true).length;
 
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
-
-  const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, isUnRead: false })));
+  const handleMarkAllAsRead = async () => {
+    if (data.length > 0) {
+      await markAllAsRead(data);
+    }
   };
 
   const renderHead = () => (
@@ -116,7 +117,7 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
   const renderList = () => (
     <Scrollbar>
       <Box component="ul">
-        {notifications?.map((notification) => (
+        {data?.map((notification) => (
           <Box component="li" key={notification.id} sx={{ display: 'flex' }}>
             <NotificationItem notification={notification} />
           </Box>

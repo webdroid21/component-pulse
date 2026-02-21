@@ -11,7 +11,7 @@ import {
     updateDoc,
 } from 'firebase/firestore';
 
-import { db } from 'src/lib/firebase';
+import { FIRESTORE as db } from 'src/lib/firebase';
 import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------

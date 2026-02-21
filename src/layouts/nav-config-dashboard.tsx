@@ -96,6 +96,11 @@ export const navData: NavSectionProps['data'] = [
         path: paths.admin.customers.root,
         icon: ICONS.user,
       },
+      {
+        title: 'Support Tickets',
+        path: paths.admin.tickets,
+        icon: ICONS.chat,
+      },
     ],
   },
   /**

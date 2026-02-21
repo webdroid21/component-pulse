@@ -64,6 +64,7 @@ export const paths = {
     orders: `${ROOTS.ACCOUNT}/orders`,
     order: (id: string) => `${ROOTS.ACCOUNT}/orders/${id}`,
     addresses: `${ROOTS.ACCOUNT}/addresses`,
+    tickets: `${ROOTS.ACCOUNT}/tickets`,
     wishlist: `${ROOTS.ACCOUNT}/wishlist`,
   },
 
@@ -95,6 +96,8 @@ export const paths = {
       root: `${ROOTS.ADMIN}/customers`,
       details: (id: string) => `${ROOTS.ADMIN}/customers/${id}`,
     },
+    // Tickets
+    tickets: `${ROOTS.ADMIN}/tickets`,
     // Delivery
     delivery: `${ROOTS.ADMIN}/delivery`,
     // Deals

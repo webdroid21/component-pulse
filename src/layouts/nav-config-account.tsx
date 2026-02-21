@@ -25,6 +25,11 @@ export const _account: AccountDrawerProps['data'] = [
     icon: <Iconify icon="solar:map-point-bold-duotone" />,
   },
   {
+    label: 'Tickets',
+    href: paths.account.tickets,
+    icon: <Iconify icon="solar:chat-round-line-bold-duotone" />,
+  },
+  {
     label: 'Wishlist',
     href: paths.account.wishlist,
     icon: <Iconify icon="solar:heart-bold-duotone" />,

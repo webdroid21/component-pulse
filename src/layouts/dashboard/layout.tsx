@@ -26,6 +26,8 @@ import { _adminAccount } from '../nav-config-account';
 import { MenuButton } from '../components/menu-button';
 import { AccountDrawer } from '../components/account-drawer';
 import { SettingsButton } from '../components/settings-button';
+import { NotificationsDrawer } from '../components/notifications-drawer';
+import { useGetNotifications } from 'src/hooks/firebase';
 import { navData as dashboardNavData } from '../nav-config-dashboard';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 import { MainSection, layoutClasses, HeaderSection, LayoutSection } from '../core';
@@ -55,8 +57,8 @@ export function DashboardLayout({
   const theme = useTheme();
 
   const { user } = useAuthContext();
-
   const settings = useSettingsContext();
+  const { notifications } = useGetNotifications();
 
   const navVars = dashboardNavColorVars(theme, settings.state.navColor, settings.state.navLayout);
 
@@ -138,6 +140,9 @@ export function DashboardLayout({
 
           {/** @slot Settings button */}
           <SettingsButton />
+
+          {/** @slot Notifications drawer */}
+          <NotificationsDrawer data={notifications} />
 
           {/** @slot Account drawer */}
           <AccountDrawer data={_adminAccount} />
