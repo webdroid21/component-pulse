@@ -29,7 +29,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useCreateOrder, useUserProfile } from 'src/hooks/firebase';
+import { useCreateOrder, useUserProfile, useUpdatePaymentStatus } from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -88,6 +88,7 @@ export function CheckoutView() {
   const { user, authenticated } = useAuthContext();
   const { profile } = useUserProfile();
   const { createOrder, loading: creatingOrder, error: orderError } = useCreateOrder();
+  const { updatePaymentStatus } = useUpdatePaymentStatus();
 
   const [activeStep, setActiveStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -196,7 +197,7 @@ export function CheckoutView() {
 
   const buildOrderData = () => {
     const selectedAddr = getSelectedAddress();
-    
+
     // Use selected saved address or new address form
     const shippingAddress = selectedAddr ? {
       fullName: selectedAddr.fullName,
@@ -309,15 +310,15 @@ export function CheckoutView() {
 
   const initializeFlutterwavePayment = async () => {
     const publicKey = process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
-    
+
     if (!publicKey) {
       setError('Payment configuration error. Please contact support.');
       return;
     }
 
     const txRef = generateTxRef('CP');
-    const paymentOptions = paymentMethod === 'mobile_money' 
-      ? FLUTTERWAVE_PAYMENT_OPTIONS.mobileMoney 
+    const paymentOptions = paymentMethod === 'mobile_money'
+      ? FLUTTERWAVE_PAYMENT_OPTIONS.mobileMoney
       : FLUTTERWAVE_PAYMENT_OPTIONS.card;
 
     try {
@@ -350,9 +351,11 @@ export function CheckoutView() {
               ...buildOrderData(),
               paymentReference: response.flw_ref,
             };
-            
+
             const result = await createOrder(orderData);
             if (result) {
+              // Mark payment as paid — createOrder always starts as 'pending'
+              await updatePaymentStatus(result.orderId, 'paid', response.flw_ref);
               await sendConfirmationEmail(result.orderNumber);
               checkout.onResetCart();
               router.push(`/checkout/success?orderId=${result.orderId}&orderNumber=${result.orderNumber}`);
@@ -853,10 +856,10 @@ export function CheckoutView() {
                   )
                 }
               >
-                {loading || creatingOrder 
-                  ? 'Processing...' 
-                  : activeStep === steps.length - 1 
-                    ? 'Place Order' 
+                {loading || creatingOrder
+                  ? 'Processing...'
+                  : activeStep === steps.length - 1
+                    ? 'Place Order'
                     : 'Continue'}
               </Button>
             </Stack>

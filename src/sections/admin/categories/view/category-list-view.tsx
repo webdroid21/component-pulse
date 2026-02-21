@@ -24,6 +24,8 @@ import DialogActions from '@mui/material/DialogActions';
 import TableContainer from '@mui/material/TableContainer';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CircularProgress from '@mui/material/CircularProgress';
+import InputAdornment from '@mui/material/InputAdornment';
+import Tooltip from '@mui/material/Tooltip';
 
 import { useCategories, useCategoryMutations } from 'src/hooks/firebase';
 
@@ -37,9 +39,14 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 type CategoryFormValues = {
   name: string;
   description: string;
+  icon: string;
+  color: string;
   order: number;
   isActive: boolean;
 };
+
+const DEFAULT_COLOR = '#2196F3';
+const DEFAULT_ICON = 'solar:box-bold-duotone';
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +61,8 @@ export function CategoryListView() {
   const defaultValues: CategoryFormValues = {
     name: '',
     description: '',
+    icon: DEFAULT_ICON,
+    color: DEFAULT_COLOR,
     order: categories.length,
     isActive: true,
   };
@@ -65,6 +74,8 @@ export function CategoryListView() {
   const { register, reset, watch, setValue, handleSubmit, formState: { isSubmitting, errors } } = methods;
 
   const isActive = watch('isActive');
+  const watchedIcon = watch('icon');
+  const watchedColor = watch('color');
 
   const handleOpenCreate = () => {
     reset({ ...defaultValues, order: categories.length });
@@ -75,6 +86,8 @@ export function CategoryListView() {
     reset({
       name: category.name,
       description: category.description || '',
+      icon: category.icon || DEFAULT_ICON,
+      color: category.color || DEFAULT_COLOR,
       order: category.order,
       isActive: category.isActive,
     });
@@ -92,6 +105,8 @@ export function CategoryListView() {
     const formData: CategoryFormData = {
       name: data.name,
       description: data.description,
+      icon: data.icon,
+      color: data.color,
       order: Number(data.order),
       isActive: data.isActive,
     };
@@ -172,14 +187,25 @@ export function CategoryListView() {
                   <TableRow key={category.id} hover>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        {category.image && (
-                          <Box
-                            component="img"
-                            src={category.image}
-                            alt={category.name}
-                            sx={{ width: 48, height: 48, borderRadius: 1, objectFit: 'cover' }}
+                        {/* Icon + color swatch */}
+                        <Box
+                          sx={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 1.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: category.color ? `${category.color}22` : 'action.hover',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <Iconify
+                            icon={category.icon || 'solar:box-bold-duotone'}
+                            width={24}
+                            sx={{ color: category.color || 'text.secondary' }}
                           />
-                        )}
+                        </Box>
                         <Box>
                           <Typography variant="subtitle2">{category.name}</Typography>
                           {category.description && (
@@ -228,19 +254,98 @@ export function CategoryListView() {
                 helperText={errors.name?.message}
                 fullWidth
               />
+
               <TextField
                 label="Description"
                 {...register('description')}
                 multiline
-                rows={3}
+                rows={2}
                 fullWidth
               />
+
+              {/* Icon field with live preview */}
+              <TextField
+                label="Icon (Iconify name)"
+                placeholder="solar:cpu-bolt-bold-duotone"
+                {...register('icon')}
+                fullWidth
+                helperText={
+                  <span>
+                    Browse icons at{' '}
+                    <a
+                      href="https://icon-sets.iconify.design"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      icon-sets.iconify.design
+                    </a>
+                  </span>
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Tooltip title={watchedIcon || 'icon preview'}>
+                        <Box
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: watchedColor ? `${watchedColor}22` : 'action.hover',
+                          }}
+                        >
+                          <Iconify
+                            icon={watchedIcon || 'solar:box-bold-duotone'}
+                            width={20}
+                            sx={{ color: watchedColor || 'text.secondary' }}
+                          />
+                        </Box>
+                      </Tooltip>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              {/* Color picker */}
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Tooltip title="Pick a color">
+                  <Box
+                    component="input"
+                    type="color"
+                    value={watchedColor || DEFAULT_COLOR}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setValue('color', e.target.value)
+                    }
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      cursor: 'pointer',
+                      p: 0.5,
+                      flexShrink: 0,
+                    }}
+                  />
+                </Tooltip>
+                <TextField
+                  label="Color (hex)"
+                  {...register('color')}
+                  placeholder="#2196F3"
+                  fullWidth
+                  onChange={(e) => setValue('color', e.target.value)}
+                />
+              </Box>
+
               <TextField
                 label="Display Order"
                 type="number"
                 {...register('order', { valueAsNumber: true })}
                 fullWidth
               />
+
               <FormControlLabel
                 control={
                   <Switch

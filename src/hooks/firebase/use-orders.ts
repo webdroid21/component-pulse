@@ -14,6 +14,7 @@ import {
   increment,
   Timestamp,
   collection,
+  onSnapshot,
   runTransaction,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -29,72 +30,70 @@ export function useOrders(filters?: OrderFilters) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrders = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  useEffect(() => {
+    // Build query constraints
+    const constraints: any[] = [];
 
-      // Build query constraints - where clauses must come before orderBy
-      const constraints: any[] = [];
-
-      if (filters?.customerId) {
-        constraints.push(where('customerId', '==', filters.customerId));
-      }
-
-      if (filters?.status) {
-        constraints.push(where('status', '==', filters.status));
-      }
-
-      if (filters?.paymentStatus) {
-        constraints.push(where('paymentStatus', '==', filters.paymentStatus));
-      }
-
-      // Add orderBy last
-      constraints.push(orderBy('createdAt', 'desc'));
-
-      const q = query(collection(FIRESTORE, COLLECTION), ...constraints);
-
-      const snapshot = await getDocs(q);
-      let data = snapshot.docs.map((docSnap) => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      })) as Order[];
-
-      // Client-side filtering for search and date range
-      if (filters?.search) {
-        const searchLower = filters.search.toLowerCase();
-        data = data.filter(
-          (order) =>
-            order.orderNumber.toLowerCase().includes(searchLower) ||
-            order.customerName.toLowerCase().includes(searchLower) ||
-            order.customerEmail.toLowerCase().includes(searchLower)
-        );
-      }
-
-      if (filters?.dateFrom) {
-        const fromTimestamp = Timestamp.fromDate(filters.dateFrom);
-        data = data.filter((order) => order.createdAt >= fromTimestamp);
-      }
-
-      if (filters?.dateTo) {
-        const toTimestamp = Timestamp.fromDate(filters.dateTo);
-        data = data.filter((order) => order.createdAt <= toTimestamp);
-      }
-
-      setOrders(data);
-    } catch (err) {
-      console.error('Error fetching orders:', err);
-      setError('Failed to fetch orders');
-    } finally {
-      setLoading(false);
+    if (filters?.customerId) {
+      constraints.push(where('customerId', '==', filters.customerId));
     }
+    if (filters?.status) {
+      constraints.push(where('status', '==', filters.status));
+    }
+    if (filters?.paymentStatus) {
+      constraints.push(where('paymentStatus', '==', filters.paymentStatus));
+    }
+    constraints.push(orderBy('createdAt', 'desc'));
+
+    const q = query(collection(FIRESTORE, COLLECTION), ...constraints);
+
+    setLoading(true);
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        let data = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        })) as Order[];
+
+        // Client-side filtering for search
+        if (filters?.search) {
+          const searchLower = filters.search.toLowerCase();
+          data = data.filter(
+            (order) =>
+              order.orderNumber.toLowerCase().includes(searchLower) ||
+              order.customerName.toLowerCase().includes(searchLower) ||
+              order.customerEmail.toLowerCase().includes(searchLower)
+          );
+        }
+        if (filters?.dateFrom) {
+          const fromTs = Timestamp.fromDate(filters.dateFrom);
+          data = data.filter((order) => order.createdAt >= fromTs);
+        }
+        if (filters?.dateTo) {
+          const toTs = Timestamp.fromDate(filters.dateTo);
+          data = data.filter((order) => order.createdAt <= toTs);
+        }
+
+        setOrders(data);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error('Error listening to orders:', err);
+        setError('Failed to fetch orders');
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters?.status, filters?.paymentStatus, filters?.customerId, filters?.search, filters?.dateFrom, filters?.dateTo]);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+  // refetch is a no-op with real-time listeners but kept for API compatibility
+  const refetch = useCallback(() => { }, []);
 
-  return { orders, loading, error, refetch: fetchOrders };
+  return { orders, loading, error, refetch };
 }
 
 export function useOrder(orderId: string | null) {
@@ -102,37 +101,41 @@ export function useOrder(orderId: string | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrder = useCallback(async () => {
+  useEffect(() => {
     if (!orderId) {
       setLoading(false);
-      return;
+      return undefined;
     }
 
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    const docRef = doc(FIRESTORE, COLLECTION, orderId);
 
-      const docRef = doc(FIRESTORE, COLLECTION, orderId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
-      } else {
-        setError('Order not found');
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          setOrder({ id: docSnap.id, ...docSnap.data() } as Order);
+          setError(null);
+        } else {
+          setError('Order not found');
+          setOrder(null);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error listening to order:', err);
+        setError('Failed to fetch order');
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching order:', err);
-      setError('Failed to fetch order');
-    } finally {
-      setLoading(false);
-    }
+    );
+
+    return () => unsubscribe();
   }, [orderId]);
 
-  useEffect(() => {
-    fetchOrder();
-  }, [fetchOrder]);
+  // refetch kept for API compatibility — no-op with real-time listener
+  const refetch = useCallback(() => { }, []);
 
-  return { order, loading, error, refetch: fetchOrder };
+  return { order, loading, error, refetch };
 }
 
 export function useOrderMutations() {
@@ -160,17 +163,17 @@ export function useOrderMutations() {
       const currentOrder = docSnap.data() as Order;
       const statusHistory = currentOrder.statusHistory || [];
 
+      // Build history entry — Firestore doesn't accept undefined values
+      const historyEntry: Record<string, any> = {
+        status,
+        timestamp: Timestamp.now(),
+      };
+      if (note !== undefined) historyEntry.note = note;
+      if (updatedBy !== undefined) historyEntry.updatedBy = updatedBy;
+
       const updateData: Record<string, any> = {
         status,
-        statusHistory: [
-          ...statusHistory,
-          {
-            status,
-            timestamp: serverTimestamp(),
-            note,
-            updatedBy,
-          },
-        ],
+        statusHistory: [...statusHistory, historyEntry],
         updatedAt: serverTimestamp(),
       };
 
@@ -265,14 +268,14 @@ export function useCreateOrder() {
         for (const item of data.items) {
           const productRef = doc(FIRESTORE, 'products', item.productId);
           const productSnap = await transaction.get(productRef);
-          
+
           if (!productSnap.exists()) {
             throw new Error(`Product ${item.productName} no longer exists`);
           }
-          
+
           const productData = productSnap.data();
           const currentStock = productData.stock || productData.quantity || 0;
-          
+
           if (currentStock < item.quantity) {
             throw new Error(`Insufficient stock for ${item.productName}. Available: ${currentStock}`);
           }

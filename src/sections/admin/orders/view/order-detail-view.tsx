@@ -53,8 +53,8 @@ const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
 type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 type TimelineDotColor = 'grey' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 
-const STATUS_CONFIG: Record<OrderStatus, { 
-  label: string; 
+const STATUS_CONFIG: Record<OrderStatus, {
+  label: string;
   chipColor: ChipColor;
   dotColor: TimelineDotColor;
   icon: string;
@@ -82,7 +82,7 @@ type Props = {
 };
 
 export function OrderDetailView({ orderId }: Props) {
-  const { order, loading, error, refetch } = useOrder(orderId);
+  const { order, loading, error } = useOrder(orderId);
   const { updateOrderStatus, addOrderNote, loading: updating } = useOrderMutations();
 
   const [newStatus, setNewStatus] = useState<OrderStatus | ''>('');
@@ -113,7 +113,7 @@ export function OrderDetailView({ orderId }: Props) {
 
       setNewStatus('');
       setStatusNote('');
-      refetch();
+      // No refetch needed — real-time listener updates order automatically
     }
   };
 
@@ -123,7 +123,7 @@ export function OrderDetailView({ orderId }: Props) {
     const success = await addOrderNote(order.id, adminNote);
     if (success) {
       setAdminNote('');
-      refetch();
+      // No refetch needed — real-time listener updates order automatically
     }
   };
 
@@ -287,8 +287,8 @@ export function OrderDetailView({ orderId }: Props) {
                       onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
                     >
                       {STATUS_OPTIONS.map((option) => (
-                        <MenuItem 
-                          key={option.value} 
+                        <MenuItem
+                          key={option.value}
                           value={option.value}
                           disabled={option.value === order.status}
                         >
@@ -452,7 +452,7 @@ export function OrderDetailView({ orderId }: Props) {
                 {order.statusHistory?.map((history, index) => {
                   const config = STATUS_CONFIG[history.status];
                   const isLast = index === order.statusHistory.length - 1;
-                  
+
                   return (
                     <TimelineItem
                       key={index}

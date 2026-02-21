@@ -7,6 +7,8 @@ export type Category = {
   name: string;
   slug: string;
   description?: string;
+  icon?: string;
+  color?: string;
   image?: string;
   parentId?: string;
   parentName?: string;

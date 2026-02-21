@@ -1,5 +1,7 @@
 'use client';
 
+import AutoScroll from 'embla-carousel-auto-scroll';
+
 import { m } from 'framer-motion';
 
 import Box from '@mui/material/Box';
@@ -11,6 +13,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { Iconify } from 'src/components/iconify';
+import { Carousel, useCarousel, CarouselDotButtons, CarouselArrowBasicButtons } from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +30,7 @@ const TESTIMONIALS = [
     role: 'Electrical Contractor',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
     rating: 5,
-    content: 'The best prices in Kampala! I\'ve compared with many suppliers and ComponentPulse consistently offers better deals without compromising on quality. Their customer service is excellent too.',
+    content: "The best prices in Kampala! I've compared with many suppliers and ComponentPulse consistently offers better deals without compromising on quality. Their customer service is excellent too.",
   },
   {
     name: 'James Okello',
@@ -59,92 +62,119 @@ const TESTIMONIALS = [
   },
 ];
 
-export function HomeTestimonials() {
+// ----------------------------------------------------------------------
+
+type TestimonialCardProps = (typeof TESTIMONIALS)[number];
+
+function TestimonialCard({ name, role, avatar, rating, content }: TestimonialCardProps) {
   return (
-    <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'grey.900', color: 'common.white' }}>
+    <Card
+      sx={{
+        p: 3,
+        height: '100%',
+        bgcolor: 'grey.800',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: 4,
+          height: '100%',
+          bgcolor: 'primary.main',
+          borderRadius: '4px 0 0 4px',
+        },
+      }}
+    >
+      <Stack spacing={2} sx={{ height: '100%' }}>
+        <Iconify
+          icon="solar:quote-up-square-bold"
+          width={32}
+          sx={{ color: 'primary.main', opacity: 0.5 }}
+        />
+
+        <Typography variant="body2" sx={{ color: 'grey.300', lineHeight: 1.8, flexGrow: 1 }}>
+          &ldquo;{content}&rdquo;
+        </Typography>
+
+        <Rating value={rating} readOnly size="small" />
+
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Avatar src={avatar} alt={name} sx={{ width: 40, height: 40 }} />
+          <Box>
+            <Typography variant="subtitle2" sx={{ color: 'common.white' }}>
+              {name}
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'grey.500' }}>
+              {role}
+            </Typography>
+          </Box>
+        </Stack>
+      </Stack>
+    </Card>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+export function HomeTestimonials() {
+  const carousel = useCarousel(
+    {
+      loop: true,
+      align: 'start',
+      slidesToShow: { xs: 1.1, sm: 2.1, md: 3.1 },
+      slideSpacing: '16px',
+    },
+    [AutoScroll({ speed: 1, stopOnInteraction: false, stopOnMouseEnter: true })]
+  );
+
+  return (
+    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'grey.900', color: 'common.white', overflow: 'hidden' }}>
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: 'center', mb: 8 }}>
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
             <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700 }}>
               Testimonials
             </Typography>
-            <Typography variant="h2" sx={{ mt: 1, mb: 2, color: 'common.white' }}>
+            <Typography variant="h3" sx={{ mt: 1, mb: 1.5, color: 'common.white' }}>
               What Our Customers Say
             </Typography>
-            <Typography variant="body1" sx={{ color: 'grey.400', maxWidth: 600, mx: 'auto' }}>
-              Don&apos;t just take our word for it. Here&apos;s what our satisfied customers have to say about us.
+            <Typography variant="body1" sx={{ color: 'grey.400', maxWidth: 500, mx: 'auto' }}>
+              Here&apos;s what our satisfied customers have to say about us.
             </Typography>
-          </m.div>
-        </Box>
+          </Box>
+        </m.div>
+
+        <Carousel carousel={carousel}>
+          {TESTIMONIALS.map((t) => (
+            <TestimonialCard key={t.name} {...t} />
+          ))}
+        </Carousel>
 
         <Box
           sx={{
-            display: 'grid',
-            gap: 3,
-            gridTemplateColumns: {
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              lg: 'repeat(3, 1fr)',
-            },
+            mt: 3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          {TESTIMONIALS.map((testimonial, index) => (
-            <m.div
-              key={testimonial.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Card
-                sx={{
-                  p: 4,
-                  height: '100%',
-                  bgcolor: 'grey.800',
-                  position: 'relative',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: 4,
-                    height: '100%',
-                    bgcolor: 'primary.main',
-                    borderRadius: '4px 0 0 4px',
-                  },
-                }}
-              >
-                <Stack spacing={3}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                    <Iconify icon="solar:quote-up-square-bold" width={40} sx={{ color: 'primary.main', opacity: 0.5 }} />
-                  </Box>
-
-                  <Typography variant="body1" sx={{ color: 'grey.300', lineHeight: 1.8 }}>
-                    &ldquo;{testimonial.content}&rdquo;
-                  </Typography>
-
-                  <Rating value={testimonial.rating} readOnly size="small" />
-
-                  <Stack direction="row" alignItems="center" spacing={2}>
-                    <Avatar src={testimonial.avatar} alt={testimonial.name} sx={{ width: 48, height: 48 }} />
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ color: 'common.white' }}>
-                        {testimonial.name}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'grey.500' }}>
-                        {testimonial.role}
-                      </Typography>
-                    </Box>
-                  </Stack>
-                </Stack>
-              </Card>
-            </m.div>
-          ))}
+          <CarouselArrowBasicButtons
+            {...carousel.arrows}
+            options={carousel.options}
+            sx={{ color: 'common.white' }}
+          />
+          <CarouselDotButtons
+            scrollSnaps={carousel.dots.scrollSnaps}
+            selectedIndex={carousel.dots.selectedIndex}
+            onClickDot={carousel.dots.onClickDot}
+            sx={{ color: 'primary.main' }}
+          />
         </Box>
       </Container>
     </Box>

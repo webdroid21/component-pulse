@@ -2,11 +2,14 @@
 
 import type { OrderStatus } from 'src/types/order';
 
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import Timeline from '@mui/lab/Timeline';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -21,20 +24,21 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useOrder } from 'src/hooks/firebase';
+import { useOrder, useOrderMutations } from 'src/hooks/firebase';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 
 type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 type TimelineDotColor = 'grey' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 
-const STATUS_CONFIG: Record<OrderStatus, { 
-  label: string; 
+const STATUS_CONFIG: Record<OrderStatus, {
+  label: string;
   chipColor: ChipColor;
   dotColor: TimelineDotColor;
   icon: string;
@@ -55,6 +59,9 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash_on_delivery: 'Cash on Delivery',
 };
 
+// Statuses that allow cancellation
+const CANCELLABLE_STATUSES: OrderStatus[] = ['pending', 'confirmed'];
+
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -63,6 +70,16 @@ type Props = {
 
 export function AccountOrderDetailView({ orderId }: Props) {
   const { order, loading, error } = useOrder(orderId);
+  const { updateOrderStatus, loading: cancelling } = useOrderMutations();
+
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    await updateOrderStatus(order.id, 'cancelled', 'Cancelled by customer');
+    setCancelDialogOpen(false);
+    // No refetch needed — real-time listener updates order automatically
+  };
 
   if (loading) {
     return (
@@ -90,6 +107,7 @@ export function AccountOrderDetailView({ orderId }: Props) {
   }
 
   const statusConfig = STATUS_CONFIG[order.status];
+  const canCancel = CANCELLABLE_STATUSES.includes(order.status);
 
   return (
     <Stack spacing={3}>
@@ -110,15 +128,42 @@ export function AccountOrderDetailView({ orderId }: Props) {
               Placed on {order.createdAt ? fDateTime(order.createdAt.toDate()) : '-'}
             </Typography>
           </Box>
-          <Button
-            component={RouterLink}
-            href={paths.account.orders}
-            variant="outlined"
-            startIcon={<Iconify icon="solar:arrow-left-bold" />}
-          >
-            Back to Orders
-          </Button>
+
+          <Stack direction="row" spacing={1.5} flexWrap="wrap">
+            {canCancel && (
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<Iconify icon="solar:close-circle-bold" />}
+                onClick={() => setCancelDialogOpen(true)}
+                disabled={cancelling}
+              >
+                Cancel Order
+              </Button>
+            )}
+            <Button
+              component={RouterLink}
+              href={paths.account.orders}
+              variant="outlined"
+              startIcon={<Iconify icon="solar:arrow-left-bold" />}
+            >
+              Back to Orders
+            </Button>
+          </Stack>
         </Stack>
+
+        {/* Status progress bar */}
+        {order.status !== 'cancelled' && order.status !== 'refunded' && (
+          <Box sx={{ mt: 3 }}>
+            <StatusStepper currentStatus={order.status} />
+          </Box>
+        )}
+
+        {order.status === 'cancelled' && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            This order has been cancelled.
+          </Alert>
+        )}
       </Card>
 
       <Grid container spacing={3}>
@@ -273,7 +318,7 @@ export function AccountOrderDetailView({ orderId }: Props) {
                 {order.statusHistory?.map((history, index) => {
                   const config = STATUS_CONFIG[history.status];
                   const isLast = index === order.statusHistory.length - 1;
-                  
+
                   return (
                     <TimelineItem
                       key={index}
@@ -321,6 +366,104 @@ export function AccountOrderDetailView({ orderId }: Props) {
           </Typography>
         </Card>
       )}
+
+      {/* Cancel Confirmation */}
+      <ConfirmDialog
+        open={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+        title="Cancel Order"
+        content="Are you sure you want to cancel this order? This action cannot be undone."
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleCancelOrder}
+            disabled={cancelling}
+          >
+            {cancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
+          </Button>
+        }
+      />
     </Stack>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+const STATUS_STEPS: OrderStatus[] = [
+  'pending',
+  'confirmed',
+  'processing',
+  'out_for_delivery',
+  'delivered',
+];
+
+const STEP_LABELS: Partial<Record<OrderStatus, string>> = {
+  pending: 'Pending',
+  confirmed: 'Confirmed',
+  processing: 'Processing',
+  out_for_delivery: 'On the way',
+  delivered: 'Delivered',
+};
+
+function StatusStepper({ currentStatus }: { currentStatus: OrderStatus }) {
+  const currentIndex = STATUS_STEPS.indexOf(currentStatus);
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+      {STATUS_STEPS.map((step, index) => {
+        const isCompleted = index < currentIndex;
+        const isActive = index === currentIndex;
+
+        return (
+          <Box key={step} sx={{ display: 'flex', alignItems: 'center', flex: index < STATUS_STEPS.length - 1 ? 1 : 0 }}>
+            <Stack alignItems="center" spacing={0.5}>
+              <Box
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  bgcolor: isCompleted ? 'success.main' : isActive ? 'primary.main' : 'grey.200',
+                  color: isCompleted || isActive ? 'white' : 'text.disabled',
+                  transition: 'all 0.3s',
+                }}
+              >
+                {isCompleted ? (
+                  <Iconify icon="solar:check-bold" width={16} />
+                ) : (
+                  <Typography variant="caption" fontWeight={700}>{index + 1}</Typography>
+                )}
+              </Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: isCompleted ? 'success.main' : isActive ? 'primary.main' : 'text.disabled',
+                  fontWeight: isActive ? 700 : 400,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {STEP_LABELS[step]}
+              </Typography>
+            </Stack>
+
+            {index < STATUS_STEPS.length - 1 && (
+              <Box
+                sx={{
+                  flex: 1,
+                  height: 2,
+                  mx: 1,
+                  mb: 3,
+                  bgcolor: isCompleted ? 'success.main' : 'grey.200',
+                  transition: 'background-color 0.3s',
+                }}
+              />
+            )}
+          </Box>
+        );
+      })}
+    </Box>
   );
 }
