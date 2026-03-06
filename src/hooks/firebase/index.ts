@@ -13,3 +13,4 @@ export * from './use-notifications';
 export * from './use-delivery-zones';
 export * from './use-training-modules';
 export * from './use-training-subscriptions';
+export * from './use-newsletter';

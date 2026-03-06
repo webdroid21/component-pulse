@@ -438,7 +438,7 @@ export function AdminDashboardView() {
 
   const handleTicketsReport = () => {
     openReport({
-      title: 'Open Support Tickets',
+      title: 'Open Contact Support',
       description: `${openTickets} tickets currently open`,
       rows: tickets
         .filter((t) => t.status === 'open')

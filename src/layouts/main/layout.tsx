@@ -5,6 +5,8 @@ import type { MainSectionProps, LayoutSectionProps, HeaderSectionProps } from '.
 
 import { useBoolean } from 'minimal-shared/hooks';
 
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import Link from '@mui/material/Link';
@@ -15,6 +17,7 @@ import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -24,9 +27,10 @@ import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useGetNotifications } from 'src/hooks/firebase';
+import { useGetNotifications, useNewsletter } from 'src/hooks/firebase';
 
 import { Logo } from 'src/components/logo';
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 import { useAuthContext } from 'src/auth/hooks';
@@ -38,6 +42,60 @@ import { SettingsButton } from '../components/settings-button';
 import { _account, _adminAccount } from '../nav-config-account';
 import { MainSection, LayoutSection, HeaderSection } from '../core';
 import { NotificationsDrawer } from '../components/notifications-drawer';
+
+// ----------------------------------------------------------------------
+
+function NewsletterForm() {
+  const { subscribe, loading } = useNewsletter();
+  const [email, setEmail] = useState('');
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    const success = await subscribe(email);
+    if (success) {
+      toast.success('Thank you for subscribing!');
+      setEmail('');
+    } else {
+      toast.error('Failed to subscribe or already subscribed.');
+    }
+  };
+
+  return (
+    <Box component="form" onSubmit={onSubmit} sx={{ display: 'flex', gap: 1, width: '100%' }}>
+      <TextField
+        fullWidth
+        name="email"
+        placeholder="Enter your email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        variant="outlined"
+        size="small"
+        sx={{
+          bgcolor: 'common.white',
+          borderRadius: 1,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 1,
+          },
+        }}
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        color="secondary"
+        disabled={loading}
+        sx={{
+          whiteSpace: 'nowrap',
+          px: 3,
+        }}
+      >
+        {loading ? 'Subscribing...' : 'Subscribe'}
+      </Button>
+    </Box>
+  );
+}
 
 // ----------------------------------------------------------------------
 
@@ -258,11 +316,36 @@ export function MainLayout({
     <Box
       component="footer"
       sx={{
-        py: 8,
+        pb: 8,
         bgcolor: 'grey.900',
         color: 'common.white',
       }}
     >
+      {/* Pre-Footer Newsletter Section */}
+      <Box sx={{ bgcolor: 'primary.dark', py: 6, mb: 8 }}>
+        <Container maxWidth="lg">
+          <Stack
+            direction={{ xs: 'column', md: 'row' }}
+            alignItems="center"
+            justifyContent="space-between"
+            spacing={3}
+          >
+            <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+              <Typography variant="h4" sx={{ color: 'primary.contrastText', mb: 1 }}>
+                Subscribe to our Newsletter
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'primary.contrastText', opacity: 0.8 }}>
+                Get the latest updates on new products and upcoming sales directly in your inbox.
+              </Typography>
+            </Box>
+
+            <Box sx={{ width: { xs: '100%', md: 400 } }}>
+              <NewsletterForm />
+            </Box>
+          </Stack>
+        </Container>
+      </Box>
+
       <Container maxWidth="lg">
         <Box
           sx={{

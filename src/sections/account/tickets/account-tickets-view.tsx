@@ -43,7 +43,7 @@ export function AccountTicketsView() {
     return (
         <>
             <Typography variant="h5" sx={{ mb: 3 }}>
-                Support Tickets
+                Contact Support
             </Typography>
 
             <Card>
@@ -61,7 +61,7 @@ export function AccountTicketsView() {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Date</TableCell>
-                                        <TableCell>Ticket No.</TableCell>
+                                        <TableCell>Contact ID No.</TableCell>
                                         <TableCell>Subject</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell>Priority</TableCell>

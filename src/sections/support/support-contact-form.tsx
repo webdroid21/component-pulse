@@ -13,7 +13,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import { useTicketMutations , useNotificationMutations } from 'src/hooks/firebase';
+import { useTicketMutations, useNotificationMutations } from 'src/hooks/firebase';
 
 import { Form, Field } from 'src/components/hook-form';
 
@@ -104,7 +104,7 @@ export function SupportContactForm() {
 
             {!user && (
                 <Alert severity="info" sx={{ mb: 4 }}>
-                    Did you know? If you <strong>create an account</strong> or <strong>sign in</strong>, you can track the status of your support tickets directly from your dashboard!
+                    Did you know? If you <strong>create an account</strong> or <strong>sign in</strong>, you can track the status of your Contact Support Tickets directly from your dashboard!
                 </Alert>
             )}
 
@@ -126,7 +126,7 @@ export function SupportContactForm() {
                         variant="contained"
                         loading={isSubmitting || rhfSubmitting}
                     >
-                        Submit Ticket
+                        Submit Message
                     </LoadingButton>
                 </Stack>
             </Form>

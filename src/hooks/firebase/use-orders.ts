@@ -8,6 +8,7 @@ import {
   query,
   where,
   getDoc,
+  setDoc,
   orderBy,
   updateDoc,
   increment,
@@ -86,7 +87,7 @@ export function useOrders(filters?: OrderFilters) {
     );
 
     return () => unsubscribe();
-     
+
   }, [filters?.status, filters?.paymentStatus, filters?.customerId, filters?.search, filters?.dateFrom, filters?.dateTo]);
 
   // refetch is a no-op with real-time listeners but kept for API compatibility
@@ -330,6 +331,19 @@ export function useCreateOrder() {
           });
         }
 
+        // Create admin notification
+        const notifRef = doc(collection(FIRESTORE, 'notifications'));
+        transaction.set(notifRef, {
+          userId: 'admin',
+          type: 'order',
+          category: 'New Order',
+          title: `<strong>${data.customerName}</strong> placed a new order: #<strong>${orderNumber}</strong>`,
+          avatarUrl: null,
+          link: `/admin/orders/${orderRef.id}`,
+          isUnRead: true,
+          createdAt: serverTimestamp(),
+        });
+
         return { orderId: orderRef.id, orderNumber };
       });
 
@@ -384,6 +398,23 @@ export function useUpdatePaymentStatus() {
                 note: 'Payment confirmed',
               },
             ];
+
+            // Notify admins about the paid order
+            try {
+              const notifRef = doc(collection(FIRESTORE, 'notifications'));
+              await setDoc(notifRef, {
+                userId: 'admin',
+                type: 'payment',
+                category: 'Payment Received',
+                title: `Payment received for Order <strong>#${currentOrder.orderNumber}</strong>`,
+                avatarUrl: null,
+                link: `/admin/orders/${orderId}`,
+                isUnRead: true,
+                createdAt: serverTimestamp(),
+              });
+            } catch (notifyErr) {
+              console.error('Failed to notify admins of payment:', notifyErr);
+            }
           }
         }
       }

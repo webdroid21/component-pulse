@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { label: 'Profile', path: paths.account.profile, icon: 'solar:user-circle-bold-duotone' },
   { label: 'My Orders', path: paths.account.orders, icon: 'solar:bag-4-bold-duotone' },
   { label: 'Addresses', path: paths.account.addresses, icon: 'solar:map-point-bold-duotone' },
-  { label: 'Tickets', path: paths.account.tickets, icon: 'fluent:chat-20-filled' },
+  { label: 'Contact Support', path: paths.account.tickets, icon: 'fluent:chat-20-filled' },
   { label: 'Wishlist', path: paths.account.wishlist, icon: 'solar:heart-bold-duotone' },
 ];
 
