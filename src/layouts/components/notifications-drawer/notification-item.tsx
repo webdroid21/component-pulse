@@ -1,6 +1,7 @@
 import type { NotificationRecord } from 'src/hooks/firebase';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -8,10 +9,12 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 
+import { useRouter } from 'src/routes/hooks';
+
 import { fToNow } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
-import { FileThumbnail } from 'src/components/file-thumbnail';
+import { Iconify } from 'src/components/iconify';
 
 import { notificationIcons } from './icons';
 
@@ -19,6 +22,8 @@ import { notificationIcons } from './icons';
 
 export type NotificationItemProps = {
   notification: NotificationRecord;
+  onRead: (id: string) => void;
+  onClose: () => void;
 };
 
 const readerContent = (data: string) => (
@@ -38,9 +43,25 @@ const renderIcon = (type: string) =>
     chat: notificationIcons.chat,
     mail: notificationIcons.mail,
     delivery: notificationIcons.delivery,
+    training: notificationIcons.mail,
   })[type];
 
-export function NotificationItem({ notification }: NotificationItemProps) {
+// ----------------------------------------------------------------------
+
+export function NotificationItem({ notification, onRead, onClose }: NotificationItemProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (notification.isUnRead) {
+      onRead(notification.id);
+    }
+    if (notification.link) {
+      onClose();
+      router.push(notification.link);
+    }
+  };
+
+  // ── Avatar ──────────────────────────────────────────────────────────
   const renderAvatar = () => (
     <ListItemAvatar>
       {notification.avatarUrl ? (
@@ -63,6 +84,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     </ListItemAvatar>
   );
 
+  // ── Text ─────────────────────────────────────────────────────────────
   const renderText = () => (
     <ListItemText
       primary={readerContent(notification.title)}
@@ -77,9 +99,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
         </>
       }
       slotProps={{
-        primary: {
-          sx: { mb: 0.5 },
-        },
+        primary: { sx: { mb: 0.5 } },
         secondary: {
           sx: {
             gap: 0.5,
@@ -93,6 +113,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     />
   );
 
+  // ── Unread badge ──────────────────────────────────────────────────────
   const renderUnReadBadge = () =>
     notification.isUnRead && (
       <Box
@@ -108,117 +129,116 @@ export function NotificationItem({ notification }: NotificationItemProps) {
       />
     );
 
-  const renderFriendAction = () => (
+  // ── Contextual actions ────────────────────────────────────────────────
+  const renderOrderAction = () => (
     <Box sx={{ gap: 1, mt: 1.5, display: 'flex' }}>
-      <Button size="small" variant="contained">
-        Accept
-      </Button>
-      <Button size="small" variant="outlined">
-        Decline
-      </Button>
+      {notification.link && (
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<Iconify icon="solar:eye-bold" />}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRead(notification.id);
+            onClose();
+            router.push(notification.link!);
+          }}
+        >
+          View Order
+        </Button>
+      )}
     </Box>
   );
 
-  const renderProjectAction = () => (
-    <>
-      <Box
-        sx={{
-          p: 1.5,
-          my: 1.5,
-          borderRadius: 1.5,
-          color: 'text.secondary',
-          bgcolor: 'background.neutral',
+  const renderDeliveryAction = () => (
+    <Box sx={{ gap: 1, mt: 1.5, display: 'flex' }}>
+      <Button
+        size="small"
+        variant="contained"
+        color="primary"
+        startIcon={<Iconify icon="solar:delivery-bold" />}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRead(notification.id);
+          onClose();
+          router.push(notification.link || '/track-order');
         }}
       >
-        {readerContent(
-          `<p><strong>@Jaydon Frankie</strong> feedback by asking questions or just leave a note of appreciation.</p>`
-        )}
-      </Box>
-
-      <Button size="small" variant="contained" sx={{ alignSelf: 'flex-start' }}>
-        Reply
-      </Button>
-    </>
-  );
-
-  const renderFileAction = () => (
-    <Box
-      sx={(theme) => ({
-        p: theme.spacing(1.5, 1.5, 1.5, 1),
-        gap: 1,
-        mt: 1.5,
-        display: 'flex',
-        borderRadius: 1.5,
-        bgcolor: 'background.neutral',
-      })}
-    >
-      <FileThumbnail file="http://localhost:8080/httpsdesign-suriname-2015.mp3" />
-
-      <ListItemText
-        primary="design-suriname-2015.mp3 design-suriname-2015.mp3"
-        secondary="2.3 Mb"
-        slotProps={{
-          primary: {
-            noWrap: true,
-            sx: (theme) => ({
-              color: 'text.secondary',
-              fontSize: theme.typography.pxToRem(13),
-            }),
-          },
-          secondary: {
-            sx: {
-              mt: 0.25,
-              typography: 'caption',
-              color: 'text.disabled',
-            },
-          },
-        }}
-      />
-
-      <Button size="small" variant="outlined" sx={{ flexShrink: 0 }}>
-        Download
+        Track Order
       </Button>
     </Box>
   );
 
-  const renderTagsAction = () => (
-    <Box
-      sx={{
-        mt: 1.5,
-        gap: 0.75,
-        display: 'flex',
-        flexWrap: 'wrap',
-      }}
-    >
-      <Label variant="outlined" color="info">
-        Design
-      </Label>
-      <Label variant="outlined" color="warning">
-        Dashboard
-      </Label>
-      <Label variant="outlined">Design system</Label>
+  const renderTrainingAction = () => (
+    <Box sx={{ gap: 1, mt: 1.5, display: 'flex' }}>
+      {notification.link && (
+        <Button
+          size="small"
+          variant="contained"
+          color="secondary"
+          startIcon={<Iconify icon="solar:book-bold" />}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRead(notification.id);
+            onClose();
+            router.push(notification.link!);
+          }}
+        >
+          View Training
+        </Button>
+      )}
     </Box>
   );
 
   const renderPaymentAction = () => (
     <Box sx={{ gap: 1, mt: 1.5, display: 'flex' }}>
-      <Button size="small" variant="contained">
-        Pay
-      </Button>
-      <Button size="small" variant="outlined">
-        Decline
-      </Button>
+      {notification.link ? (
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<Iconify icon="solar:card-bold" />}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRead(notification.id);
+            onClose();
+            router.push(notification.link!);
+          }}
+        >
+          View Details
+        </Button>
+      ) : (
+        <Chip size="small" label="Payment Received" color="success" variant="soft" />
+      )}
     </Box>
   );
 
+  const renderAction = () => {
+    switch (notification.type) {
+      case 'order':
+        return renderOrderAction();
+      case 'delivery':
+        return renderDeliveryAction();
+      case 'training':
+        return renderTrainingAction();
+      case 'payment':
+        return renderPaymentAction();
+      default:
+        return null;
+    }
+  };
+
   return (
     <ListItemButton
-      disableRipple
+      onClick={handleClick}
       sx={[
         (theme) => ({
           p: 2.5,
           alignItems: 'flex-start',
           borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
+          cursor: notification.link ? 'pointer' : 'default',
+          '&:hover': {
+            bgcolor: notification.link ? 'action.hover' : 'transparent',
+          },
         }),
       ]}
     >
@@ -227,11 +247,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
 
       <Box sx={{ minWidth: 0, flex: '1 1 auto' }}>
         {renderText()}
-        {notification.type === 'friend' && renderFriendAction()}
-        {notification.type === 'project' && renderProjectAction()}
-        {notification.type === 'file' && renderFileAction()}
-        {notification.type === 'tags' && renderTagsAction()}
-        {notification.type === 'payment' && renderPaymentAction()}
+        {renderAction()}
       </Box>
     </ListItemButton>
   );

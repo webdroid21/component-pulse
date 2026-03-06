@@ -273,3 +273,97 @@ export async function sendOrderStatusUpdateEmail(
     return false;
   }
 }
+
+// ----------------------------------------------------------------------
+
+export type TrainingUpdateType = 'launched' | 'updated' | 'coming_soon';
+
+export async function sendTrainingUpdateEmail(
+  recipientEmail: string,
+  recipientName: string,
+  moduleTitle: string,
+  updateType: TrainingUpdateType,
+  moduleUrl: string
+): Promise<boolean> {
+  if (!resend) {
+    console.warn('Resend API key not configured. Skipping training email.');
+    return false;
+  }
+
+  const updateConfig: Record<TrainingUpdateType, { subject: string; heading: string; description: string; color: string; buttonLabel: string }> = {
+    launched: {
+      subject: `🚀 "${moduleTitle}" is now live!`,
+      heading: 'Your training module is now live!',
+      description: `Great news! The training module <strong>${moduleTitle}</strong> that you subscribed to has officially launched. It&apos;s now available for you to access.`,
+      color: '#4caf50',
+      buttonLabel: 'Start Learning Now',
+    },
+    updated: {
+      subject: `📚 "${moduleTitle}" has been updated`,
+      heading: 'Training module updated',
+      description: `The training module <strong>${moduleTitle}</strong> has been updated with new content. Check out the latest materials and improvements.`,
+      color: '#1976d2',
+      buttonLabel: 'View Updates',
+    },
+    coming_soon: {
+      subject: `Coming Soon: "${moduleTitle}"`,
+      heading: 'A new training module is coming soon!',
+      description: `We wanted to let you know that <strong>${moduleTitle}</strong> is coming soon. We&apos;ll send you another email as soon as it launches.`,
+      color: '#ff9800',
+      buttonLabel: 'Preview Module',
+    },
+  };
+
+  const config = updateConfig[updateType];
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #1976d2; margin: 0;">ComponentPulse</h1>
+          <p style="color: #666; margin: 5px 0 0;">Training & Education</p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="display: inline-block; background: ${config.color}; color: white; padding: 10px 24px; border-radius: 20px; font-weight: bold; font-size: 16px;">
+            ${config.heading}
+          </div>
+        </div>
+
+        <div style="background: #f8f9fa; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+          <p style="margin: 0 0 8px; color: #444;">Hi ${recipientName || 'there'},</p>
+          <p style="margin: 0; color: #666;">${config.description}</p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 28px;">
+          <a href="${moduleUrl}" style="display: inline-block; background: ${config.color}; color: white; padding: 14px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px;">${config.buttonLabel}</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+          <p>You received this email because you subscribed to updates for this training module.</p>
+          <p>If you have any questions, contact us at <a href="mailto:support@componentpulse.com" style="color: #1976d2;">support@componentpulse.com</a></p>
+          <p>&copy; ${new Date().getFullYear()} ComponentPulse. All rights reserved.</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: recipientEmail,
+      subject: config.subject,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to send training update email:', error);
+    return false;
+  }
+}
+

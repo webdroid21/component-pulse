@@ -6,6 +6,8 @@ import type { ReportRow, ReportColumn } from '../dashboard-report-dialog';
 import { useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Grid from '@mui/material/Grid';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -32,6 +34,9 @@ import { DashboardMetricCard } from '../dashboard-metric-card';
 import { DashboardReportDialog } from '../dashboard-report-dialog';
 import { DashboardSalesOverview } from '../dashboard-sales-overview';
 import { DashboardLatestProducts } from '../dashboard-latest-products';
+import { DashboardDonutChart } from '../dashboard-donut-chart';
+import { DashboardRevenueChart } from '../dashboard-revenue-chart';
+import { DashboardStockTable } from '../dashboard-stock-table';
 
 // ----------------------------------------------------------------------
 
@@ -193,8 +198,80 @@ export function AdminDashboardView() {
     [products]
   );
 
+  // ── Stock breakdown ──────────────────────────────────────────────────
+  const outOfStockProducts = useMemo(
+    () => products.filter((p) => (p.stock ?? 0) <= 0),
+    [products]
+  );
+  const criticalStockProducts = useMemo(
+    () =>
+      products.filter((p) => {
+        const s = p.stock ?? 0;
+        const t = p.lowStockThreshold ?? 5;
+        return s > 0 && s <= Math.ceil(t * 0.5);
+      }),
+    [products]
+  );
+  const lowStockOnly = useMemo(
+    () =>
+      products.filter((p) => {
+        const s = p.stock ?? 0;
+        const t = p.lowStockThreshold ?? 5;
+        return s > Math.ceil(t * 0.5) && s <= t;
+      }),
+    [products]
+  );
+
+  // ── Chart data ───────────────────────────────────────────────────────
+  const tsToDate = (ts: any): Date => (ts?.toDate ? ts.toDate() : new Date(ts));
+
+  const yearlySalesData = useMemo(() => {
+    const years = Array.from(
+      new Set(orders.map((o) => String(tsToDate(o.createdAt).getFullYear())))
+    ).sort((a, b) => Number(b) - Number(a)).slice(0, 3);
+
+    if (years.length === 0) years.push(String(selectedYear));
+
+    return years.map((yr) => {
+      const rev = Array(12).fill(0);
+      const ords = Array(12).fill(0);
+      orders
+        .filter((o) => String(tsToDate(o.createdAt).getFullYear()) === yr)
+        .forEach((o) => {
+          const m = tsToDate(o.createdAt).getMonth();
+          rev[m] += o.total;
+          ords[m] += 1;
+        });
+      return { year: yr, revenue: rev.map(Math.round), orders: ords };
+    });
+  }, [orders, selectedYear]);
+
+  const orderStatusPie = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredOrders.forEach((o) => {
+      map[o.status] = (map[o.status] ?? 0) + 1;
+    });
+    return Object.entries(map).map(([label, value]) => ({
+      label: label.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      value,
+    }));
+  }, [filteredOrders]);
+
+  const categoryRevenuePie = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredOrders.forEach((o) => {
+      o.items?.forEach((item: any) => {
+        const cat = item.categoryName ?? item.categoryId ?? 'Unknown';
+        map[cat] = (map[cat] ?? 0) + item.totalPrice;
+      });
+    });
+    const entries = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    return entries.map(([label, value]) => ({ label, value: Math.round(value) }));
+  }, [filteredOrders]);
+
   // ── Sparkline placeholders ──────────────────────────────────────────
   const MONTHS_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 
   // ── Report handlers ─────────────────────────────────────────────────
   const handleRevenueReport = () => {
@@ -605,6 +682,8 @@ export function AdminDashboardView() {
         </Grid>
 
         {/* ── Visual Overviews ── */}
+
+        {/* ── Visual Overviews ── */}
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <DashboardSalesOverview
             title={`Sales Overview — ${selectedYear}`}
@@ -631,6 +710,161 @@ export function AdminDashboardView() {
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <DashboardLatestProducts title="Latest Products" list={latestProducts} />
+        </Grid>
+
+        {/* ── Stock Alert Cards ── */}
+        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+          <DashboardMetricCard
+            title="Out of Stock"
+            total={outOfStockProducts.length}
+            percent={0}
+            onClick={() =>
+              openReport({
+                title: 'Out of Stock Products',
+                description: `${outOfStockProducts.length} products with zero stock`,
+                rows: outOfStockProducts.map((p) => ({
+                  name: p.name,
+                  sku: p.sku,
+                  price: p.price,
+                  lastStock: 0,
+                })),
+                columns: [
+                  { key: 'name', label: 'Product' },
+                  { key: 'sku', label: 'SKU' },
+                  { key: 'price', label: 'Price', format: (v) => fCurrency(v) },
+                  { key: 'lastStock', label: 'Stock' },
+                ],
+              })
+            }
+            chart={{
+              colors: [theme.palette.error.light, theme.palette.error.main],
+              categories: MONTHS_LABELS,
+              series: MONTHS_LABELS.map(() => outOfStockProducts.length),
+            }}
+            sx={{ borderLeft: 4, borderColor: 'error.main' }}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+          <DashboardMetricCard
+            title="Critical Stock"
+            total={criticalStockProducts.length}
+            percent={0}
+            onClick={() =>
+              openReport({
+                title: 'Critical Stock Products',
+                description: `${criticalStockProducts.length} products below 50 % of their threshold`,
+                rows: criticalStockProducts.map((p) => ({
+                  name: p.name,
+                  sku: p.sku,
+                  stock: p.stock ?? 0,
+                  threshold: p.lowStockThreshold ?? 5,
+                  price: p.price,
+                })),
+                columns: [
+                  { key: 'name', label: 'Product' },
+                  { key: 'sku', label: 'SKU' },
+                  { key: 'stock', label: 'Stock' },
+                  { key: 'threshold', label: 'Min Threshold' },
+                  { key: 'price', label: 'Price', format: (v) => fCurrency(v) },
+                ],
+              })
+            }
+            chart={{
+              colors: [theme.palette.warning.light, theme.palette.warning.main],
+              categories: MONTHS_LABELS,
+              series: MONTHS_LABELS.map(() => criticalStockProducts.length),
+            }}
+            sx={{ borderLeft: 4, borderColor: 'warning.main' }}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+          <DashboardMetricCard
+            title="Low Stock"
+            total={lowStockOnly.length}
+            percent={0}
+            onClick={() =>
+              openReport({
+                title: 'Low Stock Products',
+                description: `${lowStockOnly.length} products approaching their minimum threshold`,
+                rows: lowStockOnly.map((p) => ({
+                  name: p.name,
+                  sku: p.sku,
+                  stock: p.stock ?? 0,
+                  threshold: p.lowStockThreshold ?? 5,
+                  price: p.price,
+                })),
+                columns: [
+                  { key: 'name', label: 'Product' },
+                  { key: 'sku', label: 'SKU' },
+                  { key: 'stock', label: 'Stock' },
+                  { key: 'threshold', label: 'Min Threshold' },
+                  { key: 'price', label: 'Price', format: (v) => fCurrency(v) },
+                ],
+              })
+            }
+            chart={{
+              colors: [theme.palette.info.light, theme.palette.info.main],
+              categories: MONTHS_LABELS,
+              series: MONTHS_LABELS.map(() => lowStockOnly.length),
+            }}
+            sx={{ borderLeft: 4, borderColor: 'info.main' }}
+          />
+        </Grid>
+
+        {/* ── Revenue Line Chart ── */}
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <DashboardRevenueChart
+            title="Revenue & Orders Trend"
+            subheader="Monthly breakdown by year"
+            data={yearlySalesData.length > 0 ? yearlySalesData : [{ year: String(selectedYear), revenue: revenueByMonth, orders: Array(12).fill(0) }]}
+          />
+        </Grid>
+
+        {/* ── Order Status Donut ── */}
+        <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+          <DashboardDonutChart
+            title="Orders by Status"
+            subheader={`${totalOrders} orders in selected range`}
+            total={totalOrders}
+            series={orderStatusPie.length > 0 ? orderStatusPie : [{ label: 'No orders', value: 1 }]}
+          />
+        </Grid>
+
+        {/* ── Category Revenue Donut ── */}
+        <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+          <DashboardDonutChart
+            title="Revenue by Category"
+            subheader="Top category revenue in selected range"
+            total={Math.round(totalRevenue)}
+            series={
+              categoryRevenuePie.length > 0
+                ? categoryRevenuePie
+                : categories.slice(0, 5).map((c) => ({ label: c.name, value: 0 }))
+            }
+          />
+        </Grid>
+
+        {/* ── Product Category Split Donut ── */}
+        <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
+          <DashboardDonutChart
+            title="Products by Category"
+            subheader={`${totalProducts} products across ${totalCategories} categories`}
+            total={totalProducts}
+            series={categories.slice(0, 6).map((cat) => ({
+              label: cat.name,
+              value: products.filter((p) => p.categoryId === cat.id).length,
+            })).filter((s) => s.value > 0)}
+          />
+        </Grid>
+
+        {/* ── Stock Management Table ── */}
+        <Grid size={{ xs: 12 }}>
+          <DashboardStockTable
+            products={products}
+            title="Stock Management"
+          />
         </Grid>
       </Grid>
 

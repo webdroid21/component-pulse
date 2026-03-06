@@ -31,7 +31,7 @@ export type NotificationsDrawerProps = IconButtonProps & {
 export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDrawerProps) {
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const { markAllAsRead } = useNotificationMutations();
+  const { markAllAsRead, markAsRead } = useNotificationMutations();
 
   const totalUnRead = data.filter((item) => item.isUnRead === true).length;
 
@@ -79,7 +79,11 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
       <Box component="ul">
         {data?.map((notification) => (
           <Box component="li" key={notification.id} sx={{ display: 'flex' }}>
-            <NotificationItem notification={notification} />
+            <NotificationItem
+              notification={notification}
+              onRead={markAsRead}
+              onClose={onClose}
+            />
           </Box>
         ))}
       </Box>

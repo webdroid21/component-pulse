@@ -19,7 +19,7 @@ import { useAuthContext } from 'src/auth/hooks';
 export interface NotificationRecord {
     id: string;
     userId: string; // The intended recipient (e.g. user ID, or 'admin')
-    type: 'chat' | 'mail' | 'order' | 'delivery' | 'friend' | 'project' | 'file' | 'tags' | 'payment';
+    type: 'chat' | 'mail' | 'order' | 'delivery' | 'friend' | 'project' | 'file' | 'tags' | 'payment' | 'training';
     category: string;
     title: string;
     isUnRead: boolean;

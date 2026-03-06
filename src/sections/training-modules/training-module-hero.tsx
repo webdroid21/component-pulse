@@ -2,17 +2,24 @@
 
 import type { TrainingModule } from 'src/types/training-module';
 
+import { useState } from 'react';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
 import Container from '@mui/material/Container';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+
+import { useTrainingSubscriptions } from 'src/hooks/firebase';
 
 // ----------------------------------------------------------------------
 
@@ -22,6 +29,22 @@ type Props = {
 
 export function TrainingModuleHero({ module }: Props) {
     const theme = useTheme();
+    const { isSubscribed, subscribe, loading, checking } = useTrainingSubscriptions(module.id);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+
+    const handleNotifyMe = async () => {
+        if (isSubscribed) {
+            setSnackbarMessage("You're already subscribed to updates for this module!");
+            setSnackbarOpen(true);
+            return;
+        }
+        const success = await subscribe();
+        if (success) {
+            setSnackbarMessage("You'll be notified when this module launches or is updated!");
+            setSnackbarOpen(true);
+        }
+    };
 
     return (
         <Box
@@ -88,8 +111,21 @@ export function TrainingModuleHero({ module }: Props) {
                             )}
 
                             {module.status === 'coming_soon' ? (
-                                <Button size="large" variant="contained" color="inherit">
-                                    Notify Me
+                                <Button
+                                    size="large"
+                                    variant={isSubscribed ? 'outlined' : 'contained'}
+                                    color={isSubscribed ? 'success' : 'inherit'}
+                                    disabled={checking || loading}
+                                    startIcon={
+                                        loading || checking
+                                            ? <CircularProgress size={18} color="inherit" />
+                                            : isSubscribed
+                                                ? <Iconify icon="solar:check-circle-bold" />
+                                                : <Iconify icon="solar:bell-bing-bold" />
+                                    }
+                                    onClick={handleNotifyMe}
+                                >
+                                    {isSubscribed ? 'Subscribed' : 'Notify Me'}
                                 </Button>
                             ) : (
                                 <Button size="large" variant="contained" color="primary">
@@ -127,6 +163,24 @@ export function TrainingModuleHero({ module }: Props) {
                     </Box>
                 </Stack>
             </Container>
+
+            {/* Subscription success snackbar */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={5000}
+                onClose={() => setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setSnackbarOpen(false)}
+                    severity={isSubscribed ? 'success' : 'info'}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                    icon={<Iconify icon="solar:bell-bing-bold" />}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }

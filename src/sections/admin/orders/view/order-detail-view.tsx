@@ -28,7 +28,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useOrder, useOrderMutations } from 'src/hooks/firebase';
+import { useOrder, useOrderMutations, useNotificationMutations } from 'src/hooks/firebase';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
@@ -84,6 +84,7 @@ type Props = {
 export function OrderDetailView({ orderId }: Props) {
   const { order, loading, error } = useOrder(orderId);
   const { updateOrderStatus, addOrderNote, loading: updating } = useOrderMutations();
+  const { createNotification } = useNotificationMutations();
 
   const [newStatus, setNewStatus] = useState<OrderStatus | ''>('');
   const [statusNote, setStatusNote] = useState('');
@@ -94,7 +95,24 @@ export function OrderDetailView({ orderId }: Props) {
 
     const success = await updateOrderStatus(order.id, newStatus, statusNote);
     if (success) {
-      // Send email notification
+      // --- In-app notification for customer ---
+      if (order.customerId) {
+        const statusLabel = STATUS_CONFIG[newStatus]?.label || newStatus;
+        try {
+          await createNotification({
+            userId: order.customerId,
+            type: 'order',
+            category: 'Order Update',
+            title: `Order <strong>#${order.orderNumber}</strong> is now <strong>${statusLabel}</strong>${statusNote ? ` — ${statusNote}` : ''}`,
+            avatarUrl: null,
+            link: `/account/orders/${order.id}`,
+          });
+        } catch (err) {
+          console.error('Failed to create in-app notification:', err);
+        }
+      }
+
+      // --- Email notification ---
       try {
         await fetch('/api/orders/send-status-update', {
           method: 'POST',
@@ -113,7 +131,6 @@ export function OrderDetailView({ orderId }: Props) {
 
       setNewStatus('');
       setStatusNote('');
-      // No refetch needed — real-time listener updates order automatically
     }
   };
 

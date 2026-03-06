@@ -12,3 +12,4 @@ export * from './use-user-profile';
 export * from './use-notifications';
 export * from './use-delivery-zones';
 export * from './use-training-modules';
+export * from './use-training-subscriptions';
