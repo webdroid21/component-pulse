@@ -28,13 +28,14 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useOrder, useOrderMutations, useNotificationMutations } from 'src/hooks/firebase';
+import { useOrder, useOrderMutations, useUpdatePaymentStatus, useNotificationMutations } from 'src/hooks/firebase';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -85,10 +86,12 @@ export function OrderDetailView({ orderId }: Props) {
   const { order, loading, error } = useOrder(orderId);
   const { updateOrderStatus, addOrderNote, loading: updating } = useOrderMutations();
   const { createNotification } = useNotificationMutations();
+  const { updatePaymentStatus, loading: updatingPayment } = useUpdatePaymentStatus();
 
   const [newStatus, setNewStatus] = useState<OrderStatus | ''>('');
   const [statusNote, setStatusNote] = useState('');
   const [adminNote, setAdminNote] = useState('');
+  const [paymentReference, setPaymentReference] = useState('');
 
   const handleStatusUpdate = async () => {
     if (!newStatus || !order) return;
@@ -123,6 +126,7 @@ export function OrderDetailView({ orderId }: Props) {
             orderNumber: order.orderNumber,
             newStatus,
             statusNote,
+            items: order.items.map(item => ({ id: item.productId, name: item.productName }))
           }),
         });
       } catch (err) {
@@ -141,6 +145,17 @@ export function OrderDetailView({ orderId }: Props) {
     if (success) {
       setAdminNote('');
       // No refetch needed — real-time listener updates order automatically
+    }
+  };
+
+  const handlePaymentUpdate = async () => {
+    if (!order) return;
+    const success = await updatePaymentStatus(order.id, 'paid', paymentReference);
+    if (success) {
+      toast.success('Payment status marked as paid!');
+      setPaymentReference('');
+    } else {
+      toast.error('Failed to update payment status');
     }
   };
 
@@ -456,6 +471,31 @@ export function OrderDetailView({ orderId }: Props) {
                       {order.paymentReference}
                     </Typography>
                   </Stack>
+                )}
+
+                {order.paymentMethod === 'cash_on_delivery' && order.paymentStatus === 'pending' && (
+                  <>
+                    <Divider sx={{ borderStyle: 'dashed' }} />
+                    <Stack spacing={1.5}>
+                      <Typography variant="subtitle2">Mark as Paid</Typography>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Payment Ref/Receipt No. (Optional)"
+                        value={paymentReference}
+                        onChange={(e) => setPaymentReference(e.target.value)}
+                      />
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handlePaymentUpdate}
+                        disabled={updatingPayment}
+                        startIcon={updatingPayment ? <CircularProgress size={16} /> : <Iconify icon="solar:check-circle-bold" />}
+                      >
+                        Confirm Payment
+                      </Button>
+                    </Stack>
+                  </>
                 )}
               </Stack>
             </Card>

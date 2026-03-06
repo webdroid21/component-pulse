@@ -5,8 +5,11 @@ import type { PaymentMethod } from 'src/types/order';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { doc, getDoc } from 'firebase/firestore';
 
 import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Step from '@mui/material/Step';
@@ -30,10 +33,11 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useCreateOrder, useUserProfile, useDeliveryZones, useValidateCoupon, useUpdatePaymentStatus } from 'src/hooks/firebase';
+import { useCreateOrder, useUserProfile, useDeliveryZones, useValidateCoupon, usePickupLocations, useUpdatePaymentStatus } from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 
+import { FIRESTORE } from 'src/lib/firebase';
 import { generateTxRef, initiateFlutterwavePayment, FLUTTERWAVE_PAYMENT_OPTIONS } from 'src/lib/flutterwave';
 
 import { Iconify } from 'src/components/iconify';
@@ -89,6 +93,11 @@ export function CheckoutView() {
     notes: '',
   });
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
+  const [selectedPickupId, setSelectedPickupId] = useState<string | null>(null);
+  const [pickupDate, setPickupDate] = useState<string>('');
+  const { locations: pickupLocations, loading: pickupLoading } = usePickupLocations();
+
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('flutterwave');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -117,7 +126,7 @@ export function CheckoutView() {
   }, [savedAddresses, defaultAddressId, selectedAddressId, useNewAddress]);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
-  const shipping = selectedZone?.fee ?? 0;
+  const shipping = deliveryMethod === 'delivery' ? (selectedZone?.fee ?? 0) : 0;
   const couponDiscount = appliedCoupon?.discount ?? 0;
   const { items, subtotal, discount: cartDiscount } = checkout.state;
   const discount = cartDiscount + couponDiscount;
@@ -178,6 +187,17 @@ export function CheckoutView() {
   const handleNext = () => {
     if (activeStep === 0 && !validateShippingInfo()) {
       return;
+    }
+    if (activeStep === 1) {
+      if (deliveryMethod === 'pickup' && !selectedPickupId) {
+        setError('Please select a pick-up location');
+        return;
+      }
+      if (deliveryMethod === 'pickup' && !pickupDate) {
+        setError('Please select a preferred pick-up date');
+        return;
+      }
+      setError(null);
     }
     if (activeStep === steps.length - 1) {
       handlePlaceOrder();
@@ -281,7 +301,10 @@ export function CheckoutView() {
       shippingAddress: shippingAddress as any,
       ...(shippingInfo.notes ? { notes: shippingInfo.notes } : {}),
       ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
-      ...(selectedZone ? { deliveryZoneId: selectedZone.id, deliveryZoneName: selectedZone.name } : {}),
+      deliveryMethod,
+      ...(selectedZone && deliveryMethod === 'delivery' ? { deliveryZoneId: selectedZone.id, deliveryZoneName: selectedZone.name } : {}),
+      ...(deliveryMethod === 'pickup' && selectedPickupId ? { pickupLocationId: selectedPickupId } : {}),
+      ...(deliveryMethod === 'pickup' && pickupDate ? { pickupDate } : {}),
     };
   };
 
@@ -328,6 +351,21 @@ export function CheckoutView() {
     setError(null);
 
     try {
+      // Cart Validation Pre-Check
+      for (const item of items) {
+        const productRef = doc(FIRESTORE, 'products', item.id);
+        const productSnap = await getDoc(productRef);
+
+        if (!productSnap.exists()) {
+          throw new Error(`Product "${item.name}" is no longer available.`);
+        }
+
+        const currentStock = productSnap.data().stock ?? 0;
+        if (currentStock < item.quantity) {
+          throw new Error(`Out of stock! "${item.name}" only has ${currentStock} item(s) available. Please adjust your cart.`);
+        }
+      }
+
       if (paymentMethod === 'cash_on_delivery') {
         // For cash on delivery, create order directly
         const result = await createOrder(buildOrderData());
@@ -648,61 +686,144 @@ export function CheckoutView() {
         Delivery Options
       </Typography>
 
-      {zonesLoading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : zones.length === 0 ? (
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          No delivery zones available at the moment.
-        </Typography>
-      ) : (
-        <RadioGroup
-          value={selectedZoneId || ''}
-          onChange={(e) => setSelectedZoneId(e.target.value)}
-        >
-          <Stack spacing={2}>
-            {zones.map((zone) => (
-              <Card
-                key={zone.id}
-                sx={{
-                  p: 2.5,
-                  cursor: 'pointer',
-                  border: 2,
-                  borderColor: selectedZoneId === zone.id ? 'primary.main' : 'divider',
-                  bgcolor: selectedZoneId === zone.id ? 'primary.lighter' : 'transparent',
-                }}
-                onClick={() => setSelectedZoneId(zone.id)}
+      <Tabs
+        value={deliveryMethod}
+        onChange={(e, v) => setDeliveryMethod(v)}
+        sx={{ mb: 3 }}
+      >
+        <Tab label="Delivery" value="delivery" icon={<Iconify icon="solar:delivery-bold" />} iconPosition="start" />
+        <Tab label="Store Pick-up" value="pickup" icon={<Iconify icon="solar:shop-bold" />} iconPosition="start" />
+      </Tabs>
+
+      {deliveryMethod === 'delivery' && (
+        <>
+          {zonesLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : zones.length === 0 ? (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              No delivery zones available at the moment.
+            </Typography>
+          ) : (
+            <RadioGroup
+              value={selectedZoneId || ''}
+              onChange={(e) => setSelectedZoneId(e.target.value)}
+            >
+              <Stack spacing={2}>
+                {zones.map((zone) => (
+                  <Card
+                    key={zone.id}
+                    sx={{
+                      p: 2.5,
+                      cursor: 'pointer',
+                      border: 2,
+                      borderColor: selectedZoneId === zone.id ? 'primary.main' : 'divider',
+                      bgcolor: selectedZoneId === zone.id ? 'primary.lighter' : 'transparent',
+                    }}
+                    onClick={() => setSelectedZoneId(zone.id)}
+                  >
+                    <FormControlLabel
+                      value={zone.id}
+                      control={<Radio />}
+                      label={
+                        <Box sx={{ ml: 1 }}>
+                          <Stack direction="row" alignItems="center" justifyContent="space-between">
+                            <Typography variant="subtitle1">{zone.name}</Typography>
+                            <Typography variant="subtitle1" sx={{ color: 'primary.main' }}>
+                              {zone.fee === 0 ? 'FREE' : fCurrency(zone.fee)}
+                            </Typography>
+                          </Stack>
+                          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                            {zone.estimatedDays}
+                          </Typography>
+                          {zone.areas.length > 0 && (
+                            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                              Covers: {zone.areas.join(', ')}
+                            </Typography>
+                          )}
+                        </Box>
+                      }
+                      sx={{ width: '100%', m: 0 }}
+                    />
+                  </Card>
+                ))}
+              </Stack>
+            </RadioGroup>
+          )}
+        </>
+      )}
+
+      {deliveryMethod === 'pickup' && (
+        <>
+          {pickupLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : pickupLocations.length === 0 ? (
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              No pick-up locations available.
+            </Typography>
+          ) : (
+            <Stack spacing={3}>
+              <RadioGroup
+                value={selectedPickupId || ''}
+                onChange={(e) => setSelectedPickupId(e.target.value)}
               >
-                <FormControlLabel
-                  value={zone.id}
-                  control={<Radio />}
-                  label={
-                    <Box sx={{ ml: 1 }}>
-                      <Stack direction="row" alignItems="center" justifyContent="space-between">
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Typography variant="subtitle1">{zone.name}</Typography>
-                        </Stack>
-                        <Typography variant="subtitle1" sx={{ color: 'primary.main' }}>
-                          {zone.fee === 0 ? 'FREE' : fCurrency(zone.fee)}
-                        </Typography>
-                      </Stack>
-                      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-                        {zone.estimatedDays}
-                      </Typography>
-                      {zone.areas.length > 0 && (
-                        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                          Covers: {zone.areas.join(', ')}
-                        </Typography>
-                      )}
-                    </Box>
-                  }
-                  sx={{ width: '100%', m: 0 }}
+                <Stack spacing={2}>
+                  {pickupLocations.map((loc) => (
+                    <Card
+                      key={loc.id}
+                      sx={{
+                        p: 2.5,
+                        cursor: 'pointer',
+                        border: 2,
+                        borderColor: selectedPickupId === loc.id ? 'primary.main' : 'divider',
+                        bgcolor: selectedPickupId === loc.id ? 'primary.lighter' : 'transparent',
+                      }}
+                      onClick={() => setSelectedPickupId(loc.id)}
+                    >
+                      <FormControlLabel
+                        value={loc.id}
+                        control={<Radio />}
+                        label={
+                          <Box sx={{ ml: 1 }}>
+                            <Stack direction="row" alignItems="center" justifyContent="space-between">
+                              <Typography variant="subtitle1">{loc.name}</Typography>
+                              <Typography variant="subtitle1" sx={{ color: 'primary.main' }}>
+                                FREE
+                              </Typography>
+                            </Stack>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                              {loc.address}
+                            </Typography>
+                            {loc.instructions && (
+                              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                                {loc.instructions}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                        sx={{ width: '100%', m: 0 }}
+                      />
+                    </Card>
+                  ))}
+                </Stack>
+              </RadioGroup>
+
+              {selectedPickupId && (
+                <TextField
+                  type="date"
+                  label="Preferred Pick-up Date"
+                  value={pickupDate}
+                  onChange={(e) => setPickupDate(e.target.value)}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
                 />
-              </Card>
-            ))}
-          </Stack>
-        </RadioGroup>
+              )}
+            </Stack>
+          )}
+        </>
       )}
     </Card>
   );

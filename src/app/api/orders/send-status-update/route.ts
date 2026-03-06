@@ -1,14 +1,14 @@
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
 
-import { sendOrderStatusUpdateEmail } from 'src/lib/email';
+import { sendOrderStatusUpdateEmail, sendProductReviewRequestEmail } from 'src/lib/email';
 
 // ----------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
   try {
-    const { customerEmail, customerName, orderNumber, newStatus, statusNote } = await request.json();
+    const { customerEmail, customerName, orderNumber, newStatus, statusNote, items } = await request.json();
 
     if (!customerEmail || !orderNumber || !newStatus) {
       return NextResponse.json(
@@ -24,6 +24,11 @@ export async function POST(request: NextRequest) {
       newStatus,
       statusNote
     );
+
+    if (newStatus === 'delivered' && items && items.length > 0) {
+      // Best effort product review email sending, don't fail standard update if this fails.
+      await sendProductReviewRequestEmail(customerEmail, customerName, orderNumber, items).catch(e => console.error(e));
+    }
 
     if (success) {
       return NextResponse.json({ status: 'sent' });

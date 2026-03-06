@@ -431,3 +431,56 @@ export async function sendTrainingUpdateEmail(
   }
 }
 
+export async function sendProductReviewRequestEmail(
+  customerEmail: string,
+  customerName: string,
+  orderNumber: string,
+  items: { id: string; name: string }[]
+): Promise<boolean> {
+  if (!resend) return false;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head><meta charset="utf-8"></head>
+      <body style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #1976d2; margin: 0;">ComponentPulse</h1>
+          <p style="color: #666;">How did we do?</p>
+        </div>
+
+        <p>Hi ${customerName},</p>
+        <p>Your order <strong>#${orderNumber}</strong> has been delivered! We hope you love your new components.</p>
+        <p>Could you take a minute to review the items you bought? Your feedback helps other engineers make better choices!</p>
+
+        <div style="margin: 30px 0;">
+          ${items
+      .map(
+        (item) => `
+            <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-weight: 500;">${item.name}</span>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL}/products/${item.id}" style="background: #1976d2; color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 14px;">Leave Review</a>
+            </div>
+          `
+      )
+      .join('')}
+        </div>
+
+        <p>Thank you for shopping with ComponentPulse!</p>
+      </body>
+    </html>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: 'Tell us what you think! ⭐',
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error('Failed to send product review email:', error);
+    return false;
+  }
+}

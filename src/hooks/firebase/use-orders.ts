@@ -153,35 +153,50 @@ export function useOrderMutations() {
       setError(null);
 
       const docRef = doc(FIRESTORE, COLLECTION, orderId);
-      const docSnap = await getDoc(docRef);
 
-      if (!docSnap.exists()) {
-        setError('Order not found');
-        return false;
-      }
+      await runTransaction(FIRESTORE, async (transaction) => {
+        const docSnap = await transaction.get(docRef);
 
-      const currentOrder = docSnap.data() as Order;
-      const statusHistory = currentOrder.statusHistory || [];
+        if (!docSnap.exists()) {
+          throw new Error('Order not found');
+        }
 
-      // Build history entry — Firestore doesn't accept undefined values
-      const historyEntry: Record<string, any> = {
-        status,
-        timestamp: Timestamp.now(),
-      };
-      if (note !== undefined) historyEntry.note = note;
-      if (updatedBy !== undefined) historyEntry.updatedBy = updatedBy;
+        const currentOrder = docSnap.data() as Order;
+        const statusHistory = currentOrder.statusHistory || [];
 
-      const updateData: Record<string, any> = {
-        status,
-        statusHistory: [...statusHistory, historyEntry],
-        updatedAt: serverTimestamp(),
-      };
+        // Build history entry — Firestore doesn't accept undefined values
+        const historyEntry: Record<string, any> = {
+          status,
+          timestamp: Timestamp.now(),
+        };
+        if (note !== undefined) historyEntry.note = note;
+        if (updatedBy !== undefined) historyEntry.updatedBy = updatedBy;
 
-      if (status === 'delivered') {
-        updateData.deliveredAt = serverTimestamp();
-      }
+        const updateData: Record<string, any> = {
+          status,
+          statusHistory: [...statusHistory, historyEntry],
+          updatedAt: serverTimestamp(),
+        };
 
-      await updateDoc(docRef, updateData);
+        if (status === 'delivered') {
+          updateData.deliveredAt = serverTimestamp();
+        }
+
+        // Auto-restock items if order is effectively cancelled
+        if (
+          (status === 'cancelled' || status === 'refunded') &&
+          currentOrder.status !== 'cancelled' &&
+          currentOrder.status !== 'refunded'
+        ) {
+          for (const item of currentOrder.items) {
+            const productRef = doc(FIRESTORE, 'products', item.productId);
+            transaction.update(productRef, { stock: increment(item.quantity) });
+          }
+        }
+
+        transaction.update(docRef, updateData);
+      });
+
       return true;
     } catch (err) {
       console.error('Error updating order status:', err);
@@ -273,16 +288,19 @@ export function useCreateOrder() {
             throw new Error(`Product ${item.productName} no longer exists`);
           }
 
-          // SOFT stock check: log a warning but don't block the order.
-          // If a customer has already paid, failing here would leave them
-          // without an order. Admin should manage stock separately.
+          // HARD stock check: Prevent ordering items without sufficient stock
           const productData = productSnap.data();
-          const currentStock = productData.stock ?? productData.quantity ?? 0;
+          const currentStock = productData.stock ?? 0;
+
           if (currentStock < item.quantity) {
-            console.warn(
-              `Low/negative stock for "${item.productName}": ${currentStock} available, ${item.quantity} ordered. Order will still be created.`
-            );
+            throw new Error(`Out of stock! "${item.productName}" only has ${currentStock} item(s) available.`);
           }
+        }
+
+        // Update product stock iteratively
+        for (const item of data.items) {
+          const productRef = doc(FIRESTORE, 'products', item.productId);
+          transaction.update(productRef, { stock: increment(-item.quantity) });
         }
 
         // Create the order

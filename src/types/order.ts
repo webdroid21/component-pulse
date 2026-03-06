@@ -2,7 +2,7 @@ import type { Timestamp } from 'firebase/firestore';
 
 // ----------------------------------------------------------------------
 
-export type OrderStatus = 
+export type OrderStatus =
   | 'pending'
   | 'confirmed'
   | 'processing'
@@ -60,6 +60,9 @@ export type Order = {
   paymentReference?: string;
   shippingAddress: OrderAddress;
   billingAddress?: OrderAddress;
+  deliveryMethod: 'delivery' | 'pickup';
+  pickupLocationId?: string;
+  pickupDate?: string;
   deliveryZoneId?: string;
   deliveryZoneName?: string;
   estimatedDeliveryDate?: Timestamp;

@@ -530,9 +530,9 @@ export function AdminDashboardView() {
               colors: [theme.palette.info.light, theme.palette.info.main],
               categories: MONTHS_LABELS,
               series: revenueByMonth.map((_, i) => {
-                const tsToDate = (ts: any): Date => (ts?.toDate ? ts.toDate() : new Date(ts));
+                const tsToDate2 = (ts: any): Date => (ts?.toDate ? ts.toDate() : new Date(ts));
                 return orders.filter((o) => {
-                  const d = tsToDate(o.createdAt);
+                  const d = tsToDate2(o.createdAt);
                   return d.getFullYear() === selectedYear && d.getMonth() === i;
                 }).length;
               }),

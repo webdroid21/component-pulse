@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+
 import { FIRESTORE } from 'src/lib/firebase';
 
 // ----------------------------------------------------------------------

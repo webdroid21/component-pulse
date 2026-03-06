@@ -3,9 +3,8 @@
 import type { Breakpoint } from '@mui/material/styles';
 import type { MainSectionProps, LayoutSectionProps, HeaderSectionProps } from '../core';
 
-import { useBoolean } from 'minimal-shared/hooks';
-
 import { useState } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -16,8 +15,8 @@ import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -27,7 +26,7 @@ import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useGetNotifications, useNewsletter } from 'src/hooks/firebase';
+import { useNewsletter, useGetNotifications } from 'src/hooks/firebase';
 
 import { Logo } from 'src/components/logo';
 import { toast } from 'src/components/snackbar';
