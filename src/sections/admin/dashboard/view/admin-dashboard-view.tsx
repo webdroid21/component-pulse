@@ -6,8 +6,6 @@ import type { ReportRow, ReportColumn } from '../dashboard-report-dialog';
 import { useMemo, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Grid from '@mui/material/Grid';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -31,12 +29,12 @@ import { useAuthContext } from 'src/auth/hooks';
 
 import { DashboardFilterBar } from '../dashboard-filter-bar';
 import { DashboardMetricCard } from '../dashboard-metric-card';
+import { DashboardDonutChart } from '../dashboard-donut-chart';
+import { DashboardStockTable } from '../dashboard-stock-table';
 import { DashboardReportDialog } from '../dashboard-report-dialog';
+import { DashboardRevenueChart } from '../dashboard-revenue-chart';
 import { DashboardSalesOverview } from '../dashboard-sales-overview';
 import { DashboardLatestProducts } from '../dashboard-latest-products';
-import { DashboardDonutChart } from '../dashboard-donut-chart';
-import { DashboardRevenueChart } from '../dashboard-revenue-chart';
-import { DashboardStockTable } from '../dashboard-stock-table';
 
 // ----------------------------------------------------------------------
 

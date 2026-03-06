@@ -60,6 +60,34 @@ export function TicketChatDialog({ ticketId, open, onClose }: Props) {
                     avatarUrl: user.photoURL || null,
                     link: `/admin/tickets?id=${ticketId}`,
                 });
+            } else if (ticket.userId) {
+                // If admin replies, notify the customer
+                await createNotification({
+                    userId: ticket.userId,
+                    type: 'chat',
+                    category: `Ticket Update: ${ticket.ticketNumber}`,
+                    title: `<p><strong>Support</strong> replied to your ticket: <em>${ticket.subject}</em></p>`,
+                    avatarUrl: null, // ComponentPulse logo or support avatar could be used here
+                    link: `/account/tickets`,
+                });
+
+                // Send email notification to the customer
+                try {
+                    await fetch('/api/tickets/send-reply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            customerEmail: ticket.contactEmail,
+                            customerName: ticket.contactName,
+                            ticketNumber: ticket.ticketNumber,
+                            ticketSubject: ticket.subject,
+                            replyContent: message.trim(),
+                            ticketUrl: `${window.location.origin}/account/tickets`,
+                        }),
+                    });
+                } catch (err) {
+                    console.error('Failed to send ticket reply email:', err);
+                }
             }
 
             setMessage('');

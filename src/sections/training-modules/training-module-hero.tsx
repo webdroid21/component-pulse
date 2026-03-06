@@ -14,12 +14,12 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import { useTrainingSubscriptions } from 'src/hooks/firebase';
+
 import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-
-import { useTrainingSubscriptions } from 'src/hooks/firebase';
 
 // ----------------------------------------------------------------------
 

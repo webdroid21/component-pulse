@@ -2,7 +2,8 @@
 
 import type { Product } from 'src/types/product';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -12,12 +13,12 @@ import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Dialog from '@mui/material/Dialog';
-import Divider from '@mui/material/Divider';
 import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TextField from '@mui/material/TextField';
+import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
@@ -28,17 +29,13 @@ import LinearProgress from '@mui/material/LinearProgress';
 import TableContainer from '@mui/material/TableContainer';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { varAlpha } from 'minimal-shared/utils';
-
-import { useTheme } from '@mui/material/styles';
+import { useProductMutations } from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Scrollbar } from 'src/components/scrollbar';
-import { Iconify } from 'src/components/iconify';
 import { toast } from 'src/components/snackbar';
-
-import { useProductMutations } from 'src/hooks/firebase';
+import { Iconify } from 'src/components/iconify';
+import { Scrollbar } from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 

@@ -13,7 +13,6 @@ import { useRouter } from 'src/routes/hooks';
 
 import { fToNow } from 'src/utils/format-time';
 
-import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 import { notificationIcons } from './icons';

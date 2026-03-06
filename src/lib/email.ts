@@ -276,6 +276,70 @@ export async function sendOrderStatusUpdateEmail(
 
 // ----------------------------------------------------------------------
 
+export async function sendTicketReplyEmail(
+  customerEmail: string,
+  customerName: string,
+  ticketNumber: string,
+  ticketSubject: string,
+  replyContent: string,
+  ticketUrl: string
+): Promise<boolean> {
+  if (!resend) {
+    console.warn('Resend API key not configured. Skipping email.');
+    return false;
+  }
+
+  try {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1976d2; margin: 0;">ComponentPulse Support</h1>
+          </div>
+
+          <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px; font-size: 18px;">Update on Ticket ${ticketNumber}</h2>
+            <p style="margin: 0 0 15px; color: #666;">Hi ${customerName}, support has replied to your ticket "<strong>${ticketSubject}</strong>":</p>
+            
+            <div style="background: #fff; border-left: 4px solid #1976d2; padding: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <p style="margin: 0; white-space: pre-wrap;">${replyContent}</p>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 20px;">
+            <a href="${ticketUrl}" style="display: inline-block; background: #1976d2; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: bold;">View Ticket & Reply</a>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+            <p>If you have any questions, you can reply directly on the ticket page.</p>
+            <p>&copy; ${new Date().getFullYear()} ComponentPulse. All rights reserved.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: `Re: [${ticketNumber}] ${ticketSubject}`,
+      html,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Failed to send ticket reply email:', error);
+    return false;
+  }
+}
+
+
+// ----------------------------------------------------------------------
+
 export type TrainingUpdateType = 'launched' | 'updated' | 'coming_soon';
 
 export async function sendTrainingUpdateEmail(

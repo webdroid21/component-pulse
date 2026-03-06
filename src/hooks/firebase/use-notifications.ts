@@ -38,7 +38,6 @@ export function useGetNotifications() {
     useEffect(() => {
         // Determine the query target ID (either the current user ID, or 'admin' if they are an admin)
         // For this implementation, admins get standard notifications, plus 'admin' queue notifications.
-        // It's cleaner to query twice or just subscribe to the relevant ones.
 
         if (!user) {
             setNotifications([]);
@@ -46,11 +45,11 @@ export function useGetNotifications() {
             return undefined;
         }
 
-        const targetId = user?.isAdmin ? 'admin' : user.uid;
+        const targetIds = user?.isAdmin ? ['admin', user.uid] : [user.uid];
 
         const q = query(
             collection(db, 'notifications'),
-            where('userId', '==', targetId),
+            where('userId', 'in', targetIds),
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {

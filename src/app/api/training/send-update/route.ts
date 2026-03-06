@@ -1,8 +1,7 @@
 import type { NextRequest } from 'next/server';
 
-import { getDocs, query, where, collection } from 'firebase/firestore';
-
 import { NextResponse } from 'next/server';
+import { query, where, getDocs, collection } from 'firebase/firestore';
 
 import { FIRESTORE } from 'src/lib/firebase';
 import { type TrainingUpdateType, sendTrainingUpdateEmail } from 'src/lib/email';
