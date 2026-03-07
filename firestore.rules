@@ -5,24 +5,24 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // ===========================================
     // Helper Functions
     // ===========================================
-    
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
-    
+
     function isAdmin() {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
+
     // ===========================================
     // Users Collection (Customers)
     // ===========================================
@@ -32,92 +32,130 @@ service cloud.firestore {
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
     }
-    
+
     // ===========================================
     // Admins Collection
     // ===========================================
     match /admins/{adminId} {
       // Allow read for own profile or any admin
       allow read: if isOwner(adminId) || isAdmin();
-      
+
       // Allow first user to create admin (no existing admins or users)
       allow create: if isAuthenticated();
-      
+
       // Allow admin to update own profile or other admins
       allow update: if isOwner(adminId) || isAdmin();
-      
+
       // Allow admin to delete
       allow delete: if isAdmin();
     }
-    
+
     // ===========================================
     // Products Collection
     // ===========================================
     match /products/{productId} {
       // Anyone can read products (for storefront)
       allow read: if true;
-      
+
       // Only admins can write
       allow create, update, delete: if isAdmin();
     }
-    
+
     // ===========================================
     // Categories Collection
     // ===========================================
     match /categories/{categoryId} {
       // Anyone can read categories (for storefront)
       allow read: if true;
-      
+
       // Only admins can write
       allow create, update, delete: if isAdmin();
     }
-    
+
     // ===========================================
     // Orders Collection
     // ===========================================
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && 
+      allow read: if isAuthenticated() &&
         (resource.data.customerId == request.auth.uid || isAdmin());
       allow create: if isAuthenticated();
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
-    
+
+    // ===========================================
+    // Training Modules Collection
+    // ===========================================
+    match /trainingModules/{moduleId} {
+      // Anyone can read training modules (for storefront list)
+      allow read: if true;
+
+      // Only admins can write
+      allow create, update, delete: if isAdmin();
+    }
+
     // ===========================================
     // Other Collections (Delivery, Deals, Coupons, etc.)
     // ===========================================
-    match /delivery_zones/{zoneId} {
+    match /deliveryZones/{zoneId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
-    
+
+    match /pickupLocations/{locId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
     match /deals/{dealId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
     }
-    
+
     match /coupons/{couponId} {
       allow read: if isAuthenticated();
       allow create, update, delete: if isAdmin();
     }
-    
+
     match /returns/{returnId} {
-      allow read: if isAuthenticated() && 
+      allow read: if isAuthenticated() &&
         (resource.data.customerId == request.auth.uid || isAdmin());
       allow create: if isAuthenticated();
       allow update, delete: if isAdmin();
     }
-    
+
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isAuthenticated();
+      allow create: if true; // Allow anyone to create reviews initially (status: 'pending')
       allow update: if isAuthenticated() && resource.data.userId == request.auth.uid || isAdmin();
       allow delete: if isAdmin();
     }
-    
+
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow create: if true; // Allow anyone to submit a testimonial
+      allow update, delete: if isAdmin();
+    }
+
     match /settings/{settingId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /tickets/{ticketId} {
+      allow read, write: if isAuthenticated();
+
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    match /trainingSubscriptions/{subId} {
+      allow read, write: if isAuthenticated();
     }
   }
 }
