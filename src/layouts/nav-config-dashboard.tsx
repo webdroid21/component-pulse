@@ -87,6 +87,11 @@ export const navData: NavSectionProps['data'] = [
         icon: ICONS.chat,
       },
       {
+        title: 'Testimonials',
+        path: paths.admin.testimonials,
+        icon: ICONS.chat, // Reusing chat icon, feel free to change
+      },
+      {
         title: 'Training Modules',
         path: paths.admin.trainingModules.root,
         icon: ICONS.course,

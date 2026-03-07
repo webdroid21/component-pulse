@@ -110,6 +110,8 @@ export const paths = {
     reports: `${ROOTS.ADMIN}/reports`,
     // Reviews
     reviews: `${ROOTS.ADMIN}/reviews`,
+    // Testimonials
+    testimonials: `${ROOTS.ADMIN}/testimonials`,
     // Settings
     settings: `${ROOTS.ADMIN}/settings`,
     // Admin Users (Super Admin only)

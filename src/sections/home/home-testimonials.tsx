@@ -1,5 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { z as zod } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { m } from 'framer-motion';
 import AutoScroll from 'embla-carousel-auto-scroll';
 
@@ -10,9 +14,20 @@ import Avatar from '@mui/material/Avatar';
 import Rating from '@mui/material/Rating';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import LoadingButton from '@mui/lab/LoadingButton';
+
+import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 
 import { Iconify } from 'src/components/iconify';
 import { Carousel, useCarousel, CarouselDotButtons, CarouselArrowBasicButtons } from 'src/components/carousel';
+import { Form, Field } from 'src/components/hook-form';
+import { toast } from 'src/components/snackbar';
+import { FIRESTORE } from 'src/lib/firebase';
 
 // ----------------------------------------------------------------------
 
@@ -61,9 +76,24 @@ const TESTIMONIALS = [
   },
 ];
 
+const ReviewSchema = zod.object({
+  name: zod.string().min(1, 'Name is required'),
+  role: zod.string().min(1, 'Role is required'),
+  content: zod.string().min(1, 'Review content is required'),
+  rating: zod.number().min(1, 'Rating is required'),
+});
+
+type ReviewSchemaType = zod.infer<typeof ReviewSchema>;
+
 // ----------------------------------------------------------------------
 
-type TestimonialCardProps = (typeof TESTIMONIALS)[number];
+type TestimonialCardProps = {
+  name: string;
+  role: string;
+  avatar: string;
+  rating: number;
+  content: string;
+};
 
 function TestimonialCard({ name, role, avatar, rating, content }: TestimonialCardProps) {
   return (
@@ -117,6 +147,9 @@ function TestimonialCard({ name, role, avatar, rating, content }: TestimonialCar
 // ----------------------------------------------------------------------
 
 export function HomeTestimonials() {
+  const [testimonials, setTestimonials] = useState<TestimonialCardProps[]>(TESTIMONIALS);
+  const [openReview, setOpenReview] = useState(false);
+
   const carousel = useCarousel(
     {
       loop: true,
@@ -126,6 +159,64 @@ export function HomeTestimonials() {
     },
     [AutoScroll({ speed: 1, stopOnInteraction: false, stopOnMouseEnter: true })]
   );
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const testimonialsRef = collection(FIRESTORE, 'testimonials');
+        const q = query(testimonialsRef, where('status', '==', 'approved'));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map((doc) => ({
+          name: doc.data().name,
+          role: doc.data().role,
+          avatar: doc.data().avatar || '',
+          rating: doc.data().rating,
+          content: doc.data().content,
+        })) as TestimonialCardProps[];
+
+        if (data.length > 0) {
+          setTestimonials([...data, ...TESTIMONIALS]);
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
+  const methods = useForm<ReviewSchemaType>({
+    resolver: zodResolver(ReviewSchema),
+    defaultValues: {
+      name: '',
+      role: '',
+      content: '',
+      rating: 5,
+    },
+  });
+
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await addDoc(collection(FIRESTORE, 'testimonials'), {
+        ...data,
+        status: 'pending',
+        avatar: '', // Optional empty string as avatar
+        createdAt: serverTimestamp(),
+      });
+      toast.success('Review submitted successfully! It will appear once approved.');
+      reset();
+      setOpenReview(false);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to submit review');
+    }
+  });
 
   return (
     <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'grey.900', color: 'common.white', overflow: 'hidden' }}>
@@ -143,15 +234,25 @@ export function HomeTestimonials() {
             <Typography variant="h3" sx={{ mt: 1, mb: 1.5, color: 'common.white' }}>
               What Our Customers Say
             </Typography>
-            <Typography variant="body1" sx={{ color: 'grey.400', maxWidth: 500, mx: 'auto' }}>
+            <Typography variant="body1" sx={{ color: 'grey.400', maxWidth: 500, mx: 'auto', mb: 4 }}>
               Here&apos;s what our satisfied customers have to say about us.
             </Typography>
+
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              startIcon={<Iconify icon="solar:pen-bold" />}
+              onClick={() => setOpenReview(true)}
+            >
+              Leave a Review
+            </Button>
           </Box>
         </m.div>
 
         <Carousel carousel={carousel}>
-          {TESTIMONIALS.map((t) => (
-            <TestimonialCard key={t.name} {...t} />
+          {testimonials.map((t, index) => (
+            <TestimonialCard key={t.name + index} {...t} />
           ))}
         </Carousel>
 
@@ -176,6 +277,38 @@ export function HomeTestimonials() {
           />
         </Box>
       </Container>
+
+      <Dialog open={openReview} onClose={() => setOpenReview(false)} fullWidth maxWidth="sm">
+        <Form methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Leave a Review</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 2 }}>
+              <Field.Text name="name" label="Full Name" />
+              <Field.Text name="role" label="Role / Company" />
+
+              <Stack spacing={1}>
+                <Typography variant="subtitle2">Rating</Typography>
+                <Field.Rating name="rating" />
+              </Stack>
+
+              <Field.Text
+                name="content"
+                label="Review"
+                multiline
+                rows={4}
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenReview(false)} color="inherit">
+              Cancel
+            </Button>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Submit Review
+            </LoadingButton>
+          </DialogActions>
+        </Form>
+      </Dialog>
     </Box>
   );
 }
