@@ -20,6 +20,9 @@ import ToggleButton from '@mui/material/ToggleButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { useProducts, useCategories } from 'src/hooks/firebase';
 
 import { Iconify } from 'src/components/iconify';
@@ -152,11 +155,11 @@ export function ProductShopView() {
     page * PRODUCTS_PER_PAGE
   );
 
-  const activeFiltersCount =
-    filters.categories.length +
-    (filters.inStock ? 1 : 0) +
-    (filters.onSale ? 1 : 0) +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000 ? 1 : 0);
+  // const activeFiltersCount =
+  //   filters.categories.length +
+  //   (filters.inStock ? 1 : 0) +
+  //   (filters.onSale ? 1 : 0) +
+  //   (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000 ? 1 : 0);
 
   const renderList = (
     <>
@@ -243,6 +246,42 @@ export function ProductShopView() {
   return (
     <Box sx={{ pb: { xs: 4, md: 6 }, pt: { xs: 1, md: 2 } }}>
       <Container>
+        {/* Deals Banner */}
+        <Card
+          sx={{
+            mb: 5,
+            p: 4,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: 'primary.dark',
+            color: 'primary.contrastText',
+            flexDirection: { xs: 'column', md: 'row' },
+            textAlign: { xs: 'center', md: 'left' },
+            gap: 3,
+          }}
+        >
+          <Box>
+            <Typography variant="h4" sx={{ mb: 1 }}>
+              Looking for a better value?
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.8 }}>
+              Check out our special Combo Deals and save more on bundled products and training modules.
+            </Typography>
+          </Box>
+          <Button
+            component={RouterLink}
+            href={paths.deals.root}
+            variant="contained"
+            color="warning"
+            size="large"
+            endIcon={<Iconify icon="eva:arrow-ios-forward-fill" />}
+            sx={{ flexShrink: 0 }}
+          >
+            Explore Deals
+          </Button>
+        </Card>
+
         {/* Header */}
         <Box display="flex" alignItems="center" sx={{ pb: 5 }}>
           <Button

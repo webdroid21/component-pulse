@@ -25,7 +25,7 @@ type Props = {
 };
 
 export function AdminReviewTableRow({ row, onApprove, onReject, onDelete }: Props) {
-    const { name, email, productId, rating, message, isApproved, createdAt } = row;
+    const { name, email, productId, rating, message, isApproved } = row;
 
     const popover = usePopover();
 

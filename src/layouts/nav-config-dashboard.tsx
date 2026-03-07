@@ -41,6 +41,7 @@ const ICONS = {
   ecommerce: icon('ic-ecommerce'),
   analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
+  deal: icon('ic-ecommerce'),
 };
 
 // ----------------------------------------------------------------------
@@ -77,6 +78,15 @@ export const navData: NavSectionProps['data'] = [
       },
       { title: 'Categories', path: paths.admin.categories, icon: ICONS.folder },
       {
+        title: 'Combo Deals',
+        path: paths.admin.deals.root,
+        icon: ICONS.deal,
+        children: [
+          { title: 'List', path: paths.admin.deals.root },
+          { title: 'Create', path: paths.admin.deals.new },
+        ],
+      },
+      {
         title: 'Orders',
         path: paths.admin.orders.root,
         icon: ICONS.order,
@@ -89,7 +99,7 @@ export const navData: NavSectionProps['data'] = [
       {
         title: 'Testimonials',
         path: paths.admin.testimonials,
-        icon: ICONS.chat, // Reusing chat icon, feel free to change
+        icon: ICONS.chat,
       },
       {
         title: 'Training Modules',

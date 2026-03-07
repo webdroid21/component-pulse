@@ -15,7 +15,10 @@ export const paths = {
   product: (slug: string) => `/products/${slug}`,
   categories: '/categories',
   category: (slug: string) => `/categories/${slug}`,
-  deals: '/deals',
+  deals: {
+    root: '/deals',
+    details: (id: string) => `/deals/${id}`,
+  },
   cart: '/cart',
   checkout: '/checkout',
   about: '/about',
@@ -101,7 +104,11 @@ export const paths = {
     // Delivery
     delivery: `${ROOTS.ADMIN}/delivery`,
     // Deals
-    deals: `${ROOTS.ADMIN}/deals`,
+    deals: {
+      root: `${ROOTS.ADMIN}/deals`,
+      new: `${ROOTS.ADMIN}/deals/new`,
+      edit: (id: string) => `${ROOTS.ADMIN}/deals/${id}/edit`,
+    },
     // Coupons
     coupons: `${ROOTS.ADMIN}/coupons`,
     // Returns

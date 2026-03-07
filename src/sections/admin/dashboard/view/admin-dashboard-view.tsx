@@ -12,7 +12,6 @@ import Typography from '@mui/material/Typography';
 
 import {
   useOrders,
-  useAdmins,
   useProducts,
   useCustomers,
   useCategories,
@@ -99,7 +98,7 @@ export function AdminDashboardView() {
   const { reviews } = useGetAllReviews();
   const { tickets } = useGetTickets();
   const { modules } = useTrainingModules();
-  const { admins } = useAdmins();
+  // const { admins } = useAdmins();
 
   // ── Filtered by date range ──────────────────────────────────────────
   const filteredOrders = useMemo(
@@ -138,7 +137,6 @@ export function AdminDashboardView() {
   const totalProducts = products.length;
   const totalCustomers = filteredCustomers.length;
   const totalCategories = categories.length;
-  const totalAdmins = admins.length;
 
   const pendingReviews = reviews.filter((r) => !r.isApproved).length;
   const openTickets = tickets.filter((t) => t.status === 'open').length;

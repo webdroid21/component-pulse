@@ -5,7 +5,6 @@ import type { BoxProps } from '@mui/material/Box';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 import { Iconify } from 'src/components/iconify';
@@ -53,7 +52,6 @@ const FEATURES = [
 ];
 
 export function EmbeddedSystemsFeatures({ sx, ...other }: BoxProps) {
-    const theme = useTheme();
 
     const carousel = useCarousel({
         slidesToShow: { xs: 1, sm: 2, md: 3 },

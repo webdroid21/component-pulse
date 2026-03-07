@@ -3,9 +3,9 @@
 import type { UserAddress } from 'src/types/user';
 import type { PaymentMethod } from 'src/types/order';
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
+import { useMemo, useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -77,7 +77,7 @@ export function CheckoutView() {
   const { createOrder, loading: creatingOrder, error: orderError } = useCreateOrder();
   const { updatePaymentStatus } = useUpdatePaymentStatus();
   const { zones, loading: zonesLoading } = useDeliveryZones(true); // active zones only
-  const { validateCoupon, incrementCouponUsage, validating: couponValidating } = useValidateCoupon();
+  const { validateCoupon, validating: couponValidating } = useValidateCoupon();
 
   const [activeStep, setActiveStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -107,7 +107,8 @@ export function CheckoutView() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discount: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
-  const savedAddresses = profile?.addresses || [];
+  const savedAddresses = useMemo(() => profile?.addresses || [], [profile?.addresses]);
+
   const defaultAddressId = profile?.defaultAddressId;
 
   // Sync email from auth whenever user resolves (auth may load after component mounts)

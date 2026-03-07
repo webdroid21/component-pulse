@@ -66,7 +66,7 @@ export function ProductCreateEditForm({ currentProduct }: Props) {
 
   const { categories, loading: categoriesLoading } = useCategories();
   const { createProduct, updateProduct, loading: saving } = useProductMutations();
-  const { uploadMultiple, deleteFile, loading: uploading, progress } = useProductImageUpload();
+  const { uploadMultiple, loading: uploading, progress } = useProductImageUpload();
 
   const [images, setImages] = useState<(File | ProductImage)[]>([]);
   const [featuredImageIndex, setFeaturedImageIndex] = useState(0);

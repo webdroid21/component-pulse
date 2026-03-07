@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react';
 import {
     doc,
     query,
-    where,
-    addDoc,
     orderBy,
     updateDoc,
     deleteDoc,
     collection,
     onSnapshot,
-    serverTimestamp,
 } from 'firebase/firestore';
 
 import { FIRESTORE as db } from 'src/lib/firebase';
-import { useAuthContext } from 'src/auth/hooks';
+
 
 // ----------------------------------------------------------------------
 

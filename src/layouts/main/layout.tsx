@@ -101,7 +101,7 @@ function NewsletterForm() {
 const NAV_ITEMS = [
   { title: 'Categories', path: paths.products },
   { title: 'Products', path: paths.products },
-  { title: 'Deals', path: paths.products },
+  { title: 'Deals', path: paths.deals.root },
   { title: 'Training', path: paths.trainingModules.root },
   { title: 'About', path: paths.about },
   { title: 'Contact & Support', path: paths.support },
