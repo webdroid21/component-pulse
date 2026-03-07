@@ -19,10 +19,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useStorage, useProducts, useDealMutations, useTrainingModules } from 'src/hooks/firebase';
+import { useProducts, useStorageUpload, useDealMutations, useTrainingModules } from 'src/hooks/firebase';
 
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field, schemaUtils } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ export const NewDealSchema = zod.object({
   productIds: zod.array(zod.string()).min(0),
   trainingModuleIds: zod.array(zod.string()).min(0),
   isActive: zod.boolean(),
-  coverImage: schemaHelper.file({ message: { required_error: 'Cover image is required!' } }),
+  coverImage: schemaUtils.file(),
 });
 
 // ----------------------------------------------------------------------
@@ -49,7 +49,7 @@ type Props = {
 export function DealForm({ currentDeal }: Props) {
   const router = useRouter();
   const { createDeal, updateDeal } = useDealMutations();
-  const { uploadFile } = useStorage();
+  const { uploadFile } = useStorageUpload('deals');
 
   const { products } = useProducts();
   const { modules } = useTrainingModules();
@@ -91,9 +91,9 @@ export function DealForm({ currentDeal }: Props) {
       let coverImage = data.coverImage as string;
 
       if (data.coverImage && typeof data.coverImage !== 'string') {
-        const url = await uploadFile(data.coverImage as File, `deals/${Date.now()}_cover`);
-        if (url) {
-          coverImage = url;
+        const uploadedFile = await uploadFile(data.coverImage as File);
+        if (uploadedFile) {
+          coverImage = uploadedFile.url;
         }
       }
 

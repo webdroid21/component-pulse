@@ -93,6 +93,7 @@
     "@types/react": "^19.1.15",
     "@types/react-dom": "^19.1.9",
     "@types/stylis": "^4.2.7",
+    "@types/turndown": "^5.0.5",
     "@typescript-eslint/parser": "^8.44.1",
     "eslint": "^9.36.0",
     "eslint-import-resolver-typescript": "^4.4.4",
