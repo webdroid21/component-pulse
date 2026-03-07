@@ -67,8 +67,17 @@ export function DealDetailsView({ id }: Props) {
 
   if (!deal) {
     return (
-      <Container sx={{ pt: 5, pb: 10 }}>
-        <Typography variant="h4">Deal not found</Typography>
+      <Container maxWidth="lg" sx={{ py: 10, textAlign: 'center' }}>
+        <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+        <Typography variant="h5" sx={{ mb: 1 }}>
+          Deal not found
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+          The deal you&apos;re looking for doesn&apos;t exist or has been removed.
+        </Typography>
+        <Button component={RouterLink} href={paths.deals.root} variant="contained">
+          Browse Deals
+        </Button>
       </Container>
     );
   }

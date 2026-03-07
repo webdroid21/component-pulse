@@ -1,11 +1,17 @@
 'use client';
 
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 import { useDeal } from 'src/hooks/firebase';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
+import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { DealForm } from '../deal-form';
@@ -48,7 +54,19 @@ export function DealEditView({ id }: Props) {
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
         />
-        Deal not found.
+
+        <Box sx={{ mt: 5, textAlign: 'center' }}>
+          <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h5" sx={{ mb: 1 }}>
+            Deal not found
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+            The deal you&apos;re looking for doesn&apos;t exist or has been removed.
+          </Typography>
+          <Button component={RouterLink} href={paths.admin.deals.root} variant="contained">
+            Back to Deals
+          </Button>
+        </Box>
       </DashboardContent>
     );
   }

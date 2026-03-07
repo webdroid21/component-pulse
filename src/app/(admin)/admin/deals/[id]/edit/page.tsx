@@ -9,9 +9,11 @@ import { DealEditView } from 'src/sections/admin/deals/view';
 export const metadata: Metadata = { title: `Edit deal - ${CONFIG.appName}` };
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
-export default function Page({ params }: Props) {
-  return <DealEditView id={params.id} />;
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+
+  return <DealEditView id={id} />;
 }
