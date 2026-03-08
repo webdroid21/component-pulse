@@ -13,8 +13,8 @@ import { RouterLink } from 'src/routes/components';
 
 import { useCategories } from 'src/hooks/firebase';
 
-import { Iconify } from 'src/components/iconify';
 import { Image } from 'src/components/image';
+import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 

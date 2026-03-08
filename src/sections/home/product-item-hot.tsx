@@ -13,8 +13,9 @@ import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 
-import { Iconify } from 'src/components/iconify';
 import { toast } from 'src/components/snackbar';
+import { Iconify } from 'src/components/iconify';
+
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
 // ----------------------------------------------------------------------

@@ -13,8 +13,9 @@ import Typography from '@mui/material/Typography';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { CONFIG } from 'src/global-config';
 import { useProducts } from 'src/hooks/firebase';
+
+import { CONFIG } from 'src/global-config';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';

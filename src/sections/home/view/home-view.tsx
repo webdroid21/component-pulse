@@ -3,8 +3,8 @@
 import { HomeCTA } from '../home-cta';
 import { HomeHero } from '../home-hero';
 import { HomeCategories } from '../home-categories';
-import { HomeAllProducts } from '../home-all-products';
 import { HomeComboDeals } from '../home-combo-deals';
+import { HomeAllProducts } from '../home-all-products';
 import { HomeTestimonials } from '../home-testimonials';
 import { HomeSpecialOffer } from '../home-special-offer';
 import { HomeHotDealToday } from '../home-hot-deal-today';
