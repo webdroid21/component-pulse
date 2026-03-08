@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 
-import { CONFIG } from 'src/global-config';
-
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+
+import { CONFIG } from 'src/global-config';
+
 import { Markdown } from 'src/components/markdown';
 
 // ----------------------------------------------------------------------

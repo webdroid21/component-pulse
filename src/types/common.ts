@@ -12,3 +12,5 @@ export type IAddressItem = {
   country?: string;
   zipCode?: string;
 };
+
+export type IDateValue = string | number | null;

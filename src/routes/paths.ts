@@ -19,6 +19,10 @@ export const paths = {
     root: '/deals',
     details: (id: string) => `/deals/${id}`,
   },
+  blog: {
+    root: '/blog',
+    details: (id: string) => `/blog/${id}`,
+  },
   cart: '/cart',
   checkout: '/checkout',
   about: '/about',
@@ -93,6 +97,12 @@ export const paths = {
     orders: {
       root: `${ROOTS.ADMIN}/orders`,
       details: (id: string) => `${ROOTS.ADMIN}/orders/${id}`,
+    },
+    // Blog
+    blog: {
+      root: `${ROOTS.ADMIN}/blog`,
+      new: `${ROOTS.ADMIN}/blog/new`,
+      edit: (id: string) => `${ROOTS.ADMIN}/blog/${id}/edit`,
     },
     // Customers
     customers: {

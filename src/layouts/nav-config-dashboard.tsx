@@ -92,6 +92,15 @@ export const navData: NavSectionProps['data'] = [
         icon: ICONS.order,
       },
       {
+        title: 'Blog',
+        path: paths.admin.blog.root,
+        icon: ICONS.blog,
+        children: [
+          { title: 'List', path: paths.admin.blog.root },
+          { title: 'Create', path: paths.admin.blog.new },
+        ],
+      },
+      {
         title: 'Reviews',
         path: paths.admin.reviews,
         icon: ICONS.chat,

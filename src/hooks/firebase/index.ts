@@ -1,3 +1,4 @@
+export * from './use-blog';
 export * from './use-deals';
 export * from './use-admins';
 export * from './use-orders';
