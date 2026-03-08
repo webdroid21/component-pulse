@@ -23,10 +23,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { paths } from 'src/routes/paths';
-import { usePathname } from 'src/routes/hooks';
+import { usePathname, useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useNewsletter, useGetNotifications } from 'src/hooks/firebase';
+import { useNewsletter, useGetNotifications, useCategories } from 'src/hooks/firebase';
 
 import { Logo } from 'src/components/logo';
 import { toast } from 'src/components/snackbar';
@@ -41,6 +41,7 @@ import { SettingsButton } from '../components/settings-button';
 import { _account, _adminAccount } from '../nav-config-account';
 import { MainSection, LayoutSection, HeaderSection } from '../core';
 import { NotificationsDrawer } from '../components/notifications-drawer';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -99,7 +100,6 @@ function NewsletterForm() {
 // ----------------------------------------------------------------------
 
 const NAV_ITEMS = [
-  { title: 'Categories', path: paths.products },
   { title: 'Products', path: paths.products },
   { title: 'Deals', path: paths.deals.root },
   { title: 'Training', path: paths.trainingModules.root },
@@ -126,14 +126,27 @@ export function MainLayout({
   layoutQuery = 'md',
   hasFooter = true,
 }: MainLayoutProps) {
+  const router = useRouter();
   const pathname = usePathname();
   const { user, authenticated } = useAuthContext();
   const { notifications } = useGetNotifications();
+  const { categories } = useCategories();
 
   const { value: mobileOpen, onFalse: onMobileClose, onTrue: onMobileOpen } = useBoolean();
 
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
+
+  const activeCategories = categories.filter(c => c.isActive);
+
+  const handleOpenCategories = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseCategories = () => {
+    setAnchorEl(null);
+  };
 
   const renderMobileNav = () => (
     <Drawer
@@ -150,6 +163,12 @@ export function MainLayout({
       </Box>
       <Divider />
       <List>
+        <ListItem disablePadding>
+           <ListItemButton onClick={() => setAnchorEl(document.body)} sx={{ justifyContent: 'space-between' }}>
+             <ListItemText primary="Categories" />
+             <Iconify icon="eva:arrow-ios-downward-fill" />
+           </ListItemButton>
+        </ListItem>
         {NAV_ITEMS.map((item) => (
           <ListItem key={item.title} disablePadding>
             <ListItemButton
@@ -274,6 +293,24 @@ export function MainLayout({
         <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', display: { xs: 'none', md: 'block' } }}>
           <Container maxWidth="lg">
             <Box component="nav" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, py: 1.5 }}>
+              <Link
+                  component="button"
+                  onClick={handleOpenCategories}
+                  color="text.primary"
+                  underline="none"
+                  sx={{
+                    typography: 'subtitle2',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    transition: 'color 0.2s',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Categories <Iconify icon="eva:arrow-ios-downward-fill" width={16} />
+              </Link>
+
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.title}
@@ -473,6 +510,42 @@ export function MainLayout({
       >
         {renderMain()}
       </LayoutSection>
+
+      {/* Categories Dropdown Popover */}
+      <CustomPopover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleCloseCategories}
+        slotProps={{ paper: { sx: { width: 320, p: 2, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 } } }}
+      >
+        {activeCategories.map((category) => (
+          <Button
+            key={category.id}
+            color="inherit"
+            variant="text"
+            onClick={() => {
+              handleCloseCategories();
+              onMobileClose();
+              router.push(`${paths.products}?category=${category.slug}`);
+            }}
+            sx={{
+              justifyContent: 'flex-start',
+              px: 1,
+              py: 1.5,
+              typography: 'body2',
+              fontWeight: 500,
+            }}
+            startIcon={
+              <Iconify
+                icon={category.icon || 'solar:box-bold-duotone'}
+                sx={{ color: category.color || 'text.secondary' }}
+              />
+            }
+          >
+            {category.name}
+          </Button>
+        ))}
+      </CustomPopover>
     </>
   );
 }
