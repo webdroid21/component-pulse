@@ -4,13 +4,18 @@ import type { Product } from 'src/types/product';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import LinearProgress from '@mui/material/LinearProgress';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
+
+import { Iconify } from 'src/components/iconify';
+import { toast } from 'src/components/snackbar';
+import { useCheckoutContext } from 'src/sections/checkout/context';
 
 // ----------------------------------------------------------------------
 
@@ -21,8 +26,22 @@ type Props = {
 };
 
 export function ProductItemHot({ product, isHot = false, sx }: Props) {
-    const stock = product.stock || 100;
-    const sold = isHot ? Math.floor(stock * 0.7) : 0; // fallback mock for showcase
+    const checkout = useCheckoutContext();
+
+    const handleAddCart = (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent navigating to the product page
+        e.stopPropagation();
+
+        checkout.onAddToCart({
+            id: product.id,
+            name: product.name,
+            price: product.salePrice || product.price,
+            coverUrl: product.images?.[0]?.url || '/assets/placeholder.svg',
+            available: product.stock,
+            quantity: 1,
+        });
+        toast.success('Added to cart');
+    };
 
     return (
         <Link component={RouterLink} href={paths.product(product.slug || product.id)} color="inherit" underline="none">
@@ -50,34 +69,42 @@ export function ProductItemHot({ product, isHot = false, sx }: Props) {
                     sx={{ mb: 2, borderRadius: 1.5, bgcolor: 'background.neutral', width: 1, aspectRatio: '1/1', objectFit: 'cover' }}
                 />
 
-                <div>
+                <Box sx={{ minHeight: 90, display: 'flex', flexDirection: 'column' }}>
                     <Typography variant="body2" noWrap sx={{ mb: 0.5, fontWeight: 'fontWeightMedium' }}>
                         {product.name}
                     </Typography>
 
-                    <Typography
-                        variant="subtitle2"
-                        sx={{ ...(isHot && { color: 'error.main' }) }}
-                    >
-                        {fCurrency(product.salePrice || product.price)}
-                    </Typography>
-                </div>
-
-                {isHot && (
-                    <Box gap={1} display="flex" alignItems="center" sx={{ mt: 1 }}>
-                        <LinearProgress
-                            color="inherit"
-                            variant="determinate"
-                            value={(sold / stock) * 100}
-                            sx={{ flex: '1 1 auto' }}
-                        />
-
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
                         <Typography
-                            variant="caption"
-                            sx={{ flexShrink: 0, color: 'text.disabled' }}
-                        >{`🔥 ${sold} sold`}</Typography>
+                            variant="subtitle2"
+                            sx={{ ...(isHot && { color: 'error.main' }) }}
+                        >
+                            {fCurrency(product.salePrice || product.price)}
+                        </Typography>
+
+                        {(product.compareAtPrice || (isHot && product.price)) && (
+                            <Typography
+                                variant="caption"
+                                sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                            >
+                                {fCurrency(product.compareAtPrice || (isHot ? product.price + 15000 : product.price))}
+                            </Typography>
+                        )}
+                    </Stack>
+
+                    <Box sx={{ mt: 'auto' }}>
+                        <Button
+                            fullWidth
+                            size="small"
+                            variant="soft"
+                            color="inherit"
+                            startIcon={<Iconify icon="solar:cart-plus-bold" />}
+                            onClick={handleAddCart}
+                        >
+                            Add to Cart
+                        </Button>
                     </Box>
-                )}
+                </Box>
             </Paper>
         </Link>
     );

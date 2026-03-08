@@ -15,7 +15,6 @@ import {
 } from 'src/components/carousel';
 
 import { ProductItemHot } from './product-item-hot';
-import { ProductCountdownBlock } from './product-countdown-block';
 
 // ----------------------------------------------------------------------
 
@@ -23,7 +22,7 @@ export function HomeHotDealToday() {
     const { products, loading } = useProducts({ isFeatured: true, limit: 8 });
 
     const carousel = useCarousel({
-        slidesToShow: { xs: 2, sm: 3, md: 4, lg: 6 },
+        slidesToShow: { xs: 2, sm: 3, md: 4 },
         slidesToScroll: 2,
         slideSpacing: '24px',
     });
@@ -44,19 +43,8 @@ export function HomeHotDealToday() {
                     sx={{ mb: { xs: 5, md: 8 } }}
                 >
                     <Typography variant="h3" sx={{ textAlign: { xs: 'center', md: 'unset' } }}>
-                        🔥 Hot deal today
+                        🔥 Hot deals today
                     </Typography>
-
-                    <ProductCountdownBlock
-                        hideDays
-                        labelPlacement="inline"
-                        expired={new Date(Date.now() + 60 * 60 * 1000 * 1.5)} // 1.5 hours from now
-                        width={44}
-                        height={32}
-                        slotProps={{
-                            value: { bgcolor: 'text.primary', color: 'background.paper' },
-                        }}
-                    />
 
                     <Box flexGrow={1} />
 

@@ -29,10 +29,10 @@ import {
 const HERO_SLIDES = [
   {
     id: '1',
-    label: 'NEW ARRIVAL',
-    name: 'Arduino Uno R3',
-    caption: 'The classic microcontroller board for all your DIY electronics and prototyping needs.',
-    coverUrl: 'https://www.campuscomponent.com/product-images/Arduino+UNO+R3+Compatible+Board-AR-134-D-min.jpg/2208614000020620127/1100x1100',
+    label: 'WELCOME TO',
+    name: 'Component Pulse',
+    caption: 'Your trusted partner for premium electronic components, solar equipment, and DIY prototyping supplies in Uganda. Let\'s build the future together.',
+    coverUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
   },
   {
     id: '2',
