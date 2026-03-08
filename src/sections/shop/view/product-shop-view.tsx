@@ -1,7 +1,7 @@
 'use client';
 
 import { m } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 import { useSearchParams } from 'next/navigation';
 
@@ -56,27 +56,52 @@ export function ProductShopView() {
 
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('q') || '';
+  const initialCategory = searchParams.get('category') || '';
 
   const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState('grid');
   const [page, setPage] = useState(1);
 
-  // Sync with URL query param if it changes
-  useMemo(() => {
-    const q = searchParams.get('q');
-    if (q !== null) {
-      setSearch(q);
-      setPage(1);
-    }
-  }, [searchParams]);
-
   const [filters, setFilters] = useState({
-    categories: [] as string[],
+    categories: initialCategory ? [initialCategory] : [] as string[],
     priceRange: [0, 10000000],
     inStock: false,
     onSale: false,
   });
+
+  // Sync with URL query params if they change
+  useEffect(() => {
+    const q = searchParams.get('q');
+    const cat = searchParams.get('category');
+
+    let stateUpdated = false;
+
+    if (q !== null && q !== search) {
+      setSearch(q);
+      stateUpdated = true;
+    }
+
+    if (cat !== null) {
+        setFilters(prev => {
+            if (!prev.categories.includes(cat)) {
+                stateUpdated = true;
+                return { ...prev, categories: [cat] };
+            }
+            return prev;
+        });
+    } else if (filters.categories.length > 0 && !cat) {
+        setFilters(prev => {
+            stateUpdated = true;
+            return { ...prev, categories: [] };
+        });
+    }
+
+    if (stateUpdated) {
+        setPage(1);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleFilterChange = (name: string, value: any) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -108,7 +133,13 @@ export function ProductShopView() {
 
     // Category filter
     if (filters.categories.length > 0) {
-      result = result.filter((p) => filters.categories.includes(p.categoryId));
+      // Find IDs of selected categories (handles both slugs from URL and IDs from filters)
+      const selectedCategoryIds = filters.categories.map(slugOrId => {
+          const match = categories.find(c => c.slug === slugOrId || c.id === slugOrId);
+          return match ? match.id : slugOrId;
+      });
+
+      result = result.filter((p) => selectedCategoryIds.includes(p.categoryId));
     }
 
     // Price filter
@@ -119,7 +150,7 @@ export function ProductShopView() {
 
     // In stock filter
     if (filters.inStock) {
-      result = result.filter((p) => p.quantity > 0);
+      result = result.filter((p) => (p.stock || p.quantity || 0) > 0);
     }
 
     // On sale filter
@@ -147,19 +178,13 @@ export function ProductShopView() {
     }
 
     return result;
-  }, [products, search, filters, sortBy]);
+  }, [products, search, filters, sortBy, categories]);
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
     (page - 1) * PRODUCTS_PER_PAGE,
     page * PRODUCTS_PER_PAGE
   );
-
-  // const activeFiltersCount =
-  //   filters.categories.length +
-  //   (filters.inStock ? 1 : 0) +
-  //   (filters.onSale ? 1 : 0) +
-  //   (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000000 ? 1 : 0);
 
   const renderList = (
     <>
@@ -302,7 +327,7 @@ export function ProductShopView() {
             filters={filters}
             onFilterChange={handleFilterChange}
             onResetFilters={handleResetFilters}
-            categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+            categories={categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug }))}
           />
 
           <Box

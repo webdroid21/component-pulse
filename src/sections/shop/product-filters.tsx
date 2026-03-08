@@ -32,7 +32,7 @@ type Props = {
   };
   onFilterChange: (name: string, value: any) => void;
   onResetFilters: () => void;
-  categories: { id: string; name: string }[];
+  categories: { id: string; name: string; slug?: string }[];
 };
 
 export function ProductFilters({
@@ -43,10 +43,28 @@ export function ProductFilters({
   onResetFilters,
   categories,
 }: Props) {
-  const handleCategoryChange = (categoryId: string) => {
-    const newCategories = filters.categories.includes(categoryId)
-      ? filters.categories.filter((c) => c !== categoryId)
-      : [...filters.categories, categoryId];
+
+  // Accept both slug and id for matching to sync perfectly with URL
+  const isCategorySelected = (category: { id: string; slug?: string }) => {
+      return filters.categories.includes(category.id) || (category.slug && filters.categories.includes(category.slug));
+  };
+
+  const handleCategoryChange = (category: { id: string; slug?: string }) => {
+    // Prefer slug if available for cleaner URLs, fallback to ID
+    const identifier = category.slug || category.id;
+
+    // Check if the current category is already selected
+    const isSelected = isCategorySelected(category);
+
+    // If it's already selected, we want to remove both its ID and its slug from the array just in case
+    let newCategories = [...filters.categories];
+
+    if (isSelected) {
+        newCategories = newCategories.filter(c => c !== category.id && c !== category.slug);
+    } else {
+        newCategories.push(identifier);
+    }
+
     onFilterChange('categories', newCategories);
   };
 
@@ -64,12 +82,13 @@ export function ProductFilters({
               gap={1}
               display="flex"
               alignItems="center"
-              onClick={() => handleCategoryChange(category.id)}
+              onClick={() => handleCategoryChange(category)}
               sx={{
                 cursor: 'pointer',
                 typography: 'body2',
-                ...(filters.categories.includes(category.id) && {
+                ...(isCategorySelected(category) && {
                   fontWeight: 'fontWeightBold',
+                  color: 'primary.main'
                 }),
               }}
             >
