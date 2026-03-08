@@ -20,7 +20,6 @@ export function HomeView() {
       <HomeAllProducts />
       <HomeComboDeals />
       <HomeHotDealToday />
-      <HomeSpecialOffer />
       <HomeTestimonials />
       <HomeTrustedBrands />
       <HomeCTA />

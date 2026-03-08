@@ -1,6 +1,7 @@
 'use client';
 
 import { varAlpha } from 'minimal-shared/utils';
+import AutoScroll from 'embla-carousel-auto-scroll';
 
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -15,6 +16,9 @@ import { useCategories } from 'src/hooks/firebase';
 
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
+import { alpha } from '@mui/material';
+
+import { Carousel, useCarousel, CarouselDotButtons, CarouselArrowBasicButtons } from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
 
@@ -22,6 +26,16 @@ export function HomeCategories() {
   const { categories, loading } = useCategories();
 
   const activeCategories = categories.filter((cat) => cat.isActive);
+
+  const carousel = useCarousel(
+    {
+      loop: true,
+      align: 'start',
+      slidesToShow: { xs: 2, sm: 3, md: 4, lg: 6 },
+      slideSpacing: '24px',
+    },
+    [AutoScroll({ speed: 1.2, stopOnInteraction: true, stopOnMouseEnter: true })]
+  );
 
   return (
     <Box
@@ -32,34 +46,44 @@ export function HomeCategories() {
       }}
     >
       <Container>
-        <Typography
-          variant="h3"
-          sx={{
-            mb: { xs: 5, md: 8 },
-            textAlign: { xs: 'center', md: 'unset' },
-          }}
-        >
-          Categories
-        </Typography>
-
         <Box
           gap={3}
-          display="grid"
-          gridTemplateColumns={{
-            xs: 'repeat(2, 1fr)',
-            sm: 'repeat(4, 1fr)',
-            md: 'repeat(6, 1fr)',
-          }}
+          display="flex"
+          alignItems="center"
+          flexDirection={{ xs: 'column', md: 'row' }}
+          sx={{ mb: { xs: 5, md: 8 } }}
         >
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
+          <Typography variant="h3" sx={{ textAlign: { xs: 'center', md: 'unset' } }}>
+            Categories
+          </Typography>
+
+          <Box flexGrow={1} />
+
+          <CarouselArrowBasicButtons
+            {...carousel.arrows}
+            options={carousel.options}
+            sx={{
+              gap: 1,
+              display: { xs: 'none', md: 'inline-flex' },
+            }}
+          />
+        </Box>
+
+        {loading ? (
+          <Box display="flex" gap={3}>
+            {Array.from({ length: 6 }).map((_, i) => (
               <Paper
                 key={i}
                 variant="outlined"
                 sx={{
-                  px: 1,
-                  py: 3,
-                  minWidth: 0,
+                  flexShrink: 0,
+                  width: {
+                    xs: 'calc(50% - 12px)',
+                    sm: 'calc(33.333% - 16px)',
+                    md: 'calc(25% - 18px)',
+                    lg: 'calc(16.666% - 20px)',
+                  },
+                  p: 3,
                   borderRadius: 2,
                   display: 'flex',
                   alignItems: 'center',
@@ -72,8 +96,11 @@ export function HomeCategories() {
                 <Skeleton variant="circular" width={56} height={56} sx={{ mb: 2 }} />
                 <Skeleton variant="text" width={80} />
               </Paper>
-            ))
-            : activeCategories.map((category) => {
+            ))}
+          </Box>
+        ) : (
+          <Carousel carousel={carousel}>
+            {[...activeCategories, ...activeCategories, ...activeCategories].map((category) => {
               const href = `${paths.products}?category=${category.slug}`;
               const color = category.color || 'primary.main';
               const icon = category.icon || 'solar:box-bold-duotone';
@@ -106,7 +133,7 @@ export function HomeCategories() {
                     },
                     ...(hasImage && {
                       border: 'none',
-                    })
+                    }),
                   })}
                 >
                   {hasImage && (
@@ -128,7 +155,7 @@ export function HomeCategories() {
                             transition: theme.transitions.create(['background-color']),
                             '&:hover': {
                               bgcolor: varAlpha(theme.vars.palette.grey['900Channel'], 0.4),
-                            }
+                            },
                           }),
                         },
                       }}
@@ -147,11 +174,18 @@ export function HomeCategories() {
                   >
                     <Box
                       sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         mb: 2,
                         p: 1.5,
                         borderRadius: '50%',
-                        bgcolor: hasImage ? varAlpha('#ffffff', 0.2) : `${color}20`,
-                        color: hasImage ? 'common.white' : (typeof color === 'string' && color.includes('.') ? color : undefined),
+                        bgcolor: hasImage ? alpha('#ffffff', 0.2) : `${color}20`,
+                        color: hasImage
+                          ? 'common.white'
+                          : typeof color === 'string' && color.includes('.')
+                            ? color
+                            : undefined,
                         backdropFilter: hasImage ? 'blur(4px)' : 'none',
                       }}
                     >
@@ -159,7 +193,10 @@ export function HomeCategories() {
                         icon={icon}
                         width={40}
                         sx={{
-                          color: (!hasImage && typeof color === 'string' && !color.includes('.')) ? color : undefined,
+                          color:
+                            !hasImage && typeof color === 'string' && !color.includes('.')
+                              ? color
+                              : undefined,
                         }}
                       />
                     </Box>
@@ -171,7 +208,21 @@ export function HomeCategories() {
                 </Paper>
               );
             })}
-        </Box>
+          </Carousel>
+        )}
+
+        <CarouselDotButtons
+          scrollSnaps={carousel.dots.scrollSnaps}
+          selectedIndex={carousel.dots.selectedIndex}
+          onClickDot={carousel.dots.onClickDot}
+          sx={{
+            mt: 8,
+            width: 1,
+            color: 'primary.main',
+            justifyContent: 'center',
+            display: { xs: 'inline-flex', md: 'none' },
+          }}
+        />
       </Container>
     </Box>
   );

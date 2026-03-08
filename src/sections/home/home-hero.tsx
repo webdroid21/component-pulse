@@ -70,12 +70,12 @@ export function HomeHero() {
     <Box
       component="section"
       sx={{
-        ...(theme.mixins.bgGradient({
+        ...theme.mixins.bgGradient({
           images: [
             `linear-gradient(to bottom, ${varAlpha(theme.vars.palette.common.blackChannel, 0.8)}, ${varAlpha(theme.vars.palette.common.blackChannel, 0.8)})`,
-            `url(${CONFIG.assetsDir}/assets/background/overlay-2.webp)`,
-          ]
-        })),
+            `url(${CONFIG.assetsDir}/assets/images/home/bg.avif)`,
+          ],
+        }),
         overflow: 'hidden',
         position: 'relative',
       }}
@@ -90,7 +90,7 @@ export function HomeHero() {
           height: 1,
           width: 1,
           position: 'absolute',
-          opacity: 0.04,
+          opacity: 0.1,
         }}
       />
 
