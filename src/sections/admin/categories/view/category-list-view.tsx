@@ -27,12 +27,13 @@ import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { useCategories, useCategoryMutations } from 'src/hooks/firebase';
+import { useCategories, useCategoryMutations, useCategoryImageUpload } from 'src/hooks/firebase';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { Form, Field } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,7 @@ type CategoryFormValues = {
   description: string;
   icon: string;
   color: string;
+  image: string | File | null;
   order: number;
   isActive: boolean;
 };
@@ -57,12 +59,14 @@ export function CategoryListView() {
 
   const { categories, loading, refetch } = useCategories();
   const { createCategory, updateCategory, deleteCategory, loading: mutating } = useCategoryMutations();
+  const { uploadFile } = useCategoryImageUpload();
 
   const defaultValues: CategoryFormValues = {
     name: '',
     description: '',
     icon: DEFAULT_ICON,
     color: DEFAULT_COLOR,
+    image: null,
     order: categories.length,
     isActive: true,
   };
@@ -88,6 +92,7 @@ export function CategoryListView() {
       description: category.description || '',
       icon: category.icon || DEFAULT_ICON,
       color: category.color || DEFAULT_COLOR,
+      image: category.image || null,
       order: category.order,
       isActive: category.isActive,
     });
@@ -100,13 +105,41 @@ export function CategoryListView() {
     reset(defaultValues);
   };
 
+  const handleDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      const newFile = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+
+      if (file) {
+        setValue('image', newFile, { shouldValidate: true });
+      }
+    },
+    [setValue]
+  );
+
+  const handleRemoveFile = useCallback(() => {
+    setValue('image', null);
+  }, [setValue]);
+
   const onSubmit = handleSubmit(async (data) => {
+    let imageUrl = data.image as string | undefined;
+
+    if (data.image && typeof data.image !== 'string') {
+      const uploadedFile = await uploadFile(data.image as File);
+      if (uploadedFile) {
+        imageUrl = uploadedFile.url;
+      }
+    }
+
     let success = false;
     const formData: CategoryFormData = {
       name: data.name,
       description: data.description,
       icon: data.icon,
       color: data.color,
+      image: imageUrl,
       order: Number(data.order),
       isActive: data.isActive,
     };
@@ -187,25 +220,33 @@ export function CategoryListView() {
                   <TableRow key={category.id} hover>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        {/* Icon + color swatch */}
-                        <Box
-                          sx={{
-                            width: 44,
-                            height: 44,
-                            borderRadius: 1.5,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            bgcolor: category.color ? `${category.color}22` : 'action.hover',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <Iconify
-                            icon={category.icon || 'solar:box-bold-duotone'}
-                            width={24}
-                            sx={{ color: category.color || 'text.secondary' }}
+                        {category.image ? (
+                          <Box
+                            component="img"
+                            src={category.image}
+                            alt={category.name}
+                            sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }}
                           />
-                        </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 1.5,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              bgcolor: category.color ? `${category.color}22` : 'action.hover',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Iconify
+                              icon={category.icon || 'solar:box-bold-duotone'}
+                              width={24}
+                              sx={{ color: category.color || 'text.secondary' }}
+                            />
+                          </Box>
+                        )}
                         <Box>
                           <Typography variant="subtitle2">{category.name}</Typography>
                           {category.description && (
@@ -243,32 +284,31 @@ export function CategoryListView() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isCreateOpen || !!editCategory} onClose={handleClose} maxWidth="sm" fullWidth>
-        <form onSubmit={onSubmit}>
+        <Form methods={methods} onSubmit={onSubmit}>
           <DialogTitle>{editCategory ? 'Edit Category' : 'Create Category'}</DialogTitle>
           <DialogContent>
             <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <TextField
-                label="Category Name"
-                {...register('name', { required: 'Name is required' })}
-                error={!!errors.name}
-                helperText={errors.name?.message}
-                fullWidth
-              />
+              <Field.Text name="name" label="Category Name" />
 
-              <TextField
-                label="Description"
-                {...register('description')}
-                multiline
-                rows={2}
-                fullWidth
-              />
+              <Field.Text name="description" label="Description" multiline rows={2} />
+
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+                  Category Image
+                </Typography>
+                <Field.Upload
+                  name="image"
+                  maxSize={3145728}
+                  onDrop={handleDrop}
+                  onDelete={handleRemoveFile}
+                />
+              </Box>
 
               {/* Icon field with live preview */}
-              <TextField
+              <Field.Text
+                name="icon"
                 label="Icon (Iconify name)"
                 placeholder="solar:cpu-bolt-bold-duotone"
-                {...register('icon')}
-                fullWidth
                 helperText={
                   <span>
                     Browse icons at{' '}
@@ -281,30 +321,32 @@ export function CategoryListView() {
                     </a>
                   </span>
                 }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Tooltip title={watchedIcon || 'icon preview'}>
-                        <Box
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            bgcolor: watchedColor ? `${watchedColor}22` : 'action.hover',
-                          }}
-                        >
-                          <Iconify
-                            icon={watchedIcon || 'solar:box-bold-duotone'}
-                            width={20}
-                            sx={{ color: watchedColor || 'text.secondary' }}
-                          />
-                        </Box>
-                      </Tooltip>
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Tooltip title={watchedIcon || 'icon preview'}>
+                          <Box
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              bgcolor: watchedColor ? `${watchedColor}22` : 'action.hover',
+                            }}
+                          >
+                            <Iconify
+                              icon={watchedIcon || 'solar:box-bold-duotone'}
+                              width={20}
+                              sx={{ color: watchedColor || 'text.secondary' }}
+                            />
+                          </Box>
+                        </Tooltip>
+                      </InputAdornment>
+                    ),
+                  }
                 }}
               />
 
@@ -330,20 +372,17 @@ export function CategoryListView() {
                     }}
                   />
                 </Tooltip>
-                <TextField
+                <Field.Text
+                  name="color"
                   label="Color (hex)"
-                  {...register('color')}
                   placeholder="#2196F3"
-                  fullWidth
-                  onChange={(e) => setValue('color', e.target.value)}
                 />
               </Box>
 
-              <TextField
+              <Field.Text
+                name="order"
                 label="Display Order"
                 type="number"
-                {...register('order', { valueAsNumber: true })}
-                fullWidth
               />
 
               <FormControlLabel
@@ -363,7 +402,7 @@ export function CategoryListView() {
               {editCategory ? 'Update' : 'Create'}
             </Button>
           </DialogActions>
-        </form>
+        </Form>
       </Dialog>
 
       <ConfirmDialog

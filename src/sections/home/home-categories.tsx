@@ -1,5 +1,7 @@
 'use client';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
@@ -12,6 +14,7 @@ import { RouterLink } from 'src/routes/components';
 import { useCategories } from 'src/hooks/firebase';
 
 import { Iconify } from 'src/components/iconify';
+import { Image } from 'src/components/image';
 
 // ----------------------------------------------------------------------
 
@@ -63,6 +66,7 @@ export function HomeCategories() {
                   bgcolor: 'transparent',
                   flexDirection: 'column',
                   justifyContent: 'center',
+                  aspectRatio: '1/1',
                 }}
               >
                 <Skeleton variant="circular" width={56} height={56} sx={{ mb: 2 }} />
@@ -73,6 +77,7 @@ export function HomeCategories() {
               const href = `${paths.products}?category=${category.slug}`;
               const color = category.color || 'primary.main';
               const icon = category.icon || 'solar:box-bold-duotone';
+              const hasImage = !!category.image;
 
               return (
                 <Paper
@@ -80,45 +85,89 @@ export function HomeCategories() {
                   href={href}
                   key={category.id}
                   variant="outlined"
-                  sx={{
-                    px: 1,
-                    py: 3,
+                  sx={(theme) => ({
+                    position: 'relative',
                     minWidth: 0,
                     borderRadius: 2,
                     display: 'flex',
                     cursor: 'pointer',
                     alignItems: 'center',
-                    bgcolor: 'transparent',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     textDecoration: 'none',
-                    color: 'text.primary',
+                    color: hasImage ? 'common.white' : 'text.primary',
+                    overflow: 'hidden',
+                    aspectRatio: '1/1',
+                    p: 2,
+                    transition: theme.transitions.create(['all']),
                     '&:hover': {
-                      bgcolor: 'action.hover',
+                      boxShadow: theme.customShadows.z20,
+                      transform: 'translateY(-4px)',
                     },
-                  }}
+                    ...(hasImage && {
+                      border: 'none',
+                    })
+                  })}
                 >
-                  <Box
-                    sx={{
-                      mb: 2,
-                      p: 1.5,
-                      borderRadius: '50%',
-                      bgcolor: `${color}20`,
-                      color: typeof color === 'string' && color.includes('.') ? color : undefined,
-                    }}
-                  >
-                    <Iconify
-                      icon={icon}
-                      width={40}
-                      sx={{
-                        color: typeof color === 'string' && !color.includes('.') ? color : undefined,
+                  {hasImage && (
+                    <Image
+                      alt={category.name}
+                      src={category.image}
+                      sx={(theme) => ({
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: 1,
+                        height: 1,
+                        zIndex: 0,
+                      })}
+                      slotProps={{
+                        overlay: {
+                          sx: (theme) => ({
+                            bgcolor: varAlpha(theme.vars.palette.grey['900Channel'], 0.6),
+                            transition: theme.transitions.create(['background-color']),
+                            '&:hover': {
+                              bgcolor: varAlpha(theme.vars.palette.grey['900Channel'], 0.4),
+                            }
+                          }),
+                        },
                       }}
                     />
-                  </Box>
+                  )}
 
-                  <Typography variant="subtitle2" noWrap sx={{ width: 1, textAlign: 'center' }}>
-                    {category.name}
-                  </Typography>
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      zIndex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      width: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        mb: 2,
+                        p: 1.5,
+                        borderRadius: '50%',
+                        bgcolor: hasImage ? varAlpha('#ffffff', 0.2) : `${color}20`,
+                        color: hasImage ? 'common.white' : (typeof color === 'string' && color.includes('.') ? color : undefined),
+                        backdropFilter: hasImage ? 'blur(4px)' : 'none',
+                      }}
+                    >
+                      <Iconify
+                        icon={icon}
+                        width={40}
+                        sx={{
+                          color: (!hasImage && typeof color === 'string' && !color.includes('.')) ? color : undefined,
+                        }}
+                      />
+                    </Box>
+
+                    <Typography variant="subtitle2" noWrap sx={{ width: 1, textAlign: 'center' }}>
+                      {category.name}
+                    </Typography>
+                  </Box>
                 </Paper>
               );
             })}

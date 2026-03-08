@@ -14,6 +14,7 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { CONFIG } from 'src/global-config';
+import { useProducts } from 'src/hooks/firebase';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -26,32 +27,21 @@ import {
 
 // ----------------------------------------------------------------------
 
-const HERO_SLIDES = [
-  {
-    id: '1',
-    label: 'WELCOME TO',
-    name: 'Component Pulse',
-    caption: 'Your trusted partner for premium electronic components, solar equipment, and DIY prototyping supplies in Uganda. Let\'s build the future together.',
-    coverUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
-  },
-  {
-    id: '2',
-    label: 'HOT DEAL',
-    name: 'Raspberry Pi 4',
-    caption: 'Your tiny, dual-display, desktop computer... and robot brains, smart home hub, media centre, networked AI core, factory controller.',
-    coverUrl: 'https://en.opensuse.org/images/1/1a/Raspberry-Pi4.png',
-  },
-  {
-    id: '3',
-    label: 'ESSENTIALS',
-    name: 'Premium Jumper Wires',
-    caption: 'High-quality, durable jumper wires in various lengths and male/female configurations.',
-    coverUrl: 'https://probots.co.in/pub/media/catalog/product/cache/d8ddd0f9b0cd008b57085cd218b48832/4/0/40_pin_female_to_male_jumper_wire__79923.1571491579.jpg',
-  },
-];
+const MAIN_HERO_SLIDE = {
+  id: 'main-hero',
+  label: 'WELCOME TO',
+  name: 'Component Pulse',
+  caption: 'Your trusted partner for premium electronic components, solar equipment, and DIY prototyping supplies in Uganda. Let\'s build the future together.',
+  coverUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
+  link: paths.products,
+  buttonText: 'Shop now'
+};
 
 export function HomeHero() {
   const theme = useTheme();
+
+  // Fetch 2 featured products to use as the additional slides
+  const { products } = useProducts({ isFeatured: true, limit: 2 });
 
   const carousel = useCarousel(
     {
@@ -60,6 +50,20 @@ export function HomeHero() {
     },
     [Autoplay({ delay: 5000 }), Fade()]
   );
+
+  // Combine the main static slide with the dynamic product slides
+  const slides = [
+    MAIN_HERO_SLIDE,
+    ...products.map((product) => ({
+      id: product.id,
+      label: 'HOT DEAL',
+      name: product.name,
+      caption: product.description || 'Explore this amazing product at Component Pulse today.',
+      coverUrl: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80',
+      link: paths.product(product.slug || product.id),
+      buttonText: 'View Product'
+    }))
+  ];
 
   return (
     <Box
@@ -91,7 +95,7 @@ export function HomeHero() {
 
       <Container sx={{ position: 'relative' }}>
         <Carousel carousel={carousel} sx={{ overflow: 'visible' }}>
-          {HERO_SLIDES.map((slide, index) => (
+          {slides.map((slide, index) => (
             <CarouselItem
               key={slide.id}
               slide={slide}
@@ -160,6 +164,8 @@ type CarouselItemProps = {
     name: string;
     caption: string;
     coverUrl: string;
+    link: string;
+    buttonText: string;
   };
 };
 
@@ -211,13 +217,13 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
 
         <Button
           component={RouterLink}
-          href={paths.products}
+          href={slide.link}
           size="large"
           color="primary"
           variant="contained"
           endIcon={<Iconify width={16} icon="solar:alt-arrow-right-outline" sx={{ ml: -0.5 }} />}
         >
-          Shop now
+          {slide.buttonText}
         </Button>
       </Box>
 
