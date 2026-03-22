@@ -24,20 +24,20 @@ type Props = {
 
 export function ProductReviews({ productId }: Props) {
     const formOpen = useBoolean();
-    const { reviews, loading } = useGetApprovedReviews(productId);
+    const { reviews, approvedReviews, loading } = useGetApprovedReviews(productId);
 
-    const totalReviews = reviews.length;
+    const totalReviews = approvedReviews.length;
     const ratingAverage = totalReviews > 0
-        ? reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews
+        ? approvedReviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews
         : 0;
 
     // Calculate star distribution
     const ratings = [
-        { value: '5 Stars', count: reviews.filter((r) => r.rating === 5).length },
-        { value: '4 Stars', count: reviews.filter((r) => r.rating === 4).length },
-        { value: '3 Stars', count: reviews.filter((r) => r.rating === 3).length },
-        { value: '2 Stars', count: reviews.filter((r) => r.rating === 2).length },
-        { value: '1 Star', count: reviews.filter((r) => r.rating === 1).length },
+        { value: '5 Stars', count: approvedReviews.filter((r) => r.rating === 5).length },
+        { value: '4 Stars', count: approvedReviews.filter((r) => r.rating === 4).length },
+        { value: '3 Stars', count: approvedReviews.filter((r) => r.rating === 3).length },
+        { value: '2 Stars', count: approvedReviews.filter((r) => r.rating === 2).length },
+        { value: '1 Star', count: approvedReviews.filter((r) => r.rating === 1).length },
     ];
 
     return (

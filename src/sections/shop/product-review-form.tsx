@@ -1,3 +1,4 @@
+import React from 'react';
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +11,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
+import { useAuthContext } from 'src/auth/hooks';
 import { useReviewMutations } from 'src/hooks/firebase/use-reviews';
 
 import { Form, Field } from 'src/components/hook-form';
@@ -32,14 +34,15 @@ export const ReviewSchema = zod.object({
 export type ReviewSchemaType = zod.infer<typeof ReviewSchema>;
 
 export function ProductReviewForm({ open, onClose, productId }: Props) {
+    const { user } = useAuthContext();
     const { addReview } = useReviewMutations();
 
     const methods = useForm<ReviewSchemaType>({
         resolver: zodResolver(ReviewSchema),
         defaultValues: {
             rating: 0,
-            name: '',
-            email: '',
+            name: user?.displayName || '',
+            email: user?.email || '',
             message: '',
         },
     });
@@ -49,6 +52,18 @@ export function ProductReviewForm({ open, onClose, productId }: Props) {
         handleSubmit,
         formState: { isSubmitting },
     } = methods;
+
+    // Auto-populate when the dialog opens or user state resolves
+    React.useEffect(() => {
+        if (open) {
+            reset({
+                rating: 0,
+                name: user?.displayName || '',
+                email: user?.email || '',
+                message: '',
+            });
+        }
+    }, [open, user, reset]);
 
     const onSubmit = handleSubmit(async (data) => {
         try {

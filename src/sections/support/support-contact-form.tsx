@@ -83,6 +83,17 @@ export function SupportContactForm() {
                 link: '/admin/tickets',
             });
 
+            // Send confirmation email to the user
+            await fetch('/api/support/send-confirmation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contactEmail: data.contactEmail,
+                    contactName: data.contactName,
+                    subject: data.subject,
+                }),
+            });
+
             reset();
             setOpenSuccess(true);
         } catch (error) {

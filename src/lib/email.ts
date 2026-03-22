@@ -340,6 +340,58 @@ export async function sendTicketReplyEmail(
 
 // ----------------------------------------------------------------------
 
+export async function sendTicketConfirmationEmail(
+  customerEmail: string,
+  customerName: string,
+  ticketSubject: string
+): Promise<boolean> {
+  if (!resend) {
+    console.warn('Resend API key not configured. Skipping email.');
+    return false;
+  }
+
+  try {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1976d2; margin: 0;">ComponentPulse Support</h1>
+          </div>
+
+          <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px; font-size: 18px;">Request Received</h2>
+            <p style="margin: 0 0 15px; color: #666;">Hi ${customerName}, we've received your message regarding "<strong>${ticketSubject}</strong>".</p>
+            <p style="margin: 0 0 15px; color: #666;">Our support team is reviewing your request and will get back to you as soon as possible!</p>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
+            <p>&copy; ${new Date().getFullYear()} ComponentPulse. All rights reserved.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: customerEmail,
+      subject: `Support Request Received: ${ticketSubject}`,
+      html,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Failed to send ticket confirmation email:', error);
+    return false;
+  }
+}
+
+// ----------------------------------------------------------------------
+
 export type TrainingUpdateType = 'launched' | 'updated' | 'coming_soon';
 
 export async function sendTrainingUpdateEmail(

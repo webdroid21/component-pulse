@@ -34,22 +34,23 @@ export type ReviewItem = {
 // ----------------------------------------------------------------------
 
 export function useGetApprovedReviews(productId: string) {
+    const { user } = useAuthContext();
     const [reviews, setReviews] = useState<ReviewItem[]>([]);
+    const [approvedReviews, setApprovedReviews] = useState<ReviewItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
         if (!productId) {
             setReviews([]);
+            setApprovedReviews([]);
             setLoading(false);
             return () => { };
         }
 
         const q = query(
             collection(db, 'reviews'),
-            where('productId', '==', productId),
-            where('isApproved', '==', true),
-            orderBy('createdAt', 'desc')
+            where('productId', '==', productId)
         );
 
         const unsubscribe = onSnapshot(
@@ -59,20 +60,33 @@ export function useGetApprovedReviews(productId: string) {
                     id: document.id,
                     ...document.data(),
                 })) as ReviewItem[];
-                setReviews(fetchedReviews);
+                
+                // Sort client-side to avoid Firebase composite index requirement
+                fetchedReviews.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+                    return timeB - timeA;
+                });
+
+                // Separation of powers allowing dynamic client-side array views securely
+                const approvedData = fetchedReviews.filter((r) => r.isApproved);
+                const visibleData = fetchedReviews.filter((r) => r.isApproved || (user && r.userId === user.uid));
+
+                setApprovedReviews(approvedData);
+                setReviews(visibleData);
                 setLoading(false);
             },
             (err) => {
-                console.error('Error fetching approved reviews:', err);
+                console.error('Error fetching reviews:', err);
                 setError(err);
                 setLoading(false);
             }
         );
 
         return () => unsubscribe();
-    }, [productId]);
+    }, [productId, user?.uid]); // Bind strictly matching Auth updates
 
-    return { reviews, loading, error };
+    return { reviews, approvedReviews, loading, error };
 }
 
 // ----------------------------------------------------------------------

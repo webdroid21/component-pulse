@@ -46,19 +46,41 @@ import { CustomPopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 function NewsletterForm() {
-  const { subscribe, loading } = useNewsletter();
+  const { subscribe, checkSubscription, unsubscribe, loading } = useNewsletter();
   const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleCheck = async () => {
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      const exists = await checkSubscription(email);
+      setIsSubscribed(exists);
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
-    const success = await subscribe(email);
-    if (success) {
-      toast.success('Thank you for subscribing!');
-      setEmail('');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+
+    if (isSubscribed) {
+      const success = await unsubscribe(email);
+      if (success) {
+        toast.success('Successfully unsubscribed.');
+        setEmail('');
+        setIsSubscribed(false);
+      }
     } else {
-      toast.error('Failed to subscribe or already subscribed.');
+      const success = await subscribe(email);
+      if (success) {
+        toast.success('Thank you for subscribing!');
+        setEmail('');
+      } else {
+        toast.error('Failed to subscribe or already subscribed.');
+      }
     }
   };
 
@@ -70,11 +92,15 @@ function NewsletterForm() {
         placeholder="Enter your email"
         type="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          setEmail(e.target.value);
+          if (isSubscribed) setIsSubscribed(false); // Reset to subscribe on typing unless blurred
+        }}
+        onBlur={handleCheck}
         variant="outlined"
         size="small"
         sx={{
-          bgcolor: 'common.white',
+          bgcolor: 'background.paper',
           borderRadius: 1,
           '& .MuiOutlinedInput-root': {
             borderRadius: 1,
@@ -84,14 +110,14 @@ function NewsletterForm() {
       <Button
         type="submit"
         variant="contained"
-        color="secondary"
+        color={isSubscribed ? 'error' : 'secondary'}
         disabled={loading}
         sx={{
           whiteSpace: 'nowrap',
           px: 3,
         }}
       >
-        {loading ? 'Subscribing...' : 'Subscribe'}
+        {loading ? 'Processing...' : (isSubscribed ? 'Unsubscribe' : 'Subscribe')}
       </Button>
     </Box>
   );

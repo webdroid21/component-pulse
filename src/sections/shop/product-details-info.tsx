@@ -24,6 +24,7 @@ import { Iconify } from 'src/components/iconify';
 import { Markdown } from 'src/components/markdown';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
+import { useGetApprovedReviews } from 'src/hooks/firebase/use-reviews';
 
 // ----------------------------------------------------------------------
 
@@ -33,7 +34,13 @@ type Props = {
 
 export function ProductDetailsInfo({ product }: Props) {
     const checkout = useCheckoutContext();
+    const { approvedReviews: reviews } = useGetApprovedReviews(product.id);
     const [quantity, setQuantity] = useState(1);
+
+    const totalReviews = reviews.length;
+    const ratingAverage = totalReviews > 0
+        ? reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews
+        : 0;
 
     const handleAddToCart = () => {
         checkout.onAddToCart({
@@ -82,11 +89,11 @@ export function ProductDetailsInfo({ product }: Props) {
                 </Typography>
                 <Typography variant="h4">{product.name}</Typography>
 
-                {/* Note: This rating will be hydrated with actual data later */}
+                {/* Dynamic DB Ratings */}
                 <Stack spacing={0.5} direction="row" alignItems="center">
-                    <Rating size="small" value={4.5} readOnly precision={0.5} />
+                    <Rating size="small" value={ratingAverage} readOnly precision={0.5} />
                     <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                        (24 reviews)
+                        ({totalReviews} review{totalReviews !== 1 && 's'})
                     </Typography>
                 </Stack>
             </Stack>
