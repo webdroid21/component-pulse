@@ -49,7 +49,7 @@ export function ProductDetailsInfo({ product }: Props) {
             price: product.salePrice || product.price,
             coverUrl: product.images?.[0]?.url || '',
             quantity,
-            available: product.quantity || 0,
+            available: product.stock || 0,
         });
     };
 
@@ -74,8 +74,8 @@ export function ProductDetailsInfo({ product }: Props) {
     return (
         <Box>
             <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 3 }}>
-                <Label color={product.quantity > 0 ? 'success' : 'error'}>
-                    {product.quantity > 0 ? `In Stock (${product.quantity})` : 'Out of Stock'}
+                <Label color={product.stock > 0 ? 'success' : 'error'}>
+                    {product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}
                 </Label>
 
                 <IconButton onClick={handleShare}>
@@ -139,7 +139,7 @@ export function ProductDetailsInfo({ product }: Props) {
                             [`& .${inputBaseClasses.input}`]: { py: 0, height: 48 },
                         }}
                     >
-                        {Array.from({ length: Math.min(product.quantity || 1, 10) }, (_, i) => i + 1).map((option) => (
+                        {Array.from({ length: Math.min(product.stock || 1, 10) }, (_, i) => i + 1).map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>
@@ -153,7 +153,7 @@ export function ProductDetailsInfo({ product }: Props) {
                         color="inherit"
                         variant="contained"
                         onClick={handleAddToCart}
-                        disabled={product.quantity === 0}
+                        disabled={product.stock === 0}
                         startIcon={<Iconify icon="solar:cart-3-outline" />}
                         sx={{ width: { xs: 1, sm: 'auto' } }}
                     >
@@ -167,7 +167,7 @@ export function ProductDetailsInfo({ product }: Props) {
                         color="primary"
                         variant="contained"
                         onClick={handleAddToCart}
-                        disabled={product.quantity === 0}
+                        disabled={product.stock === 0}
                         sx={{ width: { xs: 1, sm: 'auto' } }}
                     >
                         Buy now

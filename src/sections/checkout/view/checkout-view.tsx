@@ -77,7 +77,7 @@ export function CheckoutView() {
   const { createOrder, loading: creatingOrder, error: orderError } = useCreateOrder();
   const { updatePaymentStatus } = useUpdatePaymentStatus();
   const { zones, loading: zonesLoading } = useDeliveryZones(true); // active zones only
-  const { validateCoupon, validating: couponValidating } = useValidateCoupon();
+  const { validateCoupon, incrementCouponUsage, validating: couponValidating } = useValidateCoupon();
 
   const [activeStep, setActiveStep] = useState(0);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -104,7 +104,7 @@ export function CheckoutView() {
 
   // Coupon state
   const [couponInput, setCouponInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; discount: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ id: string; code: string; type: 'percentage' | 'fixed'; value: number; minOrderAmount?: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
   const savedAddresses = useMemo(() => profile?.addresses || [], [profile?.addresses]);
@@ -128,10 +128,26 @@ export function CheckoutView() {
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
   const shipping = deliveryMethod === 'delivery' ? (selectedZone?.fee ?? 0) : 0;
-  const couponDiscount = appliedCoupon?.discount ?? 0;
+  
   const { items, subtotal, discount: cartDiscount } = checkout.state;
+
+  // Dynamic Component Level Coupon Computations preventing "Static Exploit" overlaps
+  const couponDiscount = appliedCoupon
+    ? appliedCoupon.type === 'percentage'
+      ? Math.round((subtotal * appliedCoupon.value) / 100)
+      : appliedCoupon.value
+    : 0;
+
   const discount = cartDiscount + couponDiscount;
   const total = subtotal - discount + shipping;
+
+  // Real-Time Listener unhooking Coupons when Subtotals drop below Limit
+  useEffect(() => {
+    if (appliedCoupon && appliedCoupon.minOrderAmount && subtotal < appliedCoupon.minOrderAmount) {
+      setAppliedCoupon(null);
+      setCouponError(`Coupon removed: Minimum order amount of UGX ${appliedCoupon.minOrderAmount.toLocaleString()} required`);
+    }
+  }, [subtotal, appliedCoupon]);
 
   const steps = ['Shipping', 'Delivery', 'Payment'];
 
@@ -253,11 +269,14 @@ export function CheckoutView() {
       setAppliedCoupon(null);
       return;
     }
-    const discountAmount =
-      coupon.type === 'percentage'
-        ? Math.round((subtotal * coupon.value) / 100)
-        : coupon.value;
-    setAppliedCoupon({ id: coupon.id, code: coupon.code, discount: discountAmount });
+    
+    setAppliedCoupon({ 
+      id: coupon.id, 
+      code: coupon.code, 
+      type: coupon.type, 
+      value: coupon.value, 
+      minOrderAmount: coupon.minOrderAmount 
+    });
     setCouponError(null);
   };
 
@@ -393,6 +412,9 @@ export function CheckoutView() {
         // For cash on delivery, create order directly
         const result = await createOrder(buildOrderData());
         if (result) {
+          if (appliedCoupon) {
+            await incrementCouponUsage(appliedCoupon.id);
+          }
           await sendConfirmationEmail(result.orderNumber);
           checkout.onResetCart();
           router.push(`/checkout/success?orderId=${result.orderId}&orderNumber=${result.orderNumber}`);
@@ -456,6 +478,9 @@ export function CheckoutView() {
 
             const result = await createOrder(orderData);
             if (result) {
+              if (appliedCoupon) {
+                await incrementCouponUsage(appliedCoupon.id);
+              }
               // Mark payment as paid — createOrder always starts as 'pending'
               await updatePaymentStatus(result.orderId, 'paid', response.flw_ref);
               await sendConfirmationEmail(result.orderNumber);

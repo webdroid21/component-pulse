@@ -36,7 +36,7 @@ export function ProductListItem({ product }: Props) {
             price: product.salePrice || product.price,
             coverUrl: product.images?.[0]?.url || '',
             quantity: 1,
-            available: product.quantity || 10,
+            available: product.stock || 10,
         });
     };
 
@@ -52,14 +52,14 @@ export function ProductListItem({ product }: Props) {
                 },
             }}
         >
-            {(isSale || product.quantity === 0) && (
+            {(isSale || product.stock === 0) && (
                 <Box gap={1} display="flex" sx={{ position: 'absolute', top: 8, left: 8, zIndex: 9 }}>
-                    {product.quantity === 0 && <Label color="error">OUT OF STOCK</Label>}
-                    {isSale && product.quantity > 0 && <Label color="error">SALE</Label>}
+                    {product.stock === 0 && <Label color="error">OUT OF STOCK</Label>}
+                    {isSale && product.stock > 0 && <Label color="error">SALE</Label>}
                 </Box>
             )}
 
-            {product.quantity > 0 && (
+            {product.stock > 0 && (
                 <Fab
                     onClick={handleAddToCart}
                     className="add-to-cart"

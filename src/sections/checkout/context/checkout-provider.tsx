@@ -13,6 +13,9 @@ import { useRouter, usePathname, useSearchParams } from 'src/routes/hooks';
 
 import { SplashScreen } from 'src/components/loading-screen';
 
+import { doc, getDoc } from 'firebase/firestore';
+import { FIRESTORE } from 'src/lib/firebase';
+
 import { CheckoutContext } from './checkout-context';
 
 // ----------------------------------------------------------------------
@@ -74,21 +77,52 @@ function CheckoutContainer({ children }: CheckoutProviderProps) {
     setField('total', subtotal - state.discount + state.shipping);
   }, [setField, state.discount, state.items, state.shipping]);
 
+  const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
     const initializeCheckout = async () => {
       try {
         setLoading(true);
-        const restoredValue = getStorage(CHECKOUT_STORAGE_KEY);
+        const restoredValue = getStorage(CHECKOUT_STORAGE_KEY) as ICheckoutState;
         if (restoredValue) {
+          if (restoredValue.items && restoredValue.items.length > 0) {
+            const updatedItems = await Promise.all(
+              restoredValue.items.map(async (item: ICheckoutItem) => {
+                try {
+                  const docRef = doc(FIRESTORE, 'products', item.id);
+                  const docSnap = await getDoc(docRef);
+                  if (docSnap.exists()) {
+                    const currentStock = docSnap.data().stock ?? 0;
+                    return {
+                      ...item,
+                      available: currentStock,
+                      quantity: Math.min(item.quantity, currentStock),
+                    };
+                  }
+                } catch (error) {
+                  console.error('Failed to fetch stock for item', item.id, error);
+                }
+                return { ...item, available: 0, quantity: 0 };
+              })
+            );
+
+            const validItems = updatedItems.filter((item) => item.quantity > 0);
+            if (!isEqual(restoredValue.items, validItems)) {
+              setField('items', validItems);
+            }
+          }
           updateTotals();
         }
       } finally {
         setLoading(false);
+        setHydrated(true);
       }
     };
 
-    initializeCheckout();
-  }, [updateTotals]);
+    if (!hydrated) {
+      initializeCheckout();
+    }
+  }, [hydrated, setField, updateTotals]);
 
   const onChangeStep = useCallback(
     (type: 'back' | 'next' | 'go', step?: number) => {

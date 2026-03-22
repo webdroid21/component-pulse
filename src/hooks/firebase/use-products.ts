@@ -74,7 +74,7 @@ export function useProducts(filters?: ProductFilters) {
       }
 
       if (filters?.inStock) {
-        data = data.filter((product) => product.stock > 0 || product.quantity > 0);
+        data = data.filter((product) => product.stock > 0);
       }
 
       // Sort by createdAt descending (client-side)

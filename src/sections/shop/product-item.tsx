@@ -43,7 +43,7 @@ export function ProductItem({ product }: Props) {
       price: product.salePrice || product.price,
       coverUrl: product.images?.[0]?.url || '',
       quantity: 1,
-      available: product.quantity || 10,
+      available: product.stock || 10,
     });
 
     toast.success('Added to cart');
@@ -73,11 +73,12 @@ export function ProductItem({ product }: Props) {
           },
         }}
       >
-        {(isSale || product.quantity === 0) && (
-          <Box gap={1} display="flex" sx={{ position: 'absolute', top: 24, right: 24, zIndex: 9 }}>
-            {product.quantity === 0 && <Label color="error">OUT OF STOCK</Label>}
-            {isSale && product.quantity > 0 && <Label color="error">SALE</Label>}
-          </Box>
+        {/* Labels */}
+        {(isSale || product.stock === 0) && (
+          <Stack direction="row" spacing={1} sx={{ position: 'absolute', top: 16, right: 16, zIndex: 9 }}>
+            {product.stock === 0 && <Label color="error">OUT OF STOCK</Label>}
+            {isSale && product.stock > 0 && <Label color="error">SALE</Label>}
+          </Stack>
         )}
 
         <Box
@@ -126,7 +127,7 @@ export function ProductItem({ product }: Props) {
           <Stack direction="row" spacing={1.5} sx={{ mt: 'auto' }}>
             <IconButton
               onClick={handleAddToCart}
-              disabled={product.quantity === 0}
+              disabled={product.stock === 0}
             >
               <Iconify icon="solar:cart-plus-bold" />
             </IconButton>
@@ -139,7 +140,7 @@ export function ProductItem({ product }: Props) {
               variant="contained"
               color="primary"
               onClick={handleAddToCart}
-              disabled={product.quantity === 0}
+              disabled={product.stock === 0}
             >
               Buy Now
             </Button>
