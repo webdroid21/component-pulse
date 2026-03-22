@@ -146,6 +146,11 @@ export function DealsListView() {
                         onChange={() => handleToggleStatus(deal.id, deal.isActive)}
                         disabled={mutating}
                       />
+                      {deal.endDate && deal.endDate.toDate() < new Date() && (
+                        <Typography variant="caption" sx={{ color: 'error.main', display: 'block', mt: 0.5 }}>
+                          Expired
+                        </Typography>
+                      )}
                     </TableCell>
 
                     <TableCell align="right">

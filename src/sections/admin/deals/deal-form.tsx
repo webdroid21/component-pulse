@@ -38,6 +38,7 @@ export const NewDealSchema = zod.object({
   trainingModuleIds: zod.array(zod.string()).min(0),
   isActive: zod.boolean(),
   coverImage: schemaUtils.file(),
+  endDate: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
@@ -68,6 +69,9 @@ export function DealForm({ currentDeal }: Props) {
       trainingModuleIds: currentDeal?.trainingModuleIds || [],
       isActive: currentDeal?.isActive ?? true,
       coverImage: currentDeal?.coverImage || null,
+      endDate: currentDeal?.endDate
+        ? currentDeal.endDate.toDate().toISOString().split('T')[0]
+        : '',
     }),
     [currentDeal]
   );
@@ -107,6 +111,7 @@ export function DealForm({ currentDeal }: Props) {
         trainingModuleIds: data.trainingModuleIds,
         isActive: data.isActive,
         coverImage,
+        endDate: data.endDate ? new Date(data.endDate) : null,
       };
 
       if (currentDeal) {
@@ -253,6 +258,19 @@ export function DealForm({ currentDeal }: Props) {
                     <FormControlLabel
                       control={<Switch {...field} checked={field.value} />}
                       label="Active"
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="endDate"
+                  control={methods.control}
+                  render={({ field }) => (
+                    <Field.Text
+                      {...field}
+                      label="Expiry Date (Optional)"
+                      type="date"
+                      slotProps={{ inputLabel: { shrink: true } }}
                     />
                   )}
                 />

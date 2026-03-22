@@ -82,6 +82,25 @@ export function DealDetailsView({ id }: Props) {
     );
   }
 
+  const isExpired = deal.endDate && deal.endDate.toDate() < new Date();
+
+  if (isExpired) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 10, textAlign: 'center' }}>
+        <Iconify icon="solar:clock-circle-bold-duotone" width={80} sx={{ color: 'error.main', mb: 2 }} />
+        <Typography variant="h5" sx={{ mb: 1 }}>
+          This Deal has Expired
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+          Sorry, this promotional offer is no longer available.
+        </Typography>
+        <Button component={RouterLink} href={paths.deals.root} variant="contained">
+          Browse Active Deals
+        </Button>
+      </Container>
+    );
+  }
+
   const includedProducts = products.filter((p) => deal.productIds.includes(p.id));
   const includedModules = modules.filter((m) => deal.trainingModuleIds.includes(m.id));
 

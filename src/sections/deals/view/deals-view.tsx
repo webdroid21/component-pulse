@@ -24,6 +24,9 @@ import { Iconify } from 'src/components/iconify';
 
 export function DealsView() {
   const { deals, loading } = useDeals({ isActive: true });
+  
+  // Natively block Expired configurations on client arrays natively
+  const activeDeals = deals.filter(deal => !deal.endDate || deal.endDate.toDate() >= new Date());
 
   return (
     <Box sx={{ pb: { xs: 8, md: 10 }, pt: { xs: 4, md: 8 } }}>
@@ -40,7 +43,7 @@ export function DealsView() {
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
             <CircularProgress />
           </Box>
-        ) : deals.length === 0 ? (
+        ) : activeDeals.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 10 }}>
             <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
             <Typography variant="h5">No active deals right now</Typography>
@@ -60,7 +63,7 @@ export function DealsView() {
               },
             }}
           >
-            {deals.map((deal, index) => (
+            {activeDeals.map((deal, index) => (
               <m.div
                 key={deal.id}
                 initial={{ opacity: 0, y: 20 }}

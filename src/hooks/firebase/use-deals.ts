@@ -28,6 +28,7 @@ export type DealItem = {
   productIds: string[];
   trainingModuleIds: string[];
   isActive: boolean;
+  endDate?: any;
   createdAt?: any;
   updatedAt?: any;
 };
