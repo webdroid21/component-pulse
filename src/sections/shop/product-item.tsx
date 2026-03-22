@@ -5,8 +5,13 @@ import type { Product } from 'src/types/product';
 import Fab from '@mui/material/Fab';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+
+import { toast } from 'sonner';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -17,6 +22,7 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
+
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +35,8 @@ export function ProductItem({ product }: Props) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     checkout.onAddToCart({
       id: product.id,
       name: product.name,
@@ -37,97 +45,107 @@ export function ProductItem({ product }: Props) {
       quantity: 1,
       available: product.quantity || 10,
     });
+
+    toast.success('Added to cart');
   };
 
   const isSale = product.salePrice && product.salePrice < product.price;
 
   return (
-    <Box
-      sx={{
-        minWidth: 0,
-        position: 'relative',
-        '&:hover .add-to-cart': {
-          opacity: 1,
-        },
-      }}
-    >
-      {(isSale || product.quantity === 0) && (
-        <Box gap={1} display="flex" sx={{ position: 'absolute', top: 8, right: 8, zIndex: 9 }}>
-          {product.quantity === 0 && <Label color="error">OUT OF STOCK</Label>}
-          {isSale && product.quantity > 0 && <Label color="error">SALE</Label>}
-        </Box>
-      )}
-
-      <Box sx={{ position: 'relative', mb: 2 }}>
-        {product.quantity > 0 && (
-          <Fab
-            onClick={handleAddToCart}
-            className="add-to-cart"
-            color="primary"
-            size="small"
-            sx={{
-              right: 8,
-              zIndex: 9,
-              bottom: 8,
-              opacity: 0,
-              position: 'absolute',
-              transition: (theme) => theme.transitions.create('opacity'),
-            }}
-          >
-            <Iconify icon="solar:cart-plus-bold" />
-          </Fab>
+    <Link component={RouterLink} href={paths.product(product.slug || product.id)} color="inherit" underline="none" sx={{ display: 'block', height: 1 }}>
+      <Paper
+        variant="outlined"
+        sx={{
+          p: 2,
+          borderRadius: 2,
+          bgcolor: 'transparent',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          height: 1,
+          transition: (theme) =>
+            theme.transitions.create('background-color', {
+              easing: theme.transitions.easing.easeIn,
+              duration: theme.transitions.duration.shortest,
+            }),
+          '&:hover': {
+            bgcolor: 'background.neutral',
+          },
+        }}
+      >
+        {(isSale || product.quantity === 0) && (
+          <Box gap={1} display="flex" sx={{ position: 'absolute', top: 24, right: 24, zIndex: 9 }}>
+            {product.quantity === 0 && <Label color="error">OUT OF STOCK</Label>}
+            {isSale && product.quantity > 0 && <Label color="error">SALE</Label>}
+          </Box>
         )}
 
-        <Link component={RouterLink} href={paths.product(product.slug || product.id)}>
-          <Box
-            component="img"
-            alt={product.name}
-            src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80'}
+        <Box
+          component="img"
+          alt={product.name}
+          src={product.images?.[0]?.url || '/assets/placeholder.svg'}
+          sx={{ mb: 2, borderRadius: 1.5, bgcolor: 'background.neutral', width: 1, aspectRatio: '1/1', objectFit: 'cover' }}
+        />
+
+        <Box gap={0.5} display="flex" flexDirection="column" sx={{ flexGrow: 1 }}>
+          <Typography variant="caption" noWrap sx={{ color: 'text.disabled', textTransform: 'uppercase' }}>
+            {product.categoryName || 'Category'}
+          </Typography>
+
+          <Typography
+            variant="body2"
             sx={{
-              width: 1,
-              height: 1,
-              objectFit: 'cover',
-              aspectRatio: '1/1',
-              flexShrink: 0,
-              borderRadius: 1.5,
-              bgcolor: 'background.neutral',
+              fontWeight: 'fontWeightMedium',
+              mb: 1,
+              display: '-webkit-box',
+              overflow: 'hidden',
+              WebkitBoxOrient: 'vertical',
+              WebkitLineClamp: 2,
+              minHeight: 44,
             }}
-          />
-        </Link>
-      </Box>
+          >
+            {product.name}
+          </Typography>
 
-      <Box gap={0.5} display="flex" flexDirection="column">
-        <Typography variant="caption" noWrap sx={{ color: 'text.disabled', textTransform: 'uppercase' }}>
-          {product.categoryName || 'Category'}
-        </Typography>
+          <Stack direction="row" spacing={1} sx={{ typography: 'subtitle2', mb: 2 }}>
+            {isSale ? (
+              <>
+                <Box component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
+                  {fCurrency(product.price)}
+                </Box>
+                <Box component="span" sx={{ color: 'error.main' }}>
+                  {fCurrency(product.salePrice)}
+                </Box>
+              </>
+            ) : (
+              <Box component="span">{fCurrency(product.price)}</Box>
+            )}
+          </Stack>
 
-        <Link
-          component={RouterLink}
-          href={paths.product(product.slug || product.id)}
-          color="inherit"
-          variant="body2"
-          noWrap
-          sx={{ fontWeight: 'fontWeightMedium' }}
-        >
-          {product.name}
-        </Link>
+          {/* Action Buttons */}
+          <Stack direction="row" spacing={1.5} sx={{ mt: 'auto' }}>
+            <IconButton
+              onClick={handleAddToCart}
+              disabled={product.quantity === 0}
+            >
+              <Iconify icon="solar:cart-plus-bold" />
+            </IconButton>
 
-        {/* Product Price component mockup */}
-        <Stack direction="row" spacing={1} sx={{ typography: 'subtitle2' }}>
-          {isSale ? (
-            <>
-              <Box component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
-                {fCurrency(product.price)}
-              </Box>
-              <Box component="span" sx={{ color: 'error.main' }}>
-                {fCurrency(product.salePrice)}
-              </Box>
-            </>
-          ) : (
-            <Box component="span">{fCurrency(product.price)}</Box>
-          )}
-        </Stack>
-      </Box>
-    </Box>
+            <Button
+              component={RouterLink}
+              href={paths.checkout}
+              fullWidth
+              size="small"
+              variant="contained"
+              color="primary"
+              onClick={handleAddToCart}
+              disabled={product.quantity === 0}
+            >
+              Buy Now
+            </Button>
+          </Stack>
+        </Box>
+      </Paper>
+    </Link>
   );
 }

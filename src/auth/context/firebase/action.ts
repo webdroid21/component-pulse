@@ -1,6 +1,6 @@
 'use client';
 
-import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp, query, limit } from 'firebase/firestore';
 import {
   signOut as _signOut,
   signInWithPopup as _signInWithPopup,
@@ -40,7 +40,8 @@ export type ForgotPasswordParams = {
  */
 async function isFirstUser(): Promise<boolean> {
   try {
-    const adminsSnapshot = await getDocs(collection(FIRESTORE, 'admins'));
+    const q = query(collection(FIRESTORE, 'admins'), limit(1));
+    const adminsSnapshot = await getDocs(q);
     // Only check admins collection - if any admin exists, new users should be customers
     return adminsSnapshot.empty;
   } catch (error) {
@@ -165,6 +166,21 @@ export const signInWithGoogle = async (): Promise<void> => {
           lastLoginAt: serverTimestamp(),
         });
       }
+
+      // Trigger Welcome Email
+      try {
+        await fetch('/api/auth/welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: googleUser.email,
+            firstName: googleUser.displayName?.split(' ')[0] || '',
+          }),
+        });
+      } catch (emailErr) {
+        console.error('Failed to dispatch welcome email:', emailErr);
+      }
+
     } else {
       // Update last login
       await setDoc(
@@ -173,6 +189,23 @@ export const signInWithGoogle = async (): Promise<void> => {
         { merge: true }
       );
     }
+
+    // Trigger Login Alert Email
+    try {
+      await fetch('/api/auth/login-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: googleUser.email,
+          firstName: googleUser.displayName?.split(' ')[0] || '',
+          time: new Date().toLocaleString(),
+          device: typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown Device',
+        }),
+      });
+    } catch (alertErr) {
+      console.error('Failed to dispatch login alert:', alertErr);
+    }
+
   } catch (error) {
     console.error('Error during Google sign in:', error);
     throw error;
@@ -191,9 +224,6 @@ export const signUp = async ({
 }: SignUpParams): Promise<void> => {
   try {
     const newUser = await _createUserWithEmailAndPassword(AUTH, email, password);
-
-    // Send verification email
-    await _sendEmailVerification(newUser.user);
 
     // Check if this is the first user (becomes super admin in dev mode)
     const firstUser = await isFirstUser();
@@ -238,6 +268,33 @@ export const signUp = async ({
         lastLoginAt: null,
       });
     }
+
+    // Send custom verification email with fallback
+    try {
+      const resp = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, firstName }),
+      });
+      if (!resp.ok) throw new Error('API config missing');
+    } catch (apiErr) {
+      console.warn('Falling back to default Firebase Auth templates (add FIREBASE_ADMIN keys to remove this)');
+      await _sendEmailVerification(newUser.user);
+    }
+
+    // Trigger Welcome Email
+    try {
+      await fetch('/api/auth/welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          firstName,
+        }),
+      });
+    } catch (emailErr) {
+      console.error('Failed to dispatch welcome email:', emailErr);
+    }
   } catch (error) {
     console.error('Error during sign up:', error);
     throw error;
@@ -255,7 +312,17 @@ export const signOut = async (): Promise<void> => {
  * Reset password
  *************************************** */
 export const sendPasswordResetEmail = async ({ email }: ForgotPasswordParams): Promise<void> => {
-  await _sendPasswordResetEmail(AUTH, email);
+  try {
+    const resp = await fetch('/api/auth/send-password-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (!resp.ok) throw new Error('API config missing');
+  } catch (apiErr) {
+    console.warn('Falling back to default Firebase Auth templates');
+    await _sendPasswordResetEmail(AUTH, email);
+  }
 };
 
 /** **************************************
@@ -264,7 +331,17 @@ export const sendPasswordResetEmail = async ({ email }: ForgotPasswordParams): P
 export const resendVerificationEmail = async (): Promise<void> => {
   const user = AUTH.currentUser;
   if (user) {
-    await _sendEmailVerification(user);
+    try {
+      const resp = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
+      if (!resp.ok) throw new Error('API config missing');
+    } catch (apiErr) {
+      console.warn('Falling back to default Firebase Auth templates');
+      await _sendEmailVerification(user);
+    }
   } else {
     throw new Error('No user is currently signed in');
   }

@@ -83,24 +83,24 @@ export function ProductShopView() {
     }
 
     if (cat !== null) {
-        setFilters(prev => {
-            if (!prev.categories.includes(cat)) {
-                stateUpdated = true;
-                return { ...prev, categories: [cat] };
-            }
-            return prev;
-        });
+      setFilters(prev => {
+        if (!prev.categories.includes(cat)) {
+          stateUpdated = true;
+          return { ...prev, categories: [cat] };
+        }
+        return prev;
+      });
     } else if (filters.categories.length > 0 && !cat) {
-        setFilters(prev => {
-            stateUpdated = true;
-            return { ...prev, categories: [] };
-        });
+      setFilters(prev => {
+        stateUpdated = true;
+        return { ...prev, categories: [] };
+      });
     }
 
     if (stateUpdated) {
-        setPage(1);
+      setPage(1);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleFilterChange = (name: string, value: any) => {
@@ -135,8 +135,8 @@ export function ProductShopView() {
     if (filters.categories.length > 0) {
       // Find IDs of selected categories (handles both slugs from URL and IDs from filters)
       const selectedCategoryIds = filters.categories.map(slugOrId => {
-          const match = categories.find(c => c.slug === slugOrId || c.id === slugOrId);
-          return match ? match.id : slugOrId;
+        const match = categories.find(c => c.slug === slugOrId || c.id === slugOrId);
+        return match ? match.id : slugOrId;
       });
 
       result = result.filter((p) => selectedCategoryIds.includes(p.categoryId));
@@ -196,8 +196,8 @@ export function ProductShopView() {
           gridTemplateColumns={{
             xs: 'repeat(1, 1fr)',
             sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
-            lg: 'repeat(4, 1fr)',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
           }}
         >
           {loading

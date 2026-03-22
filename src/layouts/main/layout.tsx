@@ -290,47 +290,52 @@ export function MainLayout({
         </Box>
       ),
       bottomArea: (
-        <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', display: { xs: 'none', md: 'block' } }}>
-          <Container maxWidth="lg">
-            <Box component="nav" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, py: 1.5 }}>
-              <Link
-                  component="button"
-                  onClick={handleOpenCategories}
-                  color="text.primary"
-                  underline="none"
-                  sx={{
-                    typography: 'subtitle2',
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5,
-                    transition: 'color 0.2s',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  Categories <Iconify icon="eva:arrow-ios-downward-fill" width={16} />
-              </Link>
-
-              {NAV_ITEMS.map((item) => (
+        <>
+          <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', display: { xs: 'none', md: 'block' } }}>
+            <Container maxWidth="lg">
+              <Box component="nav" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, py: 1.5 }}>
                 <Link
-                  key={item.title}
-                  component={RouterLink}
-                  href={item.path}
-                  color={pathname === item.path ? 'primary' : 'text.primary'}
-                  underline="none"
-                  sx={{
-                    typography: 'subtitle2',
-                    fontWeight: pathname === item.path ? 700 : 600,
-                    transition: 'color 0.2s',
-                    '&:hover': { color: 'primary.main' },
-                  }}
-                >
-                  {item.title}
+                    component="button"
+                    onClick={handleOpenCategories}
+                    color="text.primary"
+                    underline="none"
+                    sx={{
+                      typography: 'subtitle2',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.5,
+                      transition: 'color 0.2s',
+                      '&:hover': { color: 'primary.main' },
+                    }}
+                  >
+                    Categories <Iconify icon="eva:arrow-ios-downward-fill" width={16} />
                 </Link>
-              ))}
-            </Box>
-          </Container>
-        </Box>
+
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.title}
+                    component={RouterLink}
+                    href={item.path}
+                    color={pathname === item.path ? 'primary' : 'text.primary'}
+                    underline="none"
+                    sx={{
+                      typography: 'subtitle2',
+                      fontWeight: pathname === item.path ? 700 : 600,
+                      transition: 'color 0.2s',
+                      '&:hover': { color: 'primary.main' },
+                    }}
+                  >
+                    {item.title}
+                  </Link>
+                ))}
+              </Box>
+            </Container>
+          </Box>
+          <Box sx={{ display: { xs: 'block', md: 'none' }, px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+            <HeaderSearch />
+          </Box>
+        </>
       ),
     };
 

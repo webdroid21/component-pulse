@@ -64,6 +64,7 @@
     "embla-carousel-react": "^8.6.0",
     "es-toolkit": "^1.39.10",
     "firebase": "^12.3.0",
+    "firebase-admin": "^13.7.0",
     "framer-motion": "^12.23.22",
     "lowlight": "^3.3.0",
     "minimal-shared": "^1.1.0",

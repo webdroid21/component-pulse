@@ -9,7 +9,10 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import { inputBaseClasses } from '@mui/material/InputBase';
+
+import { toast } from 'sonner';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -18,6 +21,7 @@ import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { Markdown } from 'src/components/markdown';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
@@ -38,17 +42,39 @@ export function ProductDetailsInfo({ product }: Props) {
             price: product.salePrice || product.price,
             coverUrl: product.images?.[0]?.url || '',
             quantity,
-            available: product.quantity || 10,
+            available: product.quantity || 0,
         });
+    };
+
+    const handleShare = async () => {
+        try {
+            if (navigator.share) {
+                await navigator.share({
+                    title: product.name,
+                    url: window.location.href,
+                });
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success('Link copied to clipboard!');
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
     };
 
     const isSale = product.salePrice && product.salePrice < product.price;
 
     return (
         <Box>
-            <Label color={product.quantity > 0 ? 'success' : 'error'} sx={{ mb: 3 }}>
-                {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
-            </Label>
+            <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 3 }}>
+                <Label color={product.quantity > 0 ? 'success' : 'error'}>
+                    {product.quantity > 0 ? `In Stock (${product.quantity})` : 'Out of Stock'}
+                </Label>
+
+                <IconButton onClick={handleShare}>
+                    <Iconify icon="solar:share-bold" />
+                </IconButton>
+            </Stack>
 
             <Stack spacing={1} sx={{ mb: 2 }}>
                 <Typography variant="overline" sx={{ color: 'text.secondary' }}>
@@ -80,9 +106,9 @@ export function ProductDetailsInfo({ product }: Props) {
                         <Box component="span">{fCurrency(product.price)}</Box>
                     )}
                 </Stack>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    {product.description || 'No description available for this product.'}
-                </Typography>
+                <Box>
+                    <Markdown children={product.description || 'No description available for this product.'} />
+                </Box>
             </Stack>
 
             <Divider sx={{ borderStyle: 'dashed', my: 3 }} />
@@ -106,7 +132,7 @@ export function ProductDetailsInfo({ product }: Props) {
                             [`& .${inputBaseClasses.input}`]: { py: 0, height: 48 },
                         }}
                     >
-                        {Array.from({ length: Math.min(product.quantity || 10, 10) }, (_, i) => i + 1).map((option) => (
+                        {Array.from({ length: Math.min(product.quantity || 1, 10) }, (_, i) => i + 1).map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>

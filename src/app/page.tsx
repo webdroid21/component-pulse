@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { MainLayout } from 'src/layouts/main';
 
 import { HomeView } from 'src/sections/home/view';
-import { CheckoutProvider } from 'src/sections/checkout/context';
 
 // ----------------------------------------------------------------------
 
@@ -15,10 +14,8 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <CheckoutProvider>
-      <MainLayout>
-        <HomeView />
-      </MainLayout>
-    </CheckoutProvider>
+    <MainLayout>
+      <HomeView />
+    </MainLayout>
   );
 }

@@ -86,7 +86,7 @@ export function ProductListItem({ product }: Props) {
                 <Box
                     component="img"
                     alt={product.name}
-                    src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80'}
+                    src={product.images?.[0]?.url || '/assets/placeholder.svg'}
                     sx={{
                         mr: 2.5,
                         width: 160,

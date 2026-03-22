@@ -62,19 +62,21 @@ export function HomeAllProducts() {
               display: 'grid',
               gap: 4,
               gridTemplateColumns: {
-                xs: 'repeat(2, 1fr)',
-                sm: 'repeat(3, 1fr)',
-                md: 'repeat(4, 1fr)',
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
               },
             }}
           >
             {products.map((product, index) => (
               <m.div
-                key={product.id}
+                key={`${product.id}-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
+                style={{ height: '100%' }}
               >
                 <ProductItem product={product} />
               </m.div>

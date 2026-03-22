@@ -37,8 +37,10 @@ service cloud.firestore {
     // Admins Collection
     // ===========================================
     match /admins/{adminId} {
-      // Allow read for own profile or any admin
-      allow read: if isOwner(adminId) || isAdmin();
+      // Allow get for own profile or any admin
+      allow get: if isOwner(adminId) || isAdmin();
+      // Allow list for admins, or any authenticated user if limiting to 1 (for checking if first user)
+      allow list: if isAdmin() || (isAuthenticated() && request.query.limit <= 1);
 
       // Allow first user to create admin (no existing admins or users)
       allow create: if isAuthenticated();
@@ -57,8 +59,9 @@ service cloud.firestore {
       // Anyone can read products (for storefront)
       allow read: if true;
 
-      // Only admins can write
-      allow create, update, delete: if isAdmin();
+      // Only admins can write entirely, but customers can update stock when checking out
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock', 'quantity', 'updatedAt']));
     }
 
     // ===========================================

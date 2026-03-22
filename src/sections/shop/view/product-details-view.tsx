@@ -22,6 +22,7 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import { ProductReviews } from '../product-reviews';
 import { ProductDetailsInfo } from '../product-details-info';
 import { ProductDetailsCarousel } from '../product-details-carousel';
+import { Markdown } from 'src/components/markdown';
 
 // ----------------------------------------------------------------------
 
@@ -76,6 +77,15 @@ export function ProductDetailsView({ slug }: Props) {
   return (
     <Box sx={{ py: { xs: 3, md: 5 } }}>
       <Container maxWidth="lg">
+        <Button
+          component={RouterLink}
+          href={paths.products}
+          startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
+          sx={{ mb: 3 }}
+        >
+          Back to Products
+        </Button>
+
         <CustomBreadcrumbs
           links={[
             { name: 'Home', href: '/' },
@@ -104,14 +114,14 @@ export function ProductDetailsView({ slug }: Props) {
           >
             <Tab value="description" label="Description" />
             <Tab value="specifications" label="Specifications" />
-            <Tab value="reviews" label="Reviews (24)" />
+            <Tab value="reviews" label="Reviews" />
           </Tabs>
 
           <Box sx={{ py: 4 }}>
             {currentTab === 'description' && (
-              <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.8 }}>
-                {product.description || 'No description available for this product.'}
-              </Typography>
+              <Box>
+                <Markdown children={product.description || 'No description available for this product.'} />
+              </Box>
             )}
 
             {currentTab === 'specifications' && (

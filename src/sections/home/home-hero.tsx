@@ -3,8 +3,8 @@
 import Fade from 'embla-carousel-fade';
 import Autoplay from 'embla-carousel-autoplay';
 import { varAlpha } from 'minimal-shared/utils';
-
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import { useTheme } from '@mui/material/styles';
@@ -19,6 +19,7 @@ import { CONFIG } from 'src/global-config';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
+import { Markdown } from 'src/components/markdown';
 import {
   Carousel,
   useCarousel,
@@ -108,8 +109,8 @@ export function HomeHero() {
         <Box
           display="flex"
           alignItems="center"
-          justifyContent="space-between"
-          sx={{ transform: 'translateY(-64px)' }}
+          justifyContent="center"
+          sx={{ position: 'absolute', bottom: { xs: 24, md: 40 }, width: 1, left: 0, zIndex: 9 }}
         >
           <CarouselDotButtons
             variant="rounded"
@@ -118,39 +119,49 @@ export function HomeHero() {
             onClickDot={carousel.dots.onClickDot}
             sx={{ color: 'primary.main' }}
           />
-
-          <CarouselArrowBasicButtons
-            {...carousel.arrows}
-            options={carousel.options}
-            slotProps={{
-              prevBtn: {
-                svgIcon: (
-                  <path
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m15 5l-6 7l6 7"
-                  />
-                ),
-              },
-              nextBtn: {
-                svgIcon: (
-                  <path
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m9 5l6 7l-6 7"
-                  />
-                ),
-              },
-            }}
-            sx={{ gap: 1, color: 'primary.main' }}
-          />
         </Box>
+
+        <CarouselArrowBasicButtons
+          {...carousel.arrows}
+          options={carousel.options}
+          slotProps={{
+            prevBtn: {
+              svgIcon: (
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m15 5l-6 7l6 7"
+                />
+              ),
+            },
+            nextBtn: {
+              svgIcon: (
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m9 5l6 7l-6 7"
+                />
+              ),
+            },
+          }}
+          sx={{
+            color: 'primary.main',
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            width: 1,
+            transform: 'translateY(-50%)',
+            justifyContent: 'space-between',
+            px: { xs: 1, md: 2 },
+            zIndex: 9,
+          }}
+        />
       </Container>
     </Box>
   );
@@ -173,15 +184,15 @@ type CarouselItemProps = {
 export function CarouselItem({ slide, selected }: CarouselItemProps) {
   return (
     <Box
-      gap={8}
+      gap={{ xs: 5, md: 8 }}
       display="flex"
       alignItems="center"
       justifyContent="space-between"
-      flexDirection={{ xs: 'column', md: 'row' }}
+      flexDirection={{ xs: 'column-reverse', md: 'row' }}
       sx={(theme) => ({
-        py: 15,
+        py: { xs: 6, md: 10 },
         opacity: 0,
-        minHeight: 720,
+        minHeight: { xs: '70vh', md: 720 },
         transition: theme.transitions.create(['opacity'], {
           easing: theme.transitions.easing.easeIn,
           duration: theme.transitions.duration.complex,
@@ -190,31 +201,57 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
       })}
     >
       <Box
-        sx={{
-          maxWidth: 440,
+        sx={(theme) => ({
+          maxWidth: { xs: 1, md: 480 },
+          width: 1,
           color: 'common.white',
           mx: { xs: 'auto', md: 'unset' },
           textAlign: { xs: 'center', md: 'unset' },
-        }}
+          // Premium Glassmorphism
+          p: { xs: 3, md: 5 },
+          borderRadius: 3,
+          backgroundColor: varAlpha(theme.vars.palette.background.defaultChannel, 0.08),
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: `1px solid ${varAlpha(theme.vars.palette.common.whiteChannel, 0.1)}`,
+          boxShadow: theme.customShadows.z24,
+        })}
       >
         <Label variant="filled" color="warning" sx={{ mb: 2 }}>
           {slide.label}
         </Label>
 
-        <Typography component="h3" variant="h2" sx={{ mb: 2 }}>
+        <Typography
+          component="h3"
+          variant="h3"
+          sx={(theme) => ({
+            mb: 2,
+            typography: { xs: 'h4', md: 'h3' },
+            ...(theme.mixins.maxLine({ line: 2 }) as any)
+          })}
+        >
           {slide.name}
         </Typography>
 
-        <Typography
-          variant="body2"
+        <Box
           sx={(theme) => ({
             ...(theme.mixins.maxLine({ line: 2 }) as any),
             mb: 5,
             opacity: 0.72,
+            typography: 'body2',
+            '& *': {
+              m: '0 !important',
+              p: '0 !important',
+              fontSize: 'inherit !important',
+              fontWeight: 'inherit !important',
+              lineHeight: 'inherit !important',
+              color: 'inherit !important',
+              display: 'inline !important',
+            }
           })}
         >
-          {slide.caption}
-        </Typography>
+          <Markdown children={slide.caption} />
+        </Box>
 
         <Button
           component={RouterLink}
@@ -233,11 +270,11 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
         alt={slide.name}
         src={slide.coverUrl}
         sx={(theme) => ({
-          width: 480,
-          height: 480,
+          width: { xs: 280, md: 480 },
+          height: { xs: 280, md: 480 },
           objectFit: 'cover',
           borderRadius: 4,
-          filter: `drop-shadow(20px 20px 24px ${varAlpha(theme.vars.palette.common.blackChannel, 0.8)})`,
+          filter: `drop-shadow(0 20px 40px ${varAlpha(theme.vars.palette.common.blackChannel, 0.8)})`,
         })}
       />
     </Box>

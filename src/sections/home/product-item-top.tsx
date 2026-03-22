@@ -27,7 +27,7 @@ export function ProductItemTop({ product, variant = 'small', sx }: Props) {
         <Box
             component="img"
             alt={product.name}
-            src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80'}
+            src={product.images?.[0]?.url || '/assets/placeholder.svg'}
             sx={{
                 width: 1,
                 aspectRatio: '1/1',

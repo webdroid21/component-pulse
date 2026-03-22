@@ -2,7 +2,7 @@
 
 import type { AuthState } from '../../types';
 
-import { onAuthStateChanged } from 'firebase/auth';
+import { onIdTokenChanged } from 'firebase/auth';
 import { useSetState } from 'minimal-shared/hooks';
 import { useMemo, useEffect, useCallback } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -17,12 +17,26 @@ type Props = {
   children: React.ReactNode;
 };
 
+const getInitialState = (): AuthState => {
+  try {
+    if (typeof window !== 'undefined') {
+      const cachedUser = sessionStorage.getItem('firebase_user_cache');
+      if (cachedUser) {
+        return { user: JSON.parse(cachedUser), loading: false };
+      }
+    }
+  } catch (err) {
+    console.error('Failed to parse cached user', err);
+  }
+  return { user: null, loading: true };
+};
+
 export function AuthProvider({ children }: Props) {
-  const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
+  const { state, setState } = useSetState<AuthState>(getInitialState());
 
   const checkUserSession = useCallback(async () => {
     try {
-      onAuthStateChanged(AUTH, async (user: AuthState['user']) => {
+      onIdTokenChanged(AUTH, async (user: AuthState['user']) => {
         if (user) {
           // First check if user is an admin
           const adminDoc = await getDoc(doc(FIRESTORE, 'admins', user.uid));
@@ -32,32 +46,34 @@ export function AuthProvider({ children }: Props) {
 
             // Check if admin is active
             if (!adminData.isActive) {
+              sessionStorage.removeItem('firebase_user_cache');
               setState({ user: null, loading: false });
               return;
             }
 
-            // Update last login
-            await setDoc(
+            // Update last login without blocking
+            setDoc(
               doc(FIRESTORE, 'admins', user.uid),
               { lastLoginAt: serverTimestamp() },
               { merge: true }
-            );
+            ).catch(console.error);
 
-            setState({
-              user: {
-                ...user,
-                ...adminData,
-                isAdmin: true,
-                userType: 'admin',
-              },
-              loading: false,
-            });
+            const adminPayload = {
+              ...user,
+              ...adminData,
+              isAdmin: true,
+              userType: 'admin',
+            };
+            sessionStorage.setItem('firebase_user_cache', JSON.stringify(adminPayload));
+
+            setState({ user: adminPayload, loading: false });
             return;
           }
 
           // Check if regular user (customer)
           // For email/password users, require email verification
           if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
+            sessionStorage.removeItem('firebase_user_cache');
             setState({ user: null, loading: false });
             return;
           }
@@ -69,31 +85,35 @@ export function AuthProvider({ children }: Props) {
 
             // Check if user is active
             if (!userData.isActive) {
+              sessionStorage.removeItem('firebase_user_cache');
               setState({ user: null, loading: false });
               return;
             }
 
-            // Update last login
-            await setDoc(
+            // Update last login without blocking UI
+            setDoc(
               doc(FIRESTORE, 'users', user.uid),
               { lastLoginAt: serverTimestamp() },
               { merge: true }
-            );
+            ).catch(console.error);
 
-            setState({
-              user: {
-                ...user,
-                ...userData,
-                isAdmin: false,
-                userType: 'customer',
-              },
-              loading: false,
-            });
+            const customerPayload = {
+              ...user,
+              ...userData,
+              isAdmin: false,
+              userType: 'customer',
+            };
+            sessionStorage.setItem('firebase_user_cache', JSON.stringify(customerPayload));
+
+            setState({ user: customerPayload, loading: false });
           } else {
             // User exists in Auth but not in Firestore (edge case)
-            setState({ user: { ...user, isAdmin: false, userType: 'customer' }, loading: false });
+            const edgeCaseUser = { ...user, isAdmin: false, userType: 'customer' };
+            sessionStorage.setItem('firebase_user_cache', JSON.stringify(edgeCaseUser));
+            setState({ user: edgeCaseUser, loading: false });
           }
         } else {
+          sessionStorage.removeItem('firebase_user_cache');
           setState({ user: null, loading: false });
         }
       });

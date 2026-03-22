@@ -45,68 +45,70 @@ export function ProductItemHot({ product, isHot = false, sx }: Props) {
     };
 
     return (
-        <Link component={RouterLink} href={paths.product(product.slug || product.id)} color="inherit" underline="none">
-            <Paper
-                variant="outlined"
-                sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    bgcolor: 'transparent',
-                    transition: (theme) =>
-                        theme.transitions.create('background-color', {
-                            easing: theme.transitions.easing.easeIn,
-                            duration: theme.transitions.duration.shortest,
-                        }),
-                    '&:hover': {
-                        bgcolor: 'background.neutral',
-                    },
-                    ...sx,
-                }}
-            >
+        <Paper
+            variant="outlined"
+            sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'transparent',
+                transition: (theme) =>
+                    theme.transitions.create('background-color', {
+                        easing: theme.transitions.easing.easeIn,
+                        duration: theme.transitions.duration.shortest,
+                    }),
+                '&:hover': {
+                    bgcolor: 'background.neutral',
+                },
+                ...sx,
+            }}
+        >
+            <Link component={RouterLink} href={paths.product(product.slug || product.id)} color="inherit" underline="none" sx={{ display: 'block' }}>
                 <Box
                     component="img"
                     alt={product.name}
-                    src={product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&q=80'}
+                    src={product.images?.[0]?.url || '/assets/placeholder.svg'}
                     sx={{ mb: 2, borderRadius: 1.5, bgcolor: 'background.neutral', width: 1, aspectRatio: '1/1', objectFit: 'cover' }}
                 />
 
-                <Box sx={{ minHeight: 90, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ minHeight: 40, display: 'flex', flexDirection: 'column' }}>
                     <Typography variant="body2" noWrap sx={{ mb: 0.5, fontWeight: 'fontWeightMedium' }}>
                         {product.name}
                     </Typography>
-
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                        <Typography
-                            variant="subtitle2"
-                            sx={{ ...(isHot && { color: 'error.main' }) }}
-                        >
-                            {fCurrency(product.salePrice || product.price)}
-                        </Typography>
-
-                        {(product.compareAtPrice || (isHot && product.price)) && (
-                            <Typography
-                                variant="caption"
-                                sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
-                            >
-                                {fCurrency(product.compareAtPrice || (isHot ? product.price + 15000 : product.price))}
-                            </Typography>
-                        )}
-                    </Stack>
-
-                    <Box sx={{ mt: 'auto' }}>
-                        <Button
-                            fullWidth
-                            size="small"
-                            variant="soft"
-                            color="inherit"
-                            startIcon={<Iconify icon="solar:cart-plus-bold" />}
-                            onClick={handleAddCart}
-                        >
-                            Add to Cart
-                        </Button>
-                    </Box>
                 </Box>
-            </Paper>
-        </Link>
+            </Link>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+                    <Typography
+                        variant="subtitle2"
+                        sx={{ ...(isHot && { color: 'error.main' }) }}
+                    >
+                        {fCurrency(product.salePrice || product.price)}
+                    </Typography>
+
+                    {(product.compareAtPrice || (isHot && product.price)) && (
+                        <Typography
+                            variant="caption"
+                            sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                        >
+                            {fCurrency(product.compareAtPrice || (isHot ? product.price + 15000 : product.price))}
+                        </Typography>
+                    )}
+                </Stack>
+
+                <Box sx={{ mt: 'auto' }}>
+                    <Button
+                        fullWidth
+                        size="small"
+                        variant="soft"
+                        color="inherit"
+                        startIcon={<Iconify icon="solar:cart-plus-bold" />}
+                        onClick={handleAddCart}
+                    >
+                        Add to Cart
+                    </Button>
+                </Box>
+            </Box>
+        </Paper>
     );
 }

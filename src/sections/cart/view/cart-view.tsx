@@ -68,9 +68,19 @@ export function CartView() {
   return (
     <Box sx={{ py: { xs: 4, md: 6 } }}>
       <Container maxWidth="lg">
-        <Typography variant="h3" sx={{ mb: 5 }}>
-          Shopping Cart ({items.length} {items.length === 1 ? 'item' : 'items'})
-        </Typography>
+        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 5 }}>
+          <Typography variant="h4">
+            Shopping Cart ({items.length} {items.length === 1 ? 'item' : 'items'})
+          </Typography>
+
+          <Button
+            color="error"
+            onClick={() => checkout.setField('items', [])}
+            startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+          >
+            Empty Cart
+          </Button>
+        </Stack>
 
         <Box
           sx={{
@@ -81,7 +91,7 @@ export function CartView() {
         >
           {/* Cart Items */}
           <Card>
-            <TableContainer>
+            <TableContainer sx={{ display: { xs: 'none', md: 'block' } }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -163,6 +173,45 @@ export function CartView() {
                 </TableBody>
               </Table>
             </TableContainer>
+
+            {/* Mobile Layout */}
+            <Stack spacing={3} sx={{ display: { xs: 'flex', md: 'none' }, p: 2 }}>
+              {items.map((item) => (
+                <Stack key={item.id} direction="row" spacing={2} alignItems="flex-start" sx={{ pb: 3, borderBottom: '1px dashed', borderColor: 'divider', '&:last-of-type': { borderBottom: 'none', pb: 0 } }}>
+                  <Box
+                    component="img"
+                    src={item.coverUrl || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&q=80'}
+                    alt={item.name}
+                    sx={{ width: 80, height: 80, borderRadius: 1.5, objectFit: 'cover' }}
+                  />
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                      {item.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+                      {fCurrency(item.price)}
+                    </Typography>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <IconButton size="small" onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>
+                        <Iconify icon="solar:minus-circle-bold" width={20} />
+                      </IconButton>
+                      <Typography sx={{ minWidth: 24, textAlign: 'center' }}>{item.quantity}</Typography>
+                      <IconButton size="small" disabled={item.quantity >= item.available} onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>
+                        <Iconify icon="solar:add-circle-bold" width={20} />
+                      </IconButton>
+                    </Stack>
+                  </Box>
+                  <Stack alignItems="flex-end" spacing={1}>
+                    <IconButton color="error" size="small" onClick={() => checkout.onDeleteCartItem(item.id)}>
+                      <Iconify icon="solar:trash-bin-trash-bold" width={20} />
+                    </IconButton>
+                    <Typography variant="subtitle2">
+                      {fCurrency(item.price * item.quantity)}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
           </Card>
 
           {/* Order Summary */}

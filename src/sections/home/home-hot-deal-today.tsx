@@ -70,8 +70,8 @@ export function HomeHotDealToday() {
                     </Box>
                 ) : (
                     <Carousel carousel={carousel}>
-                        {products.map((product) => (
-                            <ProductItemHot key={product.id} product={product} isHot />
+                        {products.map((product, index) => (
+                            <ProductItemHot key={`${product.id}-${index}`} product={product} isHot />
                         ))}
                     </Carousel>
                 )}

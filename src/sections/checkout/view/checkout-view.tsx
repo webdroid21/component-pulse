@@ -83,8 +83,8 @@ export function CheckoutView() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [useNewAddress, setUseNewAddress] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
-    firstName: '',
-    lastName: '',
+    firstName: user?.displayName?.split(' ')[0] || '',
+    lastName: user?.displayName?.split(' ')[1] || '',
     email: user?.email || '',
     phone: '',
     address: '',
@@ -140,6 +140,26 @@ export function CheckoutView() {
     return savedAddresses.find((addr) => addr.id === selectedAddressId) || null;
   };
 
+  const checkValidationSilently = (): boolean => {
+    if (!useNewAddress && savedAddresses.length > 0) {
+      if (!selectedAddressId) return false;
+      if (!shippingInfo.email.trim() || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(shippingInfo.email)) return false;
+      return true;
+    }
+
+    const phoneRegex = /^(0|\+?256)[1-9][0-9]{7,12}$/;
+    const cleanPhone = shippingInfo.phone.trim().replace(/\s/g, '');
+
+    if (!shippingInfo.firstName.trim() || shippingInfo.firstName.trim().length < 2) return false;
+    if (!shippingInfo.lastName.trim() || shippingInfo.lastName.trim().length < 2) return false;
+    if (!shippingInfo.email.trim() || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(shippingInfo.email)) return false;
+    if (!cleanPhone || !phoneRegex.test(cleanPhone)) return false;
+    if (!shippingInfo.address.trim() || shippingInfo.address.trim().length < 5) return false;
+    if (!shippingInfo.city.trim()) return false;
+
+    return true;
+  };
+
   const validateShippingInfo = (): boolean => {
     // If using saved address, check if one is selected
     if (!useNewAddress && savedAddresses.length > 0) {
@@ -147,34 +167,36 @@ export function CheckoutView() {
         setError('Please select a delivery address');
         return false;
       }
-      // Validate email is still required
-      if (!shippingInfo.email.trim() || !shippingInfo.email.includes('@')) {
-        setError('Valid email is required');
+      if (!shippingInfo.email.trim() || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(shippingInfo.email)) {
+        setError('A valid email is required');
         return false;
       }
       setError(null);
       return true;
     }
 
+    const phoneRegex = /^(0|\+?256)[1-9][0-9]{7,12}$/;
+    const cleanPhone = shippingInfo.phone.trim().replace(/\s/g, '');
+
     // Validate new address form
-    if (!shippingInfo.firstName.trim()) {
-      setError('First name is required');
+    if (!shippingInfo.firstName.trim() || shippingInfo.firstName.trim().length < 2) {
+      setError('Valid first name is required');
       return false;
     }
-    if (!shippingInfo.lastName.trim()) {
-      setError('Last name is required');
+    if (!shippingInfo.lastName.trim() || shippingInfo.lastName.trim().length < 2) {
+      setError('Valid last name is required');
       return false;
     }
-    if (!shippingInfo.email.trim() || !shippingInfo.email.includes('@')) {
-      setError('Valid email is required');
+    if (!shippingInfo.email.trim() || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(shippingInfo.email)) {
+      setError('A valid email address is required');
       return false;
     }
-    if (!shippingInfo.phone.trim()) {
-      setError('Phone number is required');
+    if (!cleanPhone || !phoneRegex.test(cleanPhone)) {
+      setError('Valid phone number is required (e.g. +256 700...)');
       return false;
     }
-    if (!shippingInfo.address.trim()) {
-      setError('Address is required');
+    if (!shippingInfo.address.trim() || shippingInfo.address.trim().length < 5) {
+      setError('A complete physical address is required (min 5 chars)');
       return false;
     }
     if (!shippingInfo.city.trim()) {
@@ -1063,7 +1085,7 @@ export function CheckoutView() {
               <Button
                 variant="contained"
                 onClick={handleNext}
-                disabled={loading || creatingOrder}
+                disabled={loading || creatingOrder || (activeStep === 0 && !checkValidationSilently())}
                 endIcon={
                   loading || creatingOrder ? (
                     <CircularProgress size={20} color="inherit" />
