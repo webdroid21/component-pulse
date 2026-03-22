@@ -174,10 +174,8 @@ function CheckoutContainer({ children }: CheckoutProviderProps) {
   );
 
   const onResetCart = useCallback(() => {
-    if (completed) {
-      resetState(initialState);
-    }
-  }, [completed, resetState]);
+    resetState(initialState);
+  }, [resetState]);
 
   const memoizedValue = useMemo(
     () => ({
