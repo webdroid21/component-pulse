@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     // Send the beautifully designed custom email template via Resend
     const data = await resend.emails.send({
-      from: 'Component Pulse <security@resend.dev>', // Update with a verified domain
+      from: 'Component Pulse <security@componentpulseug.com>',
       to: [email],
       subject: 'Reset your password - Component Pulse',
       html: `

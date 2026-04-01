@@ -11,19 +11,19 @@ import { TrainingModuleForm } from '../training-module-form';
 // ----------------------------------------------------------------------
 
 export function TrainingModuleCreateView() {
-    return (
-        <DashboardContent>
-            <CustomBreadcrumbs
-                heading="Create a new training module"
-                links={[
-                    { name: 'Dashboard', href: paths.admin.root },
-                    { name: 'Training Modules', href: paths.admin.trainingModules.root },
-                    { name: 'Create' },
-                ]}
-                sx={{ mb: { xs: 3, md: 5 } }}
-            />
+  return (
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Create a new training module"
+        links={[
+          { name: 'Dashboard', href: paths.admin.root },
+          { name: 'Training Modules', href: paths.admin.trainingModules.root },
+          { name: 'Create' },
+        ]}
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
 
-            <TrainingModuleForm />
-        </DashboardContent>
-    );
+      <TrainingModuleForm />
+    </DashboardContent>
+  );
 }

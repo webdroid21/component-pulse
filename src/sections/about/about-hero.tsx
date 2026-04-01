@@ -54,7 +54,10 @@ export function AboutHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700, mb: 2, display: 'block' }}>
+          <Typography
+            variant="overline"
+            sx={{ color: 'primary.main', fontWeight: 700, mb: 2, display: 'block' }}
+          >
             About Us
           </Typography>
         </m.div>
@@ -74,8 +77,12 @@ export function AboutHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Typography variant="h6" sx={{ color: 'grey.400', fontWeight: 400, maxWidth: 660, mx: 'auto', mb: 5 }}>
-            Your trusted partner in electronic components and embedded systems development. We&apos;re passionate about empowering innovation across Uganda and East Africa.
+          <Typography
+            variant="h6"
+            sx={{ color: 'grey.400', fontWeight: 400, maxWidth: 660, mx: 'auto', mb: 5 }}
+          >
+            Your trusted partner in electronic components and embedded systems development.
+            We&apos;re passionate about empowering innovation across Uganda and East Africa.
           </Typography>
         </m.div>
 
@@ -101,7 +108,14 @@ export function AboutHero() {
               size="large"
               variant="outlined"
               color="inherit"
-              sx={{ borderColor: 'common.white', color: 'common.white', '&:hover': { borderColor: 'common.white', bgcolor: 'varAlpha(theme.vars.palette.common.whiteChannel, 0.08)' } }}
+              sx={{
+                borderColor: 'common.white',
+                color: 'common.white',
+                '&:hover': {
+                  borderColor: 'common.white',
+                  bgcolor: 'varAlpha(theme.vars.palette.common.whiteChannel, 0.08)',
+                },
+              }}
             >
               View Products
             </Button>

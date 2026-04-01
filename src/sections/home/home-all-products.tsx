@@ -1,7 +1,5 @@
 'use client';
 
-import { m } from 'framer-motion';
-
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -15,6 +13,7 @@ import { RouterLink } from 'src/routes/components';
 import { useProducts } from 'src/hooks/firebase';
 
 import { Iconify } from 'src/components/iconify';
+import { Carousel, useCarousel, CarouselDotButtons } from 'src/components/carousel';
 
 import { ProductItem } from 'src/sections/shop/product-item';
 
@@ -22,6 +21,12 @@ import { ProductItem } from 'src/sections/shop/product-item';
 
 export function HomeAllProducts() {
   const { products, loading } = useProducts({ isActive: true, limit: 8 });
+
+  const carousel = useCarousel({
+    slidesToShow: { xs: 2, sm: 2, md: 3, lg: 4 },
+    slidesToScroll: 2,
+    slideSpacing: '16px',
+  });
 
   return (
     <Box component="section" sx={{ py: { xs: 8, md: 10 } }}>
@@ -57,31 +62,26 @@ export function HomeAllProducts() {
             <CircularProgress />
           </Box>
         ) : (
-          <Box
-            sx={{
-              display: 'grid',
-              gap: 4,
-              gridTemplateColumns: {
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-                lg: 'repeat(4, 1fr)',
-              },
-            }}
-          >
-            {products.map((product, index) => (
-              <m.div
-                key={`${product.id}-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                style={{ height: '100%' }}
-              >
-                <ProductItem product={product} />
-              </m.div>
-            ))}
-          </Box>
+          <>
+            <Carousel carousel={carousel}>
+              {products.map((product, index) => (
+                <ProductItem key={`${product.id}-${index}`} product={product} />
+              ))}
+            </Carousel>
+
+            <CarouselDotButtons
+              scrollSnaps={carousel.dots.scrollSnaps}
+              selectedIndex={carousel.dots.selectedIndex}
+              onClickDot={carousel.dots.onClickDot}
+              sx={{
+                mt: 8,
+                width: 1,
+                color: 'primary.main',
+                justifyContent: 'center',
+                display: { xs: 'inline-flex', md: 'none' },
+              }}
+            />
+          </>
         )}
       </Container>
     </Box>

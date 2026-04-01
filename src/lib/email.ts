@@ -7,7 +7,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 // Only initialize Resend if API key is available
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
-const FROM_EMAIL = 'ComponentPulse <orders@componentpulse.com>';
+const FROM_EMAIL = 'ComponentPulse <orders@componentpulseug.com>';
 
 // ----------------------------------------------------------------------
 
@@ -44,8 +44,7 @@ function formatCurrency(amount: number): string {
 
 function getPaymentMethodLabel(method: string): string {
   const labels: Record<string, string> = {
-    flutterwave: 'Card/Mobile Money (Flutterwave)',
-    mobile_money: 'Mobile Money',
+    pesapal: 'Online Payment (Pesapal)',
     cash_on_delivery: 'Cash on Delivery',
   };
   return labels[method] || method;
@@ -115,12 +114,16 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
               <span>Delivery:</span>
               <span>${data.deliveryFee === 0 ? 'FREE' : formatCurrency(data.deliveryFee)}</span>
             </div>
-            ${data.discount > 0 ? `
+            ${
+              data.discount > 0
+                ? `
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #d32f2f;">
               <span>Discount:</span>
               <span>-${formatCurrency(data.discount)}</span>
             </div>
-            ` : ''}
+            `
+                : ''
+            }
             <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px;">
               <span>Total:</span>
               <span style="color: #1976d2;">${formatCurrency(data.total)}</span>
@@ -149,7 +152,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
           </div>
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
-            <p>If you have any questions, contact us at support@componentpulse.com</p>
+            <p>If you have any questions, contact us at support@componentpulseug.com</p>
             <p>&copy; ${new Date().getFullYear()} ComponentPulse. All rights reserved.</p>
           </div>
         </body>
@@ -213,7 +216,8 @@ export async function sendOrderStatusUpdateEmail(
       },
       cancelled: {
         label: 'Cancelled',
-        description: 'Your order has been cancelled. If you have any questions, please contact support.',
+        description:
+          'Your order has been cancelled. If you have any questions, please contact support.',
         color: '#f44336',
       },
     };
@@ -253,7 +257,7 @@ export async function sendOrderStatusUpdateEmail(
           </div>
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
-            <p>If you have any questions, contact us at support@componentpulse.com</p>
+            <p>If you have any questions, contact us at support@componentpulseug.com</p>
             <p>&copy; ${new Date().getFullYear()} ComponentPulse. All rights reserved.</p>
           </div>
         </body>
@@ -337,7 +341,6 @@ export async function sendTicketReplyEmail(
   }
 }
 
-
 // ----------------------------------------------------------------------
 
 export async function sendTicketConfirmationEmail(
@@ -406,7 +409,10 @@ export async function sendTrainingUpdateEmail(
     return false;
   }
 
-  const updateConfig: Record<TrainingUpdateType, { subject: string; heading: string; description: string; color: string; buttonLabel: string }> = {
+  const updateConfig: Record<
+    TrainingUpdateType,
+    { subject: string; heading: string; description: string; color: string; buttonLabel: string }
+  > = {
     launched: {
       subject: `🚀 "${moduleTitle}" is now live!`,
       heading: 'Your training module is now live!',
@@ -462,7 +468,7 @@ export async function sendTrainingUpdateEmail(
 
         <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 12px;">
           <p>You received this email because you subscribed to updates for this training module.</p>
-          <p>If you have any questions, contact us at <a href="mailto:support@componentpulse.com" style="color: #1976d2;">support@componentpulse.com</a></p>
+          <p>If you have any questions, contact us at <a href="mailto:support@componentpulseug.com" style="color: #1976d2;">support@componentpulseug.com</a></p>
           <p>&copy; ${new Date().getFullYear()} ComponentPulse. All rights reserved.</p>
         </div>
       </body>
@@ -507,15 +513,15 @@ export async function sendProductReviewRequestEmail(
 
         <div style="margin: 30px 0;">
           ${items
-      .map(
-        (item) => `
+            .map(
+              (item) => `
             <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
               <span style="font-weight: 500;">${item.name}</span>
               <a href="${process.env.NEXT_PUBLIC_APP_URL}/products/${item.id}" style="background: #1976d2; color: #fff; text-decoration: none; padding: 8px 16px; border-radius: 4px; font-size: 14px;">Leave Review</a>
             </div>
           `
-      )
-      .join('')}
+            )
+            .join('')}
         </div>
 
         <p>Thank you for shopping with ComponentPulse!</p>

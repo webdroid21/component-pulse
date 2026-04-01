@@ -39,7 +39,7 @@ export function BlogEditView({ id }: Props) {
           sx={{ mb: { xs: 3, md: 5 } }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-            <CircularProgress />
+          <CircularProgress />
         </Box>
       </DashboardContent>
     );
@@ -59,7 +59,11 @@ export function BlogEditView({ id }: Props) {
         />
 
         <Box sx={{ mt: 5, textAlign: 'center' }}>
-          <Iconify icon="solar:document-text-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+          <Iconify
+            icon="solar:document-text-bold-duotone"
+            width={80}
+            sx={{ color: 'text.disabled', mb: 2 }}
+          />
           <Typography variant="h5" sx={{ mb: 1 }}>
             Post not found
           </Typography>

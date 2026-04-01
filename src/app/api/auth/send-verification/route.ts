@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     // Send the beautifully designed custom email template via Resend
     const data = await resend.emails.send({
-      from: 'Component Pulse <onboarding@resend.dev>', // Update with a verified domain
+      from: 'Component Pulse <onboarding@componentpulseug.com>',
       to: [email],
       subject: 'Verify your email address - Component Pulse',
       html: `

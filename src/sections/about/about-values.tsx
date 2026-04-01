@@ -52,8 +52,12 @@ export function AboutValues() {
             <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700 }}>
               Our Values
             </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary', mt: 2, maxWidth: 640, mx: 'auto' }}>
-              These core values guide everything we do and shape our relationships with customers, partners, and the community.
+            <Typography
+              variant="body1"
+              sx={{ color: 'text.secondary', mt: 2, maxWidth: 640, mx: 'auto' }}
+            >
+              These core values guide everything we do and shape our relationships with customers,
+              partners, and the community.
             </Typography>
           </m.div>
         </Box>

@@ -79,11 +79,7 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
       <Box component="ul">
         {data?.map((notification) => (
           <Box component="li" key={notification.id} sx={{ display: 'flex' }}>
-            <NotificationItem
-              notification={notification}
-              onRead={markAsRead}
-              onClose={onClose}
-            />
+            <NotificationItem notification={notification} onRead={markAsRead} onClose={onClose} />
           </Box>
         ))}
       </Box>

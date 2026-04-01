@@ -159,7 +159,8 @@ export function useCustomerMutations() {
     }
   };
 
-  const toggleCustomerStatus = async (customerId: string, isActive: boolean): Promise<boolean> => updateCustomer(customerId, { isActive });
+  const toggleCustomerStatus = async (customerId: string, isActive: boolean): Promise<boolean> =>
+    updateCustomer(customerId, { isActive });
 
   const deleteCustomer = async (customerId: string): Promise<boolean> => {
     try {
@@ -177,7 +178,10 @@ export function useCustomerMutations() {
     }
   };
 
-  const promoteToAdmin = async (customer: Customer, role: AdminRole = 'staff'): Promise<boolean> => {
+  const promoteToAdmin = async (
+    customer: Customer,
+    role: AdminRole = 'staff'
+  ): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);

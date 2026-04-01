@@ -24,9 +24,9 @@ import { Iconify } from 'src/components/iconify';
 
 export function DealsView() {
   const { deals, loading } = useDeals({ isActive: true });
-  
+
   // Natively block Expired configurations on client arrays natively
-  const activeDeals = deals.filter(deal => !deal.endDate || deal.endDate.toDate() >= new Date());
+  const activeDeals = deals.filter((deal) => !deal.endDate || deal.endDate.toDate() >= new Date());
 
   return (
     <Box sx={{ pb: { xs: 8, md: 10 }, pt: { xs: 4, md: 8 } }}>
@@ -34,8 +34,8 @@ export function DealsView() {
         <Stack spacing={2} sx={{ mb: 8, textAlign: 'center' }}>
           <Typography variant="h3">Special Combo Deals</Typography>
           <Typography sx={{ color: 'text.secondary', maxWidth: 600, mx: 'auto' }}>
-            Get the best value with our curated combination of products and training modules.
-            Save more when you buy them together!
+            Get the best value with our curated combination of products and training modules. Save
+            more when you buy them together!
           </Typography>
         </Stack>
 
@@ -45,7 +45,11 @@ export function DealsView() {
           </Box>
         ) : activeDeals.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 10 }}>
-            <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+            <Iconify
+              icon="solar:box-bold-duotone"
+              width={80}
+              sx={{ color: 'text.disabled', mb: 2 }}
+            />
             <Typography variant="h5">No active deals right now</Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               Please check back later for special offers.
@@ -136,8 +140,18 @@ export function DealsView() {
                       </Typography>
                       {deal.trainingModuleIds.length > 0 && (
                         <>
-                          <Box sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: 'text.disabled' }} />
-                          <Iconify icon="solar:book-bold-duotone" sx={{ color: 'secondary.main' }} />
+                          <Box
+                            sx={{
+                              width: 4,
+                              height: 4,
+                              borderRadius: '50%',
+                              bgcolor: 'text.disabled',
+                            }}
+                          />
+                          <Iconify
+                            icon="solar:book-bold-duotone"
+                            sx={{ color: 'secondary.main' }}
+                          />
                           <Typography variant="body2" sx={{ fontWeight: 600 }}>
                             {deal.trainingModuleIds.length} Modules
                           </Typography>
@@ -145,12 +159,23 @@ export function DealsView() {
                       )}
                     </Stack>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 2, borderTop: (theme) => `dashed 1px ${theme.palette.divider}` }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        pt: 2,
+                        borderTop: (theme) => `dashed 1px ${theme.palette.divider}`,
+                      }}
+                    >
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <Typography variant="h6" sx={{ color: 'primary.main' }}>
                           {fCurrency(deal.price)}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                        >
                           {fCurrency(deal.originalPrice)}
                         </Typography>
                       </Stack>

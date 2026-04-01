@@ -70,9 +70,10 @@ export function ProductDetailsView({ slug }: Props) {
     );
   }
 
-  const images = product.images?.length > 0
-    ? product.images
-    : [{ url: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80' }];
+  const images =
+    product.images?.length > 0
+      ? product.images
+      : [{ url: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80' }];
 
   return (
     <Box sx={{ py: { xs: 3, md: 5 } }}>
@@ -120,7 +121,9 @@ export function ProductDetailsView({ slug }: Props) {
           <Box sx={{ py: 4 }}>
             {currentTab === 'description' && (
               <Box>
-                <Markdown children={product.description || 'No description available for this product.'} />
+                <Markdown
+                  children={product.description || 'No description available for this product.'}
+                />
               </Box>
             )}
 

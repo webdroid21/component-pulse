@@ -81,8 +81,8 @@ export function HomeCTA() {
                 mx: 'auto',
               }}
             >
-              Get in touch with our team for bulk orders, custom solutions, or technical consultations.
-              We&apos;re here to help you succeed.
+              Get in touch with our team for bulk orders, custom solutions, or technical
+              consultations. We&apos;re here to help you succeed.
             </Typography>
           </m.div>
 

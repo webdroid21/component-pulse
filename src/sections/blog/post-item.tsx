@@ -48,19 +48,18 @@ export function PostItem({ post, detailsHref, sx, ...other }: PostItemProps) {
         >
           {post.title}
         </Link>
-        <Typography variant="body2" sx={(theme) => ({
-             color: 'text.secondary',
-             mt: 1,
+        <Typography
+          variant="body2"
+          sx={(theme) => ({
+            color: 'text.secondary',
+            mt: 1,
             ...theme.mixins.maxLine({ line: 2 }),
-        })}>
-            {post.description}
+          })}
+        >
+          {post.description}
         </Typography>
 
-        <InfoBlock
-          totalViews={0}
-          totalShares={0}
-          totalComments={0}
-        />
+        <InfoBlock totalViews={0} totalShares={0} totalComments={0} />
       </CardContent>
     </Card>
   );
@@ -103,7 +102,7 @@ export function PostItemLatest({ post, index, detailsHref }: PostItemLatestProps
         }}
       >
         <Typography variant="caption" component="div" sx={{ mb: 1, opacity: 0.64 }}>
-           {post.createdAt ? format(post.createdAt.toDate(), 'dd MMM yyyy') : 'Recently'}
+          {post.createdAt ? format(post.createdAt.toDate(), 'dd MMM yyyy') : 'Recently'}
         </Typography>
 
         <Link
@@ -134,7 +133,11 @@ export function PostItemLatest({ post, index, detailsHref }: PostItemLatestProps
 
 // ----------------------------------------------------------------------
 
-type InfoBlockProps = BoxProps & { totalViews?: number; totalShares?: number; totalComments?: number };
+type InfoBlockProps = BoxProps & {
+  totalViews?: number;
+  totalShares?: number;
+  totalComments?: number;
+};
 
 function InfoBlock({ sx, totalViews, totalShares, totalComments, ...other }: InfoBlockProps) {
   return (

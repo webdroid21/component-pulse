@@ -26,7 +26,12 @@ import DialogActions from '@mui/material/DialogActions';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { useDeliveryZones, usePickupLocations, useDeliveryZoneMutations, usePickupLocationMutations } from 'src/hooks/firebase';
+import {
+  useDeliveryZones,
+  usePickupLocations,
+  useDeliveryZoneMutations,
+  usePickupLocationMutations,
+} from 'src/hooks/firebase';
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -40,7 +45,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 type FormValues = {
   name: string;
   description: string;
-  areasText: string;  // comma-separated areas
+  areasText: string; // comma-separated areas
   fee: number;
   estimatedDays: string;
   isActive: boolean;
@@ -103,9 +108,7 @@ export function DeliveryZonesView() {
       isActive: values.isActive,
     };
 
-    const success = editingZone
-      ? await updateZone(editingZone.id, data)
-      : await createZone(data);
+    const success = editingZone ? await updateZone(editingZone.id, data) : await createZone(data);
 
     if (success) {
       setDialogOpen(false);
@@ -154,12 +157,22 @@ export function DeliveryZonesView() {
             </Box>
           ) : zones.length === 0 ? (
             <Card sx={{ p: 5, textAlign: 'center' }}>
-              <Iconify icon="solar:delivery-bold-duotone" width={64} sx={{ color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" sx={{ mb: 1 }}>No delivery zones yet</Typography>
+              <Iconify
+                icon="solar:delivery-bold-duotone"
+                width={64}
+                sx={{ color: 'text.disabled', mb: 2 }}
+              />
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                No delivery zones yet
+              </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
                 Add zones to let customers select their delivery area at checkout.
               </Typography>
-              <Button variant="contained" startIcon={<Iconify icon="mingcute:add-line" />} onClick={openCreate}>
+              <Button
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                onClick={openCreate}
+              >
                 Add First Zone
               </Button>
             </Card>
@@ -177,10 +190,19 @@ export function DeliveryZonesView() {
                       transition: 'all 0.2s',
                     }}
                   >
-                    <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
+                    <Stack
+                      direction="row"
+                      alignItems="flex-start"
+                      justifyContent="space-between"
+                      sx={{ mb: 2 }}
+                    >
                       <Box>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                          <Iconify icon="solar:map-point-bold" width={20} sx={{ color: 'primary.main' }} />
+                          <Iconify
+                            icon="solar:map-point-bold"
+                            width={20}
+                            sx={{ color: 'primary.main' }}
+                          />
                           <Typography variant="h6">{zone.name}</Typography>
                         </Stack>
                         {zone.description && (
@@ -206,7 +228,10 @@ export function DeliveryZonesView() {
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                           Delivery Fee
                         </Typography>
-                        <Typography variant="subtitle1" sx={{ color: 'primary.main', fontWeight: 700 }}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ color: 'primary.main', fontWeight: 700 }}
+                        >
                           {zone.fee === 0 ? 'FREE' : fCurrency(zone.fee)}
                         </Typography>
                       </Stack>
@@ -222,7 +247,10 @@ export function DeliveryZonesView() {
 
                     {/* Areas */}
                     <Box>
-                      <Typography variant="caption" sx={{ color: 'text.secondary', mb: 1, display: 'block' }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ color: 'text.secondary', mb: 1, display: 'block' }}
+                      >
                         Covers
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -244,7 +272,9 @@ export function DeliveryZonesView() {
                         />
                       }
                       label={
-                        <Typography variant="body2">{zone.isActive ? 'Active' : 'Inactive'}</Typography>
+                        <Typography variant="body2">
+                          {zone.isActive ? 'Active' : 'Inactive'}
+                        </Typography>
                       }
                     />
                   </Card>
@@ -378,7 +408,6 @@ export function DeliveryZonesView() {
       )}
 
       {currentTab === 'pickup' && <PickupLocationsTab />}
-
     </DashboardContent>
   );
 }
@@ -394,7 +423,12 @@ type PickupFormValues = {
 
 function PickupLocationsTab() {
   const { locations, loading } = usePickupLocations();
-  const { createLocation, updateLocation, deleteLocation, loading: mutating } = usePickupLocationMutations();
+  const {
+    createLocation,
+    updateLocation,
+    deleteLocation,
+    loading: mutating,
+  } = usePickupLocationMutations();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState<PickupLocation | null>(null);
@@ -432,28 +466,55 @@ function PickupLocationsTab() {
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', mb: 3 }}>
-        <Button variant="contained" startIcon={<Iconify icon="mingcute:add-line" />} onClick={openCreate}>
+        <Button
+          variant="contained"
+          startIcon={<Iconify icon="mingcute:add-line" />}
+          onClick={openCreate}
+        >
           Add Pick-Up Location
         </Button>
       </Box>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}><CircularProgress /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+          <CircularProgress />
+        </Box>
       ) : locations.length === 0 ? (
         <Card sx={{ p: 5, textAlign: 'center' }}>
-          <Iconify icon="solar:shop-bold-duotone" width={64} sx={{ color: 'text.disabled', mb: 2 }} />
-          <Typography variant="h6" sx={{ mb: 1 }}>No pick-up locations yet</Typography>
+          <Iconify
+            icon="solar:shop-bold-duotone"
+            width={64}
+            sx={{ color: 'text.disabled', mb: 2 }}
+          />
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            No pick-up locations yet
+          </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
             Add store locations where customers can collect their orders.
           </Typography>
-          <Button variant="contained" onClick={openCreate}>Add First Location</Button>
+          <Button variant="contained" onClick={openCreate}>
+            Add First Location
+          </Button>
         </Card>
       ) : (
         <Grid container spacing={3}>
           {locations.map((loc) => (
             <Grid size={{ xs: 12, sm: 6, md: 4 }} key={loc.id}>
-              <Card sx={{ p: 3, height: '100%', borderColor: loc.isActive ? 'primary.light' : 'divider', opacity: loc.isActive ? 1 : 0.65, border: 1 }}>
-                <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
+              <Card
+                sx={{
+                  p: 3,
+                  height: '100%',
+                  borderColor: loc.isActive ? 'primary.light' : 'divider',
+                  opacity: loc.isActive ? 1 : 0.65,
+                  border: 1,
+                }}
+              >
+                <Stack
+                  direction="row"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  sx={{ mb: 2 }}
+                >
                   <Box>
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Iconify icon="solar:shop-bold" width={20} sx={{ color: 'primary.main' }} />
@@ -472,21 +533,37 @@ function PickupLocationsTab() {
 
                 <Divider sx={{ my: 2 }} />
 
-                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Address</Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>{loc.address}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                  Address
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                  {loc.address}
+                </Typography>
 
                 {loc.instructions && (
                   <>
-                    <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Instructions</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>{loc.instructions}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+                      Instructions
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                      {loc.instructions}
+                    </Typography>
                   </>
                 )}
 
                 <Divider sx={{ my: 2 }} />
 
                 <FormControlLabel
-                  control={<Switch checked={loc.isActive} onChange={() => updateLocation(loc.id, { isActive: !loc.isActive })} size="small" />}
-                  label={<Typography variant="body2">{loc.isActive ? 'Active' : 'Inactive'}</Typography>}
+                  control={
+                    <Switch
+                      checked={loc.isActive}
+                      onChange={() => updateLocation(loc.id, { isActive: !loc.isActive })}
+                      size="small"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">{loc.isActive ? 'Active' : 'Inactive'}</Typography>
+                  }
                 />
               </Card>
             </Grid>
@@ -499,23 +576,68 @@ function PickupLocationsTab() {
           <DialogTitle>{editingLoc ? 'Edit Pick-Up Location' : 'Add Pick-Up Location'}</DialogTitle>
           <DialogContent>
             <Stack spacing={2.5} sx={{ pt: 1 }}>
-              <Controller name="name" control={control} rules={{ required: 'Name is required' }} render={({ field, fieldState }) => (
-                <TextField {...field} label="Location Name (e.g. Main Store)" fullWidth required error={!!fieldState.error} helperText={fieldState.error?.message} />
-              )} />
-              <Controller name="address" control={control} rules={{ required: 'Address is required' }} render={({ field, fieldState }) => (
-                <TextField {...field} label="Full Address" multiline rows={2} fullWidth required error={!!fieldState.error} helperText={fieldState.error?.message} />
-              )} />
-              <Controller name="instructions" control={control} render={({ field }) => (
-                <TextField {...field} label="Pick-Up Instructions (Optional)" multiline rows={2} fullWidth />
-              )} />
-              <Controller name="isActive" control={control} render={({ field }) => (
-                <FormControlLabel control={<Switch checked={field.value} onChange={field.onChange} />} label="Active (visible to customers)" />
-              )} />
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: 'Name is required' }}
+                render={({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    label="Location Name (e.g. Main Store)"
+                    fullWidth
+                    required
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
+              <Controller
+                name="address"
+                control={control}
+                rules={{ required: 'Address is required' }}
+                render={({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    label="Full Address"
+                    multiline
+                    rows={2}
+                    fullWidth
+                    required
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  />
+                )}
+              />
+              <Controller
+                name="instructions"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Pick-Up Instructions (Optional)"
+                    multiline
+                    rows={2}
+                    fullWidth
+                  />
+                )}
+              />
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={<Switch checked={field.value} onChange={field.onChange} />}
+                    label="Active (visible to customers)"
+                  />
+                )}
+              />
             </Stack>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="contained" disabled={mutating}>{mutating ? 'Saving...' : 'Save'}</Button>
+            <Button type="submit" variant="contained" disabled={mutating}>
+              {mutating ? 'Saving...' : 'Save'}
+            </Button>
           </DialogActions>
         </form>
       </Dialog>
@@ -525,7 +647,21 @@ function PickupLocationsTab() {
         onClose={() => setDeleteId(null)}
         title="Delete Location"
         content="Are you sure you want to delete this pick-up location?"
-        action={<Button variant="contained" color="error" onClick={() => { if (deleteId) { deleteLocation(deleteId); setDeleteId(null); } }} disabled={mutating}>Delete</Button>}
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              if (deleteId) {
+                deleteLocation(deleteId);
+                setDeleteId(null);
+              }
+            }}
+            disabled={mutating}
+          >
+            Delete
+          </Button>
+        }
       />
     </>
   );

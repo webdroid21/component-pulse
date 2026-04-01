@@ -37,14 +37,17 @@ export type SignUpSchemaType = z.infer<typeof SignUpSchema>;
 export const SignUpSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required!' }),
   lastName: z.string().min(1, { message: 'Last name is required!' }),
-  email: schemaUtils.email().refine(async (email) => {
-    try {
-      const methods = await fetchSignInMethodsForEmail(AUTH, email);
-      return methods.length === 0;
-    } catch (e) {
-      return true; // allow on error
-    }
-  }, { message: 'Email already exists!' }),
+  email: schemaUtils.email().refine(
+    async (email) => {
+      try {
+        const methods = await fetchSignInMethodsForEmail(AUTH, email);
+        return methods.length === 0;
+      } catch (e) {
+        return true; // allow on error
+      }
+    },
+    { message: 'Email already exists!' }
+  ),
   password: z
     .string()
     .min(1, { message: 'Password is required!' })

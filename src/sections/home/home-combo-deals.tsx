@@ -132,12 +132,23 @@ export function HomeComboDeals() {
                     {deal.description}
                   </Typography>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 2, borderTop: (theme) => `dashed 1px ${theme.palette.divider}` }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      pt: 2,
+                      borderTop: (theme) => `dashed 1px ${theme.palette.divider}`,
+                    }}
+                  >
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <Typography variant="h6" sx={{ color: 'primary.main' }}>
                         {fCurrency(deal.price)}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                      >
                         {fCurrency(deal.originalPrice)}
                       </Typography>
                     </Stack>

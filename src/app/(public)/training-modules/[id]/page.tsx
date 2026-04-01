@@ -3,14 +3,14 @@ import { TrainingModuleDetailsView } from 'src/sections/training-modules/view/tr
 // ----------------------------------------------------------------------
 
 export const metadata = {
-    title: 'Training Module Details | ComponentPulse',
+  title: 'Training Module Details | ComponentPulse',
 };
 
 type Props = {
-    params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export default async function TrainingModuleDetailsPage({ params }: Props) {
-    const { id } = await params;
-    return <TrainingModuleDetailsView id={id} />;
+  const { id } = await params;
+  return <TrainingModuleDetailsView id={id} />;
 }

@@ -23,7 +23,6 @@ import { Iconify } from 'src/components/iconify';
 
 import { useCheckoutContext } from 'src/sections/checkout/context';
 
-
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -52,7 +51,13 @@ export function ProductItem({ product }: Props) {
   const isSale = product.salePrice && product.salePrice < product.price;
 
   return (
-    <Link component={RouterLink} href={paths.product(product.slug || product.id)} color="inherit" underline="none" sx={{ display: 'block', height: 1 }}>
+    <Link
+      component={RouterLink}
+      href={paths.product(product.slug || product.id)}
+      color="inherit"
+      underline="none"
+      sx={{ display: 'block', height: 1 }}
+    >
       <Paper
         variant="outlined"
         sx={{
@@ -75,7 +80,11 @@ export function ProductItem({ product }: Props) {
       >
         {/* Labels */}
         {(isSale || product.stock === 0) && (
-          <Stack direction="row" spacing={1} sx={{ position: 'absolute', top: 16, right: 16, zIndex: 9 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ position: 'absolute', top: 16, right: 16, zIndex: 9 }}
+          >
             {product.stock === 0 && <Label color="error">OUT OF STOCK</Label>}
             {isSale && product.stock > 0 && <Label color="error">SALE</Label>}
           </Stack>
@@ -85,11 +94,22 @@ export function ProductItem({ product }: Props) {
           component="img"
           alt={product.name}
           src={product.images?.[0]?.url || '/assets/placeholder.svg'}
-          sx={{ mb: 2, borderRadius: 1.5, bgcolor: 'background.neutral', width: 1, aspectRatio: '1/1', objectFit: 'cover' }}
+          sx={{
+            mb: 2,
+            borderRadius: 1.5,
+            bgcolor: 'background.neutral',
+            width: 1,
+            aspectRatio: '1/1',
+            objectFit: 'cover',
+          }}
         />
 
         <Box gap={0.5} display="flex" flexDirection="column" sx={{ flexGrow: 1 }}>
-          <Typography variant="caption" noWrap sx={{ color: 'text.disabled', textTransform: 'uppercase' }}>
+          <Typography
+            variant="caption"
+            noWrap
+            sx={{ color: 'text.disabled', textTransform: 'uppercase' }}
+          >
             {product.categoryName || 'Category'}
           </Typography>
 
@@ -111,7 +131,10 @@ export function ProductItem({ product }: Props) {
           <Stack direction="row" spacing={1} sx={{ typography: 'subtitle2', mb: 2 }}>
             {isSale ? (
               <>
-                <Box component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
+                <Box
+                  component="span"
+                  sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                >
                   {fCurrency(product.price)}
                 </Box>
                 <Box component="span" sx={{ color: 'error.main' }}>
@@ -125,10 +148,7 @@ export function ProductItem({ product }: Props) {
 
           {/* Action Buttons */}
           <Stack direction="row" spacing={1.5} sx={{ mt: 'auto' }}>
-            <IconButton
-              onClick={handleAddToCart}
-              disabled={product.stock === 0}
-            >
+            <IconButton onClick={handleAddToCart} disabled={product.stock === 0}>
               <Iconify icon="solar:cart-plus-bold" />
             </IconButton>
 

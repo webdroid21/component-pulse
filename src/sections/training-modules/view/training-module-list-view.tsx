@@ -15,46 +15,46 @@ import { EmbeddedSystemsFeatures } from '../embedded-systems-features';
 // ----------------------------------------------------------------------
 
 export function TrainingModuleListView() {
-    // Only fetch active or coming_soon modules
-    const { modules, loading } = useTrainingModules(true);
+  // Only fetch active or coming_soon modules
+  const { modules, loading } = useTrainingModules(true);
 
-    return (
-        <>
-            <EmbeddedSystemsHero />
+  return (
+    <>
+      <EmbeddedSystemsHero />
 
-            <EmbeddedSystemsFeatures />
+      <EmbeddedSystemsFeatures />
 
-            <Container sx={{ mb: 10 }}>
-                {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
-                        <CircularProgress />
-                    </Box>
-                ) : modules.length === 0 ? (
-                    <EmptyContent
-                        filled
-                        title="No training modules available right now"
-                        description="Check back later for new content."
-                        sx={{ py: 10 }}
-                    />
-                ) : (
-                    <Box
-                        sx={{
-                            display: 'grid',
-                            gap: 3,
-                            gridTemplateColumns: {
-                                xs: 'repeat(1, 1fr)',
-                                sm: 'repeat(2, 1fr)',
-                                md: 'repeat(3, 1fr)',
-                                lg: 'repeat(4, 1fr)',
-                            },
-                        }}
-                    >
-                        {modules.map((module) => (
-                            <TrainingModuleCard key={module.id} module={module} />
-                        ))}
-                    </Box>
-                )}
-            </Container>
-        </>
-    );
+      <Container sx={{ mb: 10 }}>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
+            <CircularProgress />
+          </Box>
+        ) : modules.length === 0 ? (
+          <EmptyContent
+            filled
+            title="No training modules available right now"
+            description="Check back later for new content."
+            sx={{ py: 10 }}
+          />
+        ) : (
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 3,
+              gridTemplateColumns: {
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              },
+            }}
+          >
+            {modules.map((module) => (
+              <TrainingModuleCard key={module.id} module={module} />
+            ))}
+          </Box>
+        )}
+      </Container>
+    </>
+  );
 }

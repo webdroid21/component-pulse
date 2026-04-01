@@ -37,25 +37,62 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 type TimelineDotColor = 'grey' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 
-const STATUS_CONFIG: Record<OrderStatus, {
-  label: string;
-  chipColor: ChipColor;
-  dotColor: TimelineDotColor;
-  icon: string;
-}> = {
-  pending: { label: 'Pending', chipColor: 'warning', dotColor: 'warning', icon: 'solar:clock-circle-bold' },
-  confirmed: { label: 'Confirmed', chipColor: 'info', dotColor: 'info', icon: 'solar:check-circle-bold' },
+const STATUS_CONFIG: Record<
+  OrderStatus,
+  {
+    label: string;
+    chipColor: ChipColor;
+    dotColor: TimelineDotColor;
+    icon: string;
+  }
+> = {
+  pending: {
+    label: 'Pending',
+    chipColor: 'warning',
+    dotColor: 'warning',
+    icon: 'solar:clock-circle-bold',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    chipColor: 'info',
+    dotColor: 'info',
+    icon: 'solar:check-circle-bold',
+  },
   processing: { label: 'Processing', chipColor: 'info', dotColor: 'info', icon: 'solar:box-bold' },
-  ready_for_pickup: { label: 'Ready for Pickup', chipColor: 'secondary', dotColor: 'secondary', icon: 'solar:bag-check-bold' },
-  out_for_delivery: { label: 'Out for Delivery', chipColor: 'primary', dotColor: 'primary', icon: 'solar:delivery-bold' },
-  delivered: { label: 'Delivered', chipColor: 'success', dotColor: 'success', icon: 'solar:verified-check-bold' },
-  cancelled: { label: 'Cancelled', chipColor: 'error', dotColor: 'error', icon: 'solar:close-circle-bold' },
-  refunded: { label: 'Refunded', chipColor: 'default', dotColor: 'grey', icon: 'solar:undo-left-bold' },
+  ready_for_pickup: {
+    label: 'Ready for Pickup',
+    chipColor: 'secondary',
+    dotColor: 'secondary',
+    icon: 'solar:bag-check-bold',
+  },
+  out_for_delivery: {
+    label: 'Out for Delivery',
+    chipColor: 'primary',
+    dotColor: 'primary',
+    icon: 'solar:delivery-bold',
+  },
+  delivered: {
+    label: 'Delivered',
+    chipColor: 'success',
+    dotColor: 'success',
+    icon: 'solar:verified-check-bold',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    chipColor: 'error',
+    dotColor: 'error',
+    icon: 'solar:close-circle-bold',
+  },
+  refunded: {
+    label: 'Refunded',
+    chipColor: 'default',
+    dotColor: 'grey',
+    icon: 'solar:undo-left-bold',
+  },
 };
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  flutterwave: 'Card (Flutterwave)',
-  mobile_money: 'Mobile Money',
+  pesapal: 'Online Payment (Pesapal)',
   cash_on_delivery: 'Cash on Delivery',
 };
 
@@ -92,7 +129,11 @@ export function AccountOrderDetailView({ orderId }: Props) {
   if (error || !order) {
     return (
       <Card sx={{ p: 3, textAlign: 'center' }}>
-        <Iconify icon="solar:file-corrupted-bold" width={64} sx={{ color: 'text.disabled', mb: 2 }} />
+        <Iconify
+          icon="solar:file-corrupted-bold"
+          width={64}
+          sx={{ color: 'text.disabled', mb: 2 }}
+        />
         <Typography variant="h6" sx={{ mb: 1 }}>
           Order not found
         </Typography>
@@ -113,7 +154,13 @@ export function AccountOrderDetailView({ orderId }: Props) {
     <Stack spacing={3}>
       {/* Header */}
       <Card sx={{ p: 3 }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          flexWrap="wrap"
+          gap={2}
+        >
           <Box>
             <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
               <Typography variant="h5">Order #{order.orderNumber}</Typography>
@@ -202,9 +249,7 @@ export function AccountOrderDetailView({ orderId }: Props) {
                       {fCurrency(item.unitPrice)} × {item.quantity}
                     </Typography>
                   </Box>
-                  <Typography variant="subtitle2">
-                    {fCurrency(item.totalPrice)}
-                  </Typography>
+                  <Typography variant="subtitle2">{fCurrency(item.totalPrice)}</Typography>
                 </Stack>
               ))}
             </Stack>
@@ -256,9 +301,7 @@ export function AccountOrderDetailView({ orderId }: Props) {
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Shipping Address
               </Typography>
-              <Typography variant="body2">
-                {order.shippingAddress.fullName}
-              </Typography>
+              <Typography variant="body2">{order.shippingAddress.fullName}</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {order.shippingAddress.addressLine1}
                 {order.shippingAddress.addressLine2 && <>, {order.shippingAddress.addressLine2}</>}
@@ -292,8 +335,16 @@ export function AccountOrderDetailView({ orderId }: Props) {
                   </Typography>
                   <Chip
                     size="small"
-                    label={order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                    color={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'failed' ? 'error' : 'warning'}
+                    label={
+                      order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)
+                    }
+                    color={
+                      order.paymentStatus === 'paid'
+                        ? 'success'
+                        : order.paymentStatus === 'failed'
+                          ? 'error'
+                          : 'warning'
+                    }
                   />
                 </Stack>
                 {order.paymentReference && (
@@ -416,7 +467,14 @@ function StatusStepper({ currentStatus }: { currentStatus: OrderStatus }) {
         const isActive = index === currentIndex;
 
         return (
-          <Box key={step} sx={{ display: 'flex', alignItems: 'center', flex: index < STATUS_STEPS.length - 1 ? 1 : 0 }}>
+          <Box
+            key={step}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flex: index < STATUS_STEPS.length - 1 ? 1 : 0,
+            }}
+          >
             <Stack alignItems="center" spacing={0.5}>
               <Box
                 sx={{
@@ -434,7 +492,9 @@ function StatusStepper({ currentStatus }: { currentStatus: OrderStatus }) {
                 {isCompleted ? (
                   <Iconify icon="solar:check-bold" width={16} />
                 ) : (
-                  <Typography variant="caption" fontWeight={700}>{index + 1}</Typography>
+                  <Typography variant="caption" fontWeight={700}>
+                    {index + 1}
+                  </Typography>
                 )}
               </Box>
               <Typography

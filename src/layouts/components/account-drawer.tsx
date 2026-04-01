@@ -175,8 +175,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
               }}
             >
               <Typography variant="caption" sx={{ color: 'primary.dark' }}>
-                {user?.role === 'super_admin' ? 'Super Administrator' :
-                 user?.role === 'admin' ? 'Administrator' : 'Staff Member'}
+                {user?.role === 'super_admin'
+                  ? 'Super Administrator'
+                  : user?.role === 'admin'
+                    ? 'Administrator'
+                    : 'Staff Member'}
               </Typography>
             </Box>
           )}

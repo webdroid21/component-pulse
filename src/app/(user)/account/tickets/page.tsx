@@ -3,9 +3,9 @@ import { AccountTicketsView } from 'src/sections/account/tickets/account-tickets
 // ----------------------------------------------------------------------
 
 export const metadata = {
-    title: 'Account: Contact Support',
+  title: 'Account: Contact Support',
 };
 
 export default function AccountTicketsPage() {
-    return <AccountTicketsView />;
+  return <AccountTicketsView />;
 }

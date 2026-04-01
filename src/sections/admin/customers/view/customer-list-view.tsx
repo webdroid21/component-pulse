@@ -45,7 +45,12 @@ const ROLE_OPTIONS: { value: AdminRole; label: string; description: string }[] =
 
 export function CustomerListView() {
   const { customers, loading, refetch } = useCustomers();
-  const { toggleCustomerStatus, deleteCustomer, promoteToAdmin, loading: mutating } = useCustomerMutations();
+  const {
+    toggleCustomerStatus,
+    deleteCustomer,
+    promoteToAdmin,
+    loading: mutating,
+  } = useCustomerMutations();
 
   const [search, setSearch] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -156,7 +161,10 @@ export function CustomerListView() {
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         {customer.email}
                         {customer.isEmailVerified && (
-                          <Iconify icon="eva:checkmark-fill" sx={{ color: 'success.main', width: 16 }} />
+                          <Iconify
+                            icon="eva:checkmark-fill"
+                            sx={{ color: 'success.main', width: 16 }}
+                          />
                         )}
                       </Box>
                     </TableCell>
@@ -185,7 +193,11 @@ export function CustomerListView() {
                         onClick={() => handleToggleStatus(customer.id, customer.isActive)}
                         title={customer.isActive ? 'Deactivate' : 'Activate'}
                       >
-                        <Iconify icon={customer.isActive ? 'solar:user-block-bold' : 'solar:user-check-bold'} />
+                        <Iconify
+                          icon={
+                            customer.isActive ? 'solar:user-block-bold' : 'solar:user-check-bold'
+                          }
+                        />
                       </IconButton>
                       <IconButton
                         size="small"
@@ -244,7 +256,8 @@ export function CustomerListView() {
         <DialogTitle>Delete Customer</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this customer? This will also delete their orders and data.
+            Are you sure you want to delete this customer? This will also delete their orders and
+            data.
           </Typography>
         </DialogContent>
         <DialogActions>

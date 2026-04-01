@@ -60,7 +60,13 @@ export function AccountProfileView() {
     defaultValues,
   });
 
-  const { reset, watch, setValue, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   const newsletter = watch('newsletter');
   const emailNotifications = watch('emailNotifications');

@@ -117,7 +117,7 @@ export const navData: NavSectionProps['data'] = [
         children: [
           { title: 'List', path: paths.admin.trainingModules.root },
           { title: 'Create', path: paths.admin.trainingModules.new },
-        ]
+        ],
       },
       {
         title: 'Customers',

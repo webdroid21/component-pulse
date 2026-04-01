@@ -19,100 +19,100 @@ import { Form, Field } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 type Props = {
-    open: boolean;
-    onClose: VoidFunction;
-    productId: string;
+  open: boolean;
+  onClose: VoidFunction;
+  productId: string;
 };
 
 export const ReviewSchema = zod.object({
-    rating: zod.number().min(1, 'Rating is required'),
-    name: zod.string().min(1, 'Name is required'),
-    email: zod.string().email('Must be a valid email address'),
-    message: zod.string().min(1, 'Review message is required'),
+  rating: zod.number().min(1, 'Rating is required'),
+  name: zod.string().min(1, 'Name is required'),
+  email: zod.string().email('Must be a valid email address'),
+  message: zod.string().min(1, 'Review message is required'),
 });
 
 export type ReviewSchemaType = zod.infer<typeof ReviewSchema>;
 
 export function ProductReviewForm({ open, onClose, productId }: Props) {
-    const { user } = useAuthContext();
-    const { addReview } = useReviewMutations();
+  const { user } = useAuthContext();
+  const { addReview } = useReviewMutations();
 
-    const methods = useForm<ReviewSchemaType>({
-        resolver: zodResolver(ReviewSchema),
-        defaultValues: {
-            rating: 0,
-            name: user?.displayName || '',
-            email: user?.email || '',
-            message: '',
-        },
-    });
+  const methods = useForm<ReviewSchemaType>({
+    resolver: zodResolver(ReviewSchema),
+    defaultValues: {
+      rating: 0,
+      name: user?.displayName || '',
+      email: user?.email || '',
+      message: '',
+    },
+  });
 
-    const {
-        reset,
-        handleSubmit,
-        formState: { isSubmitting },
-    } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
-    // Auto-populate when the dialog opens or user state resolves
-    React.useEffect(() => {
-        if (open) {
-            reset({
-                rating: 0,
-                name: user?.displayName || '',
-                email: user?.email || '',
-                message: '',
-            });
-        }
-    }, [open, user, reset]);
+  // Auto-populate when the dialog opens or user state resolves
+  React.useEffect(() => {
+    if (open) {
+      reset({
+        rating: 0,
+        name: user?.displayName || '',
+        email: user?.email || '',
+        message: '',
+      });
+    }
+  }, [open, user, reset]);
 
-    const onSubmit = handleSubmit(async (data) => {
-        try {
-            await addReview({
-                productId,
-                ...data,
-            });
-            reset();
-            onClose();
-        } catch (error) {
-            console.error(error);
-        }
-    });
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await addReview({
+        productId,
+        ...data,
+      });
+      reset();
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
-    const onCancel = () => {
-        onClose();
-        reset();
-    };
+  const onCancel = () => {
+    onClose();
+    reset();
+  };
 
-    return (
-        <Dialog open={open} onClose={onCancel} maxWidth="sm" fullWidth>
-            <Form methods={methods} onSubmit={onSubmit}>
-                <DialogTitle>Write a Review</DialogTitle>
+  return (
+    <Dialog open={open} onClose={onCancel} maxWidth="sm" fullWidth>
+      <Form methods={methods} onSubmit={onSubmit}>
+        <DialogTitle>Write a Review</DialogTitle>
 
-                <DialogContent dividers sx={{ pt: 1, pb: 0 }}>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
-                        Your review will be checked by moderation before it appears publicly.
-                    </Typography>
+        <DialogContent dividers sx={{ pt: 1, pb: 0 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+            Your review will be checked by moderation before it appears publicly.
+          </Typography>
 
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                        Your Rating
-                    </Typography>
-                    <Field.Rating name="rating" sx={{ mb: 3 }} />
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Your Rating
+          </Typography>
+          <Field.Rating name="rating" sx={{ mb: 3 }} />
 
-                    <Field.Text name="name" label="Name" sx={{ mb: 3 }} />
-                    <Field.Text name="email" label="Email" sx={{ mb: 3 }} />
-                    <Field.Text name="message" label="Review message" multiline rows={4} />
-                </DialogContent>
+          <Field.Text name="name" label="Name" sx={{ mb: 3 }} />
+          <Field.Text name="email" label="Email" sx={{ mb: 3 }} />
+          <Field.Text name="message" label="Review message" multiline rows={4} />
+        </DialogContent>
 
-                <DialogActions>
-                    <Button color="inherit" variant="outlined" onClick={onCancel}>
-                        Cancel
-                    </Button>
+        <DialogActions>
+          <Button color="inherit" variant="outlined" onClick={onCancel}>
+            Cancel
+          </Button>
 
-                    <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                        Post Review
-                    </LoadingButton>
-                </DialogActions>
-            </Form>
-        </Dialog>
-    );
+          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+            Post Review
+          </LoadingButton>
+        </DialogActions>
+      </Form>
+    </Dialog>
+  );
 }

@@ -48,7 +48,13 @@ type AddressFormValues = z.infer<typeof AddressSchema>;
 
 export function AccountAddressesView() {
   const { profile, loading, refetch } = useUserProfile();
-  const { addAddress, updateAddress, deleteAddress, setDefaultAddress, loading: mutating } = useUserProfileMutations();
+  const {
+    addAddress,
+    updateAddress,
+    deleteAddress,
+    setDefaultAddress,
+    loading: mutating,
+  } = useUserProfileMutations();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editAddress, setEditAddress] = useState<UserAddress | null>(null);
@@ -75,7 +81,11 @@ export function AccountAddressesView() {
     defaultValues,
   });
 
-  const { reset, handleSubmit, formState: { isSubmitting } } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
 
   const handleOpenCreate = () => {
     reset(defaultValues);
@@ -131,12 +141,15 @@ export function AccountAddressesView() {
     }
   }, [deleteTarget, deleteAddress, refetch]);
 
-  const handleSetDefault = useCallback(async (addressId: string) => {
-    const success = await setDefaultAddress(addressId);
-    if (success) {
-      refetch();
-    }
-  }, [setDefaultAddress, refetch]);
+  const handleSetDefault = useCallback(
+    async (addressId: string) => {
+      const success = await setDefaultAddress(addressId);
+      if (success) {
+        refetch();
+      }
+    },
+    [setDefaultAddress, refetch]
+  );
 
   if (loading) {
     return (
@@ -206,11 +219,7 @@ export function AccountAddressesView() {
                     <IconButton size="small" onClick={() => handleOpenEdit(address)}>
                       <Iconify icon="solar:pen-bold" />
                     </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => setDeleteTarget(address)}
-                    >
+                    <IconButton size="small" color="error" onClick={() => setDeleteTarget(address)}>
                       <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
                   </Box>

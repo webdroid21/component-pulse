@@ -3,7 +3,14 @@
 import type { UserProfile, UserAddress, UserProfileFormData } from 'src/types/user';
 
 import { useState, useEffect, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, serverTimestamp } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 import { FIRESTORE } from 'src/lib/firebase';
 

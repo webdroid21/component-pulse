@@ -13,14 +13,39 @@ import { Carousel, useCarousel } from 'src/components/carousel';
 // ----------------------------------------------------------------------
 
 const BRANDS = [
-  { name: 'Arduino', image: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Arduino_Logo.svg' },
-  { name: 'Raspberry Pi', image: 'https://upload.wikimedia.org/wikipedia/en/c/cb/Raspberry_Pi_Logo.svg' },
-  { name: 'Espressif', image: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Espressif_Systems_logo.svg' },
-  { name: 'Adafruit', image: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Adafruit_logo.svg' },
-  { name: 'SparkFun', image: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/SparkFun_Electronics_logo.svg' },
-  { name: 'Seeed Studio', image: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Seeed_Studio_Logo.svg' },
-  { name: 'Victron Energy', image: 'https://www.victronenergy.com/upload/logos/victron-energy-logo-2023.png' },
-  { name: 'Growatt', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Growatt_Logo.svg/1024px-Growatt_Logo.svg.png' },
+  {
+    name: 'Arduino',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Arduino_Logo.svg',
+  },
+  {
+    name: 'Raspberry Pi',
+    image: 'https://upload.wikimedia.org/wikipedia/en/c/cb/Raspberry_Pi_Logo.svg',
+  },
+  {
+    name: 'Espressif',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Espressif_Systems_logo.svg',
+  },
+  {
+    name: 'Adafruit',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Adafruit_logo.svg',
+  },
+  {
+    name: 'SparkFun',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/SparkFun_Electronics_logo.svg',
+  },
+  {
+    name: 'Seeed Studio',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Seeed_Studio_Logo.svg',
+  },
+  {
+    name: 'Victron Energy',
+    image: 'https://www.victronenergy.com/upload/logos/victron-energy-logo-2023.png',
+  },
+  {
+    name: 'Growatt',
+    image:
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Growatt_Logo.svg/1024px-Growatt_Logo.svg.png',
+  },
 ];
 
 // ----------------------------------------------------------------------
@@ -50,7 +75,8 @@ export function HomeTrustedBrands() {
               Trusted Brands
             </Typography>
             <Typography variant="body1" sx={{ color: 'text.secondary', maxWidth: 600, mx: 'auto' }}>
-              We partner with industry-leading manufacturers to bring you reliable components and equipment.
+              We partner with industry-leading manufacturers to bring you reliable components and
+              equipment.
             </Typography>
           </Box>
         </m.div>

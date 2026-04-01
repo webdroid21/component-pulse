@@ -44,7 +44,11 @@ export function PostDetailsHomeView({ id }: Props) {
   if (!post) {
     return (
       <Container maxWidth="lg" sx={{ py: 10, textAlign: 'center' }}>
-        <Iconify icon="solar:document-text-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+        <Iconify
+          icon="solar:document-text-bold-duotone"
+          width={80}
+          sx={{ color: 'text.disabled', mb: 2 }}
+        />
         <Typography variant="h5" sx={{ mb: 1 }}>
           Post not found
         </Typography>
@@ -84,7 +88,9 @@ export function PostDetailsHomeView({ id }: Props) {
 
       <Container maxWidth={false}>
         <Stack sx={{ maxWidth: 720, mx: 'auto' }}>
-          <Typography variant="subtitle1" sx={{ mb: 5 }}>{post.description}</Typography>
+          <Typography variant="subtitle1" sx={{ mb: 5 }}>
+            {post.description}
+          </Typography>
 
           <Markdown children={post.content} />
 
@@ -106,13 +112,14 @@ export function PostDetailsHomeView({ id }: Props) {
           </Stack>
 
           {post.enableComments && (
-             <Box sx={{ mt: 5 }}>
-                 <Typography variant="h4" sx={{ mb: 5 }}>Comments & Reviews</Typography>
-                 {/* Reusing ProductReviews component as it stores and handles generic productId (or postId) reviews */}
-                 <ProductReviews productId={post.id} />
-             </Box>
+            <Box sx={{ mt: 5 }}>
+              <Typography variant="h4" sx={{ mb: 5 }}>
+                Comments & Reviews
+              </Typography>
+              {/* Reusing ProductReviews component as it stores and handles generic productId (or postId) reviews */}
+              <ProductReviews productId={post.id} />
+            </Box>
           )}
-
         </Stack>
       </Container>
 
@@ -123,19 +130,22 @@ export function PostDetailsHomeView({ id }: Props) {
           </Typography>
 
           <Grid container spacing={3}>
-            {latestPosts.filter(p => p.id !== post.id).slice(0, 4).map((latestPost) => (
-              <Grid
-                key={latestPost.id}
-                size={{
-                  xs: 12,
-                  sm: 6,
-                  md: 4,
-                  lg: 3,
-                }}
-              >
-                <PostItem post={latestPost} detailsHref={paths.blog.details(latestPost.id)} />
-              </Grid>
-            ))}
+            {latestPosts
+              .filter((p) => p.id !== post.id)
+              .slice(0, 4)
+              .map((latestPost) => (
+                <Grid
+                  key={latestPost.id}
+                  size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 4,
+                    lg: 3,
+                  }}
+                >
+                  <PostItem post={latestPost} detailsHref={paths.blog.details(latestPost.id)} />
+                </Grid>
+              ))}
           </Grid>
         </Container>
       )}

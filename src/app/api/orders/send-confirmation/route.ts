@@ -1,4 +1,4 @@
-import type { NextRequest} from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
 
@@ -11,10 +11,7 @@ export async function POST(request: NextRequest) {
     const data: OrderEmailData = await request.json();
 
     if (!data.customerEmail || !data.orderNumber) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const success = await sendOrderConfirmationEmail(data);
@@ -23,15 +20,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'sent' });
     }
 
-    return NextResponse.json(
-      { error: 'Failed to send email' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
   } catch (error) {
     console.error('Send confirmation email error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

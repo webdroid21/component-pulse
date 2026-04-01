@@ -1,6 +1,14 @@
 'use client';
 
-import type { Order, OrderItem, OrderStatus, OrderFilters, OrderAddress, PaymentMethod, PaymentStatus } from 'src/types/order';
+import type {
+  Order,
+  OrderItem,
+  OrderStatus,
+  OrderFilters,
+  OrderAddress,
+  PaymentMethod,
+  PaymentStatus,
+} from 'src/types/order';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -87,11 +95,17 @@ export function useOrders(filters?: OrderFilters) {
     );
 
     return () => unsubscribe();
-
-  }, [filters?.status, filters?.paymentStatus, filters?.customerId, filters?.search, filters?.dateFrom, filters?.dateTo]);
+  }, [
+    filters?.status,
+    filters?.paymentStatus,
+    filters?.customerId,
+    filters?.search,
+    filters?.dateFrom,
+    filters?.dateTo,
+  ]);
 
   // refetch is a no-op with real-time listeners but kept for API compatibility
-  const refetch = useCallback(() => { }, []);
+  const refetch = useCallback(() => {}, []);
 
   return { orders, loading, error, refetch };
 }
@@ -133,7 +147,7 @@ export function useOrder(orderId: string | null) {
   }, [orderId]);
 
   // refetch kept for API compatibility — no-op with real-time listener
-  const refetch = useCallback(() => { }, []);
+  const refetch = useCallback(() => {}, []);
 
   return { order, loading, error, refetch };
 }
@@ -270,7 +284,9 @@ export function useCreateOrder() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const createOrder = async (data: CreateOrderData): Promise<{ orderId: string; orderNumber: string } | null> => {
+  const createOrder = async (
+    data: CreateOrderData
+  ): Promise<{ orderId: string; orderNumber: string } | null> => {
     try {
       setLoading(true);
       setError(null);
@@ -293,7 +309,9 @@ export function useCreateOrder() {
           const currentStock = productData.stock ?? 0;
 
           if (currentStock < item.quantity) {
-            throw new Error(`Out of stock! "${item.productName}" only has ${currentStock} item(s) available.`);
+            throw new Error(
+              `Out of stock! "${item.productName}" only has ${currentStock} item(s) available.`
+            );
           }
         }
 

@@ -40,12 +40,18 @@ const ROLE_OPTIONS: { value: AdminRole; label: string; color: 'error' | 'warning
 
 export function AdminUsersListView() {
   const { admins, loading, refetch } = useAdmins();
-  const { updateAdminRole, toggleAdminStatus, deleteAdmin, demoteToCustomer, loading: mutating } = useAdminMutations();
+  const {
+    updateAdminRole,
+    toggleAdminStatus,
+    deleteAdmin,
+    demoteToCustomer,
+    loading: mutating,
+  } = useAdminMutations();
 
   const [editingAdmin, setEditingAdmin] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<AdminRole>('admin');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [demoteTarget, setDemoteTarget] = useState<typeof admins[0] | null>(null);
+  const [demoteTarget, setDemoteTarget] = useState<(typeof admins)[0] | null>(null);
 
   const handleRoleChange = async () => {
     if (editingAdmin) {
@@ -84,13 +90,7 @@ export function AdminUsersListView() {
 
   const getRoleChip = (role: AdminRole) => {
     const option = ROLE_OPTIONS.find((r) => r.value === role);
-    return (
-      <Chip
-        label={option?.label || role}
-        color={option?.color || 'default'}
-        size="small"
-      />
-    );
+    return <Chip label={option?.label || role} color={option?.color || 'default'} size="small" />;
   };
 
   return (
@@ -157,7 +157,9 @@ export function AdminUsersListView() {
                         onClick={() => handleToggleStatus(admin.id, admin.isActive)}
                         title={admin.isActive ? 'Deactivate' : 'Activate'}
                       >
-                        <Iconify icon={admin.isActive ? 'solar:user-block-bold' : 'solar:user-check-bold'} />
+                        <Iconify
+                          icon={admin.isActive ? 'solar:user-block-bold' : 'solar:user-check-bold'}
+                        />
                       </IconButton>
                       <IconButton
                         size="small"
@@ -206,10 +208,13 @@ export function AdminUsersListView() {
         <DialogTitle>Demote to Customer</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to demote <strong>{demoteTarget?.displayName || demoteTarget?.email}</strong> to a regular customer?
+            Are you sure you want to demote{' '}
+            <strong>{demoteTarget?.displayName || demoteTarget?.email}</strong> to a regular
+            customer?
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2 }}>
-            This will remove their admin privileges. They will still be able to access the site as a customer.
+            This will remove their admin privileges. They will still be able to access the site as a
+            customer.
           </Typography>
         </DialogContent>
         <DialogActions>

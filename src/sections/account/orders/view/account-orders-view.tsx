@@ -26,20 +26,63 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-const STATUS_CONFIG: Record<OrderStatus, { 
-  label: string; 
-  color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
-  icon: string;
-  bgColor: string;
-}> = {
-  pending: { label: 'Pending', color: 'warning', icon: 'solar:clock-circle-bold', bgColor: 'warning.lighter' },
-  confirmed: { label: 'Confirmed', color: 'info', icon: 'solar:check-circle-bold', bgColor: 'info.lighter' },
-  processing: { label: 'Processing', color: 'info', icon: 'solar:box-bold', bgColor: 'info.lighter' },
-  ready_for_pickup: { label: 'Ready for Pickup', color: 'secondary', icon: 'solar:bag-check-bold', bgColor: 'secondary.lighter' },
-  out_for_delivery: { label: 'Out for Delivery', color: 'primary', icon: 'solar:delivery-bold', bgColor: 'primary.lighter' },
-  delivered: { label: 'Delivered', color: 'success', icon: 'solar:verified-check-bold', bgColor: 'success.lighter' },
-  cancelled: { label: 'Cancelled', color: 'error', icon: 'solar:close-circle-bold', bgColor: 'error.lighter' },
-  refunded: { label: 'Refunded', color: 'default', icon: 'solar:undo-left-bold', bgColor: 'grey.200' },
+const STATUS_CONFIG: Record<
+  OrderStatus,
+  {
+    label: string;
+    color: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
+    icon: string;
+    bgColor: string;
+  }
+> = {
+  pending: {
+    label: 'Pending',
+    color: 'warning',
+    icon: 'solar:clock-circle-bold',
+    bgColor: 'warning.lighter',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    color: 'info',
+    icon: 'solar:check-circle-bold',
+    bgColor: 'info.lighter',
+  },
+  processing: {
+    label: 'Processing',
+    color: 'info',
+    icon: 'solar:box-bold',
+    bgColor: 'info.lighter',
+  },
+  ready_for_pickup: {
+    label: 'Ready for Pickup',
+    color: 'secondary',
+    icon: 'solar:bag-check-bold',
+    bgColor: 'secondary.lighter',
+  },
+  out_for_delivery: {
+    label: 'Out for Delivery',
+    color: 'primary',
+    icon: 'solar:delivery-bold',
+    bgColor: 'primary.lighter',
+  },
+  delivered: {
+    label: 'Delivered',
+    color: 'success',
+    icon: 'solar:verified-check-bold',
+    bgColor: 'success.lighter',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    color: 'error',
+    icon: 'solar:close-circle-bold',
+    bgColor: 'error.lighter',
+  },
+  refunded: {
+    label: 'Refunded',
+    color: 'default',
+    icon: 'solar:undo-left-bold',
+    bgColor: 'grey.200',
+  },
 };
 
 // ----------------------------------------------------------------------
@@ -114,15 +157,13 @@ export function AccountOrdersView() {
   return (
     <Stack spacing={3}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6">
-          Order History ({orders.length})
-        </Typography>
+        <Typography variant="h6">Order History ({orders.length})</Typography>
       </Box>
 
       <Stack spacing={2}>
         {orders.map((order) => {
           const statusConfig = STATUS_CONFIG[order.status];
-          
+
           return (
             <Card
               key={order.id}
@@ -150,7 +191,11 @@ export function AccountOrdersView() {
                 }}
               >
                 <Stack direction="row" alignItems="center" spacing={1}>
-                  <Iconify icon={statusConfig.icon} width={18} sx={{ color: `${statusConfig.color}.main` }} />
+                  <Iconify
+                    icon={statusConfig.icon}
+                    width={18}
+                    sx={{ color: `${statusConfig.color}.main` }}
+                  />
                   <Typography variant="subtitle2" sx={{ color: `${statusConfig.color}.dark` }}>
                     {statusConfig.label}
                   </Typography>
@@ -162,7 +207,12 @@ export function AccountOrdersView() {
 
               {/* Order Content */}
               <Box sx={{ p: 2 }}>
-                <Stack direction="row" alignItems="flex-start" justifyContent="space-between" sx={{ mb: 2 }}>
+                <Stack
+                  direction="row"
+                  alignItems="flex-start"
+                  justifyContent="space-between"
+                  sx={{ mb: 2 }}
+                >
                   <Box>
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       Order #{order.orderNumber}

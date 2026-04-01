@@ -14,7 +14,7 @@ export type OrderStatus =
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
-export type PaymentMethod = 'flutterwave' | 'mobile_money' | 'cash_on_delivery';
+export type PaymentMethod = 'pesapal' | 'cash_on_delivery';
 
 export type OrderItem = {
   productId: string;

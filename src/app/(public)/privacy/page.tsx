@@ -43,7 +43,9 @@ If you have any questions about this Privacy Policy, please contact our support 
 export default function Page() {
   return (
     <Container sx={{ pt: 5, pb: 10 }}>
-      <Typography variant="h3" sx={{ mb: 5 }}>Privacy Policy</Typography>
+      <Typography variant="h3" sx={{ mb: 5 }}>
+        Privacy Policy
+      </Typography>
       <Markdown children={content} />
     </Container>
   );

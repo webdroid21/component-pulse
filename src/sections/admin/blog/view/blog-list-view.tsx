@@ -112,14 +112,27 @@ export function BlogListView() {
                               justifyContent: 'center',
                             }}
                           >
-                            <Iconify icon="solar:document-text-bold" sx={{ color: 'text.secondary' }} />
+                            <Iconify
+                              icon="solar:document-text-bold"
+                              sx={{ color: 'text.secondary' }}
+                            />
                           </Box>
                         )}
                         <Box>
                           <Typography variant="subtitle2" noWrap sx={{ maxWidth: 300 }}>
                             {post.title}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: 'text.secondary', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden', maxWidth: 300 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: 'text.secondary',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 1,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              maxWidth: 300,
+                            }}
+                          >
                             {post.description}
                           </Typography>
                         </Box>

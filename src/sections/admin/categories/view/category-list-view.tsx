@@ -57,7 +57,12 @@ export function CategoryListView() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { categories, loading, refetch } = useCategories();
-  const { createCategory, updateCategory, deleteCategory, loading: mutating } = useCategoryMutations();
+  const {
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    loading: mutating,
+  } = useCategoryMutations();
   const { uploadFile } = useCategoryImageUpload();
 
   const defaultValues: CategoryFormValues = {
@@ -74,7 +79,14 @@ export function CategoryListView() {
     defaultValues,
   });
 
-  const { register, reset, watch, setValue, handleSubmit, formState: { isSubmitting, errors } } = methods;
+  const {
+    register,
+    reset,
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = methods;
 
   const isActive = watch('isActive');
   const watchedIcon = watch('icon');
@@ -166,12 +178,15 @@ export function CategoryListView() {
     }
   }, [deleteId, deleteCategory, refetch]);
 
-  const handleToggleStatus = useCallback(async (category: Category) => {
-    const success = await updateCategory(category.id, { isActive: !category.isActive });
-    if (success) {
-      refetch();
-    }
-  }, [updateCategory, refetch]);
+  const handleToggleStatus = useCallback(
+    async (category: Category) => {
+      const success = await updateCategory(category.id, { isActive: !category.isActive });
+      if (success) {
+        refetch();
+      }
+    },
+    [updateCategory, refetch]
+  );
 
   return (
     <DashboardContent>
@@ -224,7 +239,13 @@ export function CategoryListView() {
                             component="img"
                             src={category.image}
                             alt={category.name}
-                            sx={{ width: 44, height: 44, borderRadius: 1.5, objectFit: 'cover', flexShrink: 0 }}
+                            sx={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: 1.5,
+                              objectFit: 'cover',
+                              flexShrink: 0,
+                            }}
                           />
                         ) : (
                           <Box
@@ -345,7 +366,7 @@ export function CategoryListView() {
                         </Tooltip>
                       </InputAdornment>
                     ),
-                  }
+                  },
                 }}
               />
 
@@ -371,18 +392,10 @@ export function CategoryListView() {
                     }}
                   />
                 </Tooltip>
-                <Field.Text
-                  name="color"
-                  label="Color (hex)"
-                  placeholder="#2196F3"
-                />
+                <Field.Text name="color" label="Color (hex)" placeholder="#2196F3" />
               </Box>
 
-              <Field.Text
-                name="order"
-                label="Display Order"
-                type="number"
-              />
+              <Field.Text name="order" label="Display Order" type="number" />
 
               <FormControlLabel
                 control={

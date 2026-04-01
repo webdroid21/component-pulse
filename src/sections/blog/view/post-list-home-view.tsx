@@ -62,13 +62,13 @@ export function PostListHomeView() {
       </Box>
 
       {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-            <CircularProgress />
-          </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+          <CircularProgress />
+        </Box>
       ) : isEmpty ? (
-          renderNoData()
+        renderNoData()
       ) : (
-          <PostList posts={dataFiltered} />
+        <PostList posts={dataFiltered} />
       )}
     </Container>
   );

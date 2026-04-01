@@ -202,12 +202,9 @@ export function ProductCreateEditForm({ currentProduct }: Props) {
     }
   });
 
-  const handleDropImages = useCallback(
-    (acceptedFiles: File[]) => {
-      setImages((prev) => [...prev, ...acceptedFiles]);
-    },
-    []
-  );
+  const handleDropImages = useCallback((acceptedFiles: File[]) => {
+    setImages((prev) => [...prev, ...acceptedFiles]);
+  }, []);
 
   const handleRemoveImage = useCallback(
     async (index: number) => {
@@ -386,11 +383,7 @@ export function ProductCreateEditForm({ currentProduct }: Props) {
               slotProps={{ inputLabel: { shrink: true } }}
             />
 
-            <Field.Select
-              name="categoryId"
-              label="Category"
-              disabled={categoriesLoading}
-            >
+            <Field.Select name="categoryId" label="Category" disabled={categoriesLoading}>
               {categories.map((category) => (
                 <MenuItem key={category.id} value={category.id}>
                   {category.name}
@@ -423,12 +416,7 @@ export function ProductCreateEditForm({ currentProduct }: Props) {
             </Box>
             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
               {values.tags.map((tag) => (
-                <Chip
-                  key={tag}
-                  label={tag}
-                  size="small"
-                  onDelete={() => handleRemoveTag(tag)}
-                />
+                <Chip key={tag} label={tag} size="small" onDelete={() => handleRemoveTag(tag)} />
               ))}
             </Box>
           </Box>
@@ -576,16 +564,10 @@ export function ProductCreateEditForm({ currentProduct }: Props) {
         size="large"
         disabled={isSubmitting || saving || uploading}
         startIcon={
-          (isSubmitting || saving || uploading) && (
-            <CircularProgress size={20} color="inherit" />
-          )
+          (isSubmitting || saving || uploading) && <CircularProgress size={20} color="inherit" />
         }
       >
-        {uploading
-          ? `Uploading ${progress}%`
-          : currentProduct
-            ? 'Save changes'
-            : 'Create product'}
+        {uploading ? `Uploading ${progress}%` : currentProduct ? 'Save changes' : 'Create product'}
       </Button>
     </Box>
   );

@@ -17,97 +17,101 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = {
-    sx?: SxProps<Theme>;
-    product: Product;
-    variant?: 'small' | 'large';
+  sx?: SxProps<Theme>;
+  product: Product;
+  variant?: 'small' | 'large';
 };
 
 export function ProductItemTop({ product, variant = 'small', sx }: Props) {
-    const renderImage = (
-        <Box
-            component="img"
-            alt={product.name}
-            src={product.images?.[0]?.url || '/assets/placeholder.svg'}
-            sx={{
-                width: 1,
-                aspectRatio: '1/1',
-                objectFit: 'cover',
-                borderRadius: 1.5,
-                bgcolor: 'background.neutral',
-            }}
-        />
-    );
+  const renderImage = (
+    <Box
+      component="img"
+      alt={product.name}
+      src={product.images?.[0]?.url || '/assets/placeholder.svg'}
+      sx={{
+        width: 1,
+        aspectRatio: '1/1',
+        objectFit: 'cover',
+        borderRadius: 1.5,
+        bgcolor: 'background.neutral',
+      }}
+    />
+  );
 
-    const renderName = <Typography variant="h5" noWrap>{product.name}</Typography>;
+  const renderName = (
+    <Typography variant="h5" noWrap>
+      {product.name}
+    </Typography>
+  );
 
-    const priceText = (
-        <Typography variant="h5" sx={{ color: 'text.disabled' }}>
-            {fCurrency(product.salePrice || product.price)}
-        </Typography>
-    );
+  const priceText = (
+    <Typography variant="h5" sx={{ color: 'text.disabled' }}>
+      {fCurrency(product.salePrice || product.price)}
+    </Typography>
+  );
 
-    const renderButton = (
-        <Button
-            component={RouterLink}
-            href={paths.product(product.slug || product.id)}
-            color="inherit"
-            endIcon={<Iconify icon="solar:alt-arrow-right-outline" />}
-            sx={{ flexShrink: 0 }}
-        >
-            More details
-        </Button>
-    );
+  const renderButton = (
+    <Button
+      component={RouterLink}
+      href={paths.product(product.slug || product.id)}
+      color="inherit"
+      endIcon={<Iconify icon="solar:alt-arrow-right-outline" />}
+      sx={{ flexShrink: 0 }}
+    >
+      More details
+    </Button>
+  );
 
-    const renderLargeItem = (
-        <Box gap={5} display="flex" flexDirection="column">
-            {renderImage}
+  const renderLargeItem = (
+    <Box gap={5} display="flex" flexDirection="column">
+      {renderImage}
 
-            <Box gap={5} display="flex" alignItems="flex-end">
-                <Box display="flex" flexDirection="column" gap={1} flexGrow={1} sx={{ minWidth: 0 }}>
-                    {renderName}
-                    {priceText}
-                </Box>
-                {renderButton}
-            </Box>
+      <Box gap={5} display="flex" alignItems="flex-end">
+        <Box display="flex" flexDirection="column" gap={1} flexGrow={1} sx={{ minWidth: 0 }}>
+          {renderName}
+          {priceText}
         </Box>
-    );
+        {renderButton}
+      </Box>
+    </Box>
+  );
 
-    const renderSmallItem = (
-        <Box
-            gap={3}
-            display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
-            sx={{ height: 1 }}
+  const renderSmallItem = (
+    <Box
+      gap={3}
+      display="grid"
+      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+      sx={{ height: 1 }}
+    >
+      <Box display="inline-flex" sx={{ order: { sm: 2 } }}>
+        {renderImage}
+      </Box>
+
+      <Stack spacing={1} sx={{ minWidth: 0 }}>
+        {renderName}
+        {priceText}
+
+        <Stack
+          flexGrow={1}
+          justifyContent="flex-end"
+          alignItems={{ xs: 'flex-end', sm: 'flex-start' }}
         >
-            <Box display="inline-flex" sx={{ order: { sm: 2 } }}>
-                {renderImage}
-            </Box>
+          {renderButton}
+        </Stack>
+      </Stack>
+    </Box>
+  );
 
-            <Stack spacing={1} sx={{ minWidth: 0 }}>
-                {renderName}
-                {priceText}
-
-                <Stack
-                    flexGrow={1}
-                    justifyContent="flex-end"
-                    alignItems={{ xs: 'flex-end', sm: 'flex-start' }}
-                >
-                    {renderButton}
-                </Stack>
-            </Stack>
-        </Box>
-    );
-
-    return (
-        <Paper
-            sx={{
-                p: 5,
-                borderRadius: 2,
-                bgcolor: 'background.neutral',
-                ...sx,
-            }}
-        >
-            {variant === 'large' ? renderLargeItem : renderSmallItem}
-        </Paper>
-    );
+  return (
+    <Paper
+      sx={{
+        p: 5,
+        borderRadius: 2,
+        bgcolor: 'background.neutral',
+        ...sx,
+      }}
+    >
+      {variant === 'large' ? renderLargeItem : renderSmallItem}
+    </Paper>
+  );
 }

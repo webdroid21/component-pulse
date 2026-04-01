@@ -15,7 +15,10 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-function getRoleLabel(user: any): { label: string; color: 'error' | 'warning' | 'info' | 'success' } {
+function getRoleLabel(user: any): {
+  label: string;
+  color: 'error' | 'warning' | 'info' | 'success';
+} {
   if (!user) return { label: 'Guest', color: 'info' };
   if (user.isAdmin) {
     switch (user.role) {

@@ -13,6 +13,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
+import Collapse from '@mui/material/Collapse';
 import ListItem from '@mui/material/ListItem';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
@@ -117,7 +118,7 @@ function NewsletterForm() {
           px: 3,
         }}
       >
-        {loading ? 'Processing...' : (isSubscribed ? 'Unsubscribe' : 'Subscribe')}
+        {loading ? 'Processing...' : isSubscribed ? 'Unsubscribe' : 'Subscribe'}
       </Button>
     </Box>
   );
@@ -129,6 +130,7 @@ const NAV_ITEMS = [
   { title: 'Products', path: paths.products },
   { title: 'Deals', path: paths.deals.root },
   { title: 'Training', path: paths.trainingModules.root },
+  { title: 'Blog', path: paths.blog.root },
   { title: 'About', path: paths.about },
   { title: 'Contact & Support', path: paths.support },
 ];
@@ -161,10 +163,11 @@ export function MainLayout({
   const { value: mobileOpen, onFalse: onMobileClose, onTrue: onMobileOpen } = useBoolean();
 
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
 
   const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'));
 
-  const activeCategories = categories.filter(c => c.isActive);
+  const activeCategories = categories.filter((c) => c.isActive);
 
   const handleOpenCategories = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -188,13 +191,59 @@ export function MainLayout({
         </IconButton>
       </Box>
       <Divider />
-      <List>
+      <List sx={{ px: 1 }}>
+        {/* Categories — inline accordion */}
         <ListItem disablePadding>
-           <ListItemButton onClick={() => setAnchorEl(document.body)} sx={{ justifyContent: 'space-between' }}>
-             <ListItemText primary="Categories" />
-             <Iconify icon="eva:arrow-ios-downward-fill" />
-           </ListItemButton>
+          <ListItemButton
+            onClick={() => setMobileCatsOpen((prev) => !prev)}
+            sx={{ justifyContent: 'space-between', borderRadius: 1 }}
+          >
+            <ListItemText primary="Categories" primaryTypographyProps={{ fontWeight: 600 }} />
+            <Iconify
+              icon={mobileCatsOpen ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+              width={18}
+            />
+          </ListItemButton>
         </ListItem>
+
+        <Collapse in={mobileCatsOpen} timeout="auto" unmountOnExit>
+          <Box sx={{ bgcolor: 'background.neutral', borderRadius: 1.5, mx: 0.5, mb: 0.5, py: 0.5 }}>
+            {activeCategories.map((cat) => (
+              <ListItemButton
+                key={cat.id}
+                onClick={() => {
+                  onMobileClose();
+                  setMobileCatsOpen(false);
+                  router.push(`${paths.products}?category=${cat.slug}`);
+                }}
+                sx={{ borderRadius: 1, py: 0.85, gap: 1.5, px: 1.5 }}
+              >
+                <Box
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 1,
+                    bgcolor: 'action.selected',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Iconify
+                    icon={cat.icon || 'solar:box-bold-duotone'}
+                    width={16}
+                    sx={{ color: cat.color || 'primary.main' }}
+                  />
+                </Box>
+                <Typography variant="body2" sx={{ lineHeight: 1.4, fontWeight: 500 }}>
+                  {cat.name}
+                </Typography>
+              </ListItemButton>
+            ))}
+          </Box>
+        </Collapse>
+
         {NAV_ITEMS.map((item) => (
           <ListItem key={item.title} disablePadding>
             <ListItemButton
@@ -202,6 +251,7 @@ export function MainLayout({
               href={item.path}
               onClick={onMobileClose}
               selected={pathname === item.path}
+              sx={{ borderRadius: 1 }}
             >
               <ListItemText primary={item.title} />
             </ListItemButton>
@@ -221,10 +271,20 @@ export function MainLayout({
           </Button>
         ) : (
           <Stack spacing={1}>
-            <Button fullWidth variant="contained" component={RouterLink} href={paths.auth.firebase.signIn}>
+            <Button
+              fullWidth
+              variant="contained"
+              component={RouterLink}
+              href={paths.auth.firebase.signIn}
+            >
               Sign In
             </Button>
-            <Button fullWidth variant="outlined" component={RouterLink} href={paths.auth.firebase.signUp}>
+            <Button
+              fullWidth
+              variant="outlined"
+              component={RouterLink}
+              href={paths.auth.firebase.signUp}
+            >
               Sign Up
             </Button>
           </Stack>
@@ -241,8 +301,8 @@ export function MainLayout({
       centerArea: {
         sx: {
           px: { xs: 2, md: 5 },
-        }
-      }
+        },
+      },
     };
 
     const headerSlots: HeaderSectionProps['slots'] = {
@@ -317,25 +377,40 @@ export function MainLayout({
       ),
       bottomArea: (
         <>
-          <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', display: { xs: 'none', md: 'block' } }}>
+          <Box
+            sx={{
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              display: { xs: 'none', md: 'block' },
+            }}
+          >
             <Container maxWidth="lg">
-              <Box component="nav" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, py: 1.5 }}>
+              <Box
+                component="nav"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  py: 1.5,
+                }}
+              >
                 <Link
-                    component="button"
-                    onClick={handleOpenCategories}
-                    color="text.primary"
-                    underline="none"
-                    sx={{
-                      typography: 'subtitle2',
-                      fontWeight: 600,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.5,
-                      transition: 'color 0.2s',
-                      '&:hover': { color: 'primary.main' },
-                    }}
-                  >
-                    Categories <Iconify icon="eva:arrow-ios-downward-fill" width={16} />
+                  component="button"
+                  onClick={handleOpenCategories}
+                  color="text.primary"
+                  underline="none"
+                  sx={{
+                    typography: 'subtitle2',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    transition: 'color 0.2s',
+                    '&:hover': { color: 'primary.main' },
+                  }}
+                >
+                  Categories <Iconify icon="eva:arrow-ios-downward-fill" width={16} />
                 </Link>
 
                 {NAV_ITEMS.map((item) => (
@@ -358,7 +433,16 @@ export function MainLayout({
               </Box>
             </Container>
           </Box>
-          <Box sx={{ display: { xs: 'block', md: 'none' }, px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+          <Box
+            sx={{
+              display: { xs: 'block', md: 'none' },
+              px: 2,
+              py: 1.5,
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+            }}
+          >
             <HeaderSearch />
           </Box>
         </>
@@ -429,19 +513,32 @@ export function MainLayout({
           <Box>
             <Logo isSingle={false} sx={{ mb: 3 }} />
             <Typography variant="body2" sx={{ color: 'grey.400', mb: 2 }}>
-              Your trusted source for quality electronic components, solar equipment, and electrical supplies in Uganda.
+              Your trusted source for quality electronic components, solar equipment, and electrical
+              supplies in Uganda.
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton size="small" sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}>
+              <IconButton
+                size="small"
+                sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}
+              >
                 <Iconify icon="mdi:facebook" />
               </IconButton>
-              <IconButton size="small" sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}>
+              <IconButton
+                size="small"
+                sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}
+              >
                 <Iconify icon="mdi:twitter" />
               </IconButton>
-              <IconButton size="small" sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}>
+              <IconButton
+                size="small"
+                sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}
+              >
                 <Iconify icon="mdi:instagram" />
               </IconButton>
-              <IconButton size="small" sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}>
+              <IconButton
+                size="small"
+                sx={{ color: 'grey.400', '&:hover': { color: 'primary.main' } }}
+              >
                 <Iconify icon="mdi:whatsapp" />
               </IconButton>
             </Box>
@@ -449,7 +546,9 @@ export function MainLayout({
 
           {/* Quick Links */}
           <Box>
-            <Typography variant="h6" sx={{ mb: 2 }}>Quick Links</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Quick Links
+            </Typography>
             <Stack spacing={1}>
               {NAV_ITEMS.map((item) => (
                 <Link
@@ -468,18 +567,44 @@ export function MainLayout({
 
           {/* Customer Service */}
           <Box>
-            <Typography variant="h6" sx={{ mb: 2 }}>Customer Service</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Customer Service
+            </Typography>
             <Stack spacing={1}>
-              <Link component={RouterLink} href={paths.account.orders} color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
+              <Link
+                component={RouterLink}
+                href={paths.account.orders}
+                color="grey.400"
+                underline="hover"
+                sx={{ typography: 'body2' }}
+              >
                 Track Order
               </Link>
-              <Link component={RouterLink} href={paths.support} color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
+              <Link
+                component={RouterLink}
+                href={paths.support}
+                color="grey.400"
+                underline="hover"
+                sx={{ typography: 'body2' }}
+              >
                 Support Center
               </Link>
-              <Link component={RouterLink} href="/terms" color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
+              <Link
+                component={RouterLink}
+                href="/terms"
+                color="grey.400"
+                underline="hover"
+                sx={{ typography: 'body2' }}
+              >
                 Terms & Conditions
               </Link>
-              <Link component={RouterLink} href="/privacy" color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
+              <Link
+                component={RouterLink}
+                href="/privacy"
+                color="grey.400"
+                underline="hover"
+                sx={{ typography: 'body2' }}
+              >
                 Privacy Policy
               </Link>
             </Stack>
@@ -487,25 +612,38 @@ export function MainLayout({
 
           {/* Contact Info */}
           <Box>
-            <Typography variant="h6" sx={{ mb: 2 }}>Contact Us</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Contact Us
+            </Typography>
             <Stack spacing={2}>
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
                 <Iconify icon="solar:map-point-bold" sx={{ color: 'primary.main', mt: 0.5 }} />
                 <Typography variant="body2" sx={{ color: 'grey.400' }}>
-                  Plot 123, Industrial Area<br />
+                  Plot 123, Industrial Area
+                  <br />
                   Kampala, Uganda
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Iconify icon="solar:phone-bold" sx={{ color: 'primary.main' }} />
-                <Link href="tel:+256700000000" color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
+                <Link
+                  href="tel:+256700000000"
+                  color="grey.400"
+                  underline="hover"
+                  sx={{ typography: 'body2' }}
+                >
                   +256 700 000 000
                 </Link>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Iconify icon="solar:letter-bold" sx={{ color: 'primary.main' }} />
-                <Link href="mailto:info@componentpulse.com" color="grey.400" underline="hover" sx={{ typography: 'body2' }}>
-                  info@componentpulse.com
+                <Link
+                  href="mailto:info@componentpulseug.com"
+                  color="grey.400"
+                  underline="hover"
+                  sx={{ typography: 'body2' }}
+                >
+                  info@componentpulseug.com
                 </Link>
               </Box>
             </Stack>
@@ -514,14 +652,37 @@ export function MainLayout({
 
         <Divider sx={{ my: 4, borderColor: 'grey.800' }} />
 
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
           <Typography variant="body2" sx={{ color: 'grey.500' }}>
             © {new Date().getFullYear()} ComponentPulse. All rights reserved.
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box component="img" src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" sx={{ height: 24, filter: 'brightness(0) invert(1)' }} />
-            <Box component="img" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" sx={{ height: 24 }} />
-            <Box component="img" src="https://flutterwave.com/images/logo/logo-mark/full.svg" alt="Flutterwave" sx={{ height: 24 }} />
+            <Box
+              component="img"
+              src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+              alt="Visa"
+              sx={{ height: 24, filter: 'brightness(0) invert(1)' }}
+            />
+            <Box
+              component="img"
+              src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+              alt="Mastercard"
+              sx={{ height: 24 }}
+            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'grey.500' }}>
+              <Iconify icon="solar:lock-bold" width={16} />
+              <Typography variant="caption" sx={{ color: 'grey.500', fontWeight: 600 }}>
+                Secured by Pesapal
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Container>
@@ -542,16 +703,40 @@ export function MainLayout({
         {renderMain()}
       </LayoutSection>
 
-      {/* Categories Dropdown Popover */}
+      {/* Categories Dropdown Popover — Desktop only */}
       <CustomPopover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={handleCloseCategories}
-        slotProps={{ paper: { sx: { width: 320, p: 2, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1 } } }}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 280,
+              p: 1.5,
+              maxHeight: 480,
+              overflowY: 'auto',
+            },
+          },
+        }}
       >
+        <Typography
+          variant="overline"
+          sx={{
+            px: 1.5,
+            pb: 1,
+            pt: 0.5,
+            display: 'block',
+            color: 'text.secondary',
+            letterSpacing: 1,
+          }}
+        >
+          Shop by Category
+        </Typography>
+
         {activeCategories.map((category) => (
           <Button
             key={category.id}
+            fullWidth
             color="inherit"
             variant="text"
             onClick={() => {
@@ -561,19 +746,49 @@ export function MainLayout({
             }}
             sx={{
               justifyContent: 'flex-start',
-              px: 1,
-              py: 1.5,
+              px: 1.5,
+              py: 1,
+              borderRadius: 1,
               typography: 'body2',
               fontWeight: 500,
+              textAlign: 'left',
+              gap: 1.5,
+              '&:hover': {
+                bgcolor: 'action.hover',
+              },
             }}
-            startIcon={
+          >
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                bgcolor: 'action.selected',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
               <Iconify
                 icon={category.icon || 'solar:box-bold-duotone'}
-                sx={{ color: category.color || 'text.secondary' }}
+                width={18}
+                sx={{ color: category.color || 'primary.main' }}
               />
-            }
-          >
-            {category.name}
+            </Box>
+            <Box sx={{ minWidth: 0, textAlign: 'left' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: 500,
+                  lineHeight: 1.4,
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {category.name}
+              </Typography>
+            </Box>
           </Button>
         ))}
       </CustomPopover>

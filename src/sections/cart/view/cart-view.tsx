@@ -45,7 +45,11 @@ export function CartView() {
   if (isEmpty) {
     return (
       <Container maxWidth="lg" sx={{ py: 10, textAlign: 'center' }}>
-        <Iconify icon="solar:cart-large-2-bold-duotone" width={100} sx={{ color: 'text.disabled', mb: 3 }} />
+        <Iconify
+          icon="solar:cart-large-2-bold-duotone"
+          width={100}
+          sx={{ color: 'text.disabled', mb: 3 }}
+        />
         <Typography variant="h4" sx={{ mb: 2 }}>
           Your cart is empty
         </Typography>
@@ -75,7 +79,7 @@ export function CartView() {
 
           <Button
             color="error"
-            onClick={() => checkout.setField('items', [])}
+            onClick={() => checkout.onResetCart()}
             startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
           >
             Empty Cart
@@ -108,7 +112,10 @@ export function CartView() {
                         <Stack direction="row" alignItems="center" spacing={2}>
                           <Box
                             component="img"
-                            src={item.coverUrl || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&q=80'}
+                            src={
+                              item.coverUrl ||
+                              'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&q=80'
+                            }
                             alt={item.name}
                             sx={{
                               width: 80,
@@ -177,10 +184,24 @@ export function CartView() {
             {/* Mobile Layout */}
             <Stack spacing={3} sx={{ display: { xs: 'flex', md: 'none' }, p: 2 }}>
               {items.map((item) => (
-                <Stack key={item.id} direction="row" spacing={2} alignItems="flex-start" sx={{ pb: 3, borderBottom: '1px dashed', borderColor: 'divider', '&:last-of-type': { borderBottom: 'none', pb: 0 } }}>
+                <Stack
+                  key={item.id}
+                  direction="row"
+                  spacing={2}
+                  alignItems="flex-start"
+                  sx={{
+                    pb: 3,
+                    borderBottom: '1px dashed',
+                    borderColor: 'divider',
+                    '&:last-of-type': { borderBottom: 'none', pb: 0 },
+                  }}
+                >
                   <Box
                     component="img"
-                    src={item.coverUrl || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&q=80'}
+                    src={
+                      item.coverUrl ||
+                      'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=100&q=80'
+                    }
                     alt={item.name}
                     sx={{ width: 80, height: 80, borderRadius: 1.5, objectFit: 'cover' }}
                   />
@@ -192,17 +213,30 @@ export function CartView() {
                       {fCurrency(item.price)}
                     </Typography>
                     <Stack direction="row" alignItems="center" spacing={1}>
-                      <IconButton size="small" onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                      >
                         <Iconify icon="solar:minus-circle-bold" width={20} />
                       </IconButton>
-                      <Typography sx={{ minWidth: 24, textAlign: 'center' }}>{item.quantity}</Typography>
-                      <IconButton size="small" disabled={item.quantity >= item.available} onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>
+                      <Typography sx={{ minWidth: 24, textAlign: 'center' }}>
+                        {item.quantity}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        disabled={item.quantity >= item.available}
+                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                      >
                         <Iconify icon="solar:add-circle-bold" width={20} />
                       </IconButton>
                     </Stack>
                   </Box>
                   <Stack alignItems="flex-end" spacing={1}>
-                    <IconButton color="error" size="small" onClick={() => checkout.onDeleteCartItem(item.id)}>
+                    <IconButton
+                      color="error"
+                      size="small"
+                      onClick={() => checkout.onDeleteCartItem(item.id)}
+                    >
                       <Iconify icon="solar:trash-bin-trash-bold" width={20} />
                     </IconButton>
                     <Typography variant="subtitle2">
@@ -225,9 +259,7 @@ export function CartView() {
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                   Subtotal
                 </Typography>
-                <Typography variant="subtitle2">
-                  {fCurrency(subtotal)}
-                </Typography>
+                <Typography variant="subtitle2">{fCurrency(subtotal)}</Typography>
               </Stack>
 
               <Stack direction="row" justifyContent="space-between">
@@ -263,11 +295,7 @@ export function CartView() {
             {/* Coupon Code */}
             <Box sx={{ mt: 3, mb: 3 }}>
               <Stack direction="row" spacing={1}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="Coupon code"
-                />
+                <TextField fullWidth size="small" placeholder="Coupon code" />
                 <Button variant="outlined">Apply</Button>
               </Stack>
             </Box>

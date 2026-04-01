@@ -135,7 +135,10 @@ export function DealsListView() {
                     </TableCell>
 
                     <TableCell>
-                      <Typography variant="body2" sx={{ textDecoration: 'line-through', color: 'text.disabled' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ textDecoration: 'line-through', color: 'text.disabled' }}
+                      >
                         {fCurrency(deal.originalPrice)}
                       </Typography>
                     </TableCell>
@@ -147,7 +150,10 @@ export function DealsListView() {
                         disabled={mutating}
                       />
                       {deal.endDate && deal.endDate.toDate() < new Date() && (
-                        <Typography variant="caption" sx={{ color: 'error.main', display: 'block', mt: 0.5 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'error.main', display: 'block', mt: 0.5 }}
+                        >
                           Expired
                         </Typography>
                       )}

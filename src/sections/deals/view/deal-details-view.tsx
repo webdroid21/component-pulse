@@ -1,6 +1,5 @@
 'use client';
 
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Grid';
@@ -87,7 +86,11 @@ export function DealDetailsView({ id }: Props) {
   if (isExpired) {
     return (
       <Container maxWidth="lg" sx={{ py: 10, textAlign: 'center' }}>
-        <Iconify icon="solar:clock-circle-bold-duotone" width={80} sx={{ color: 'error.main', mb: 2 }} />
+        <Iconify
+          icon="solar:clock-circle-bold-duotone"
+          width={80}
+          sx={{ color: 'error.main', mb: 2 }}
+        />
         <Typography variant="h5" sx={{ mb: 1 }}>
           This Deal has Expired
         </Typography>
@@ -118,17 +121,35 @@ export function DealDetailsView({ id }: Props) {
       <Grid container spacing={5}>
         <Grid size={{ xs: 12, md: 6, lg: 7 }}>
           <Card>
-            <Image alt={deal.name} src={deal.coverImage || '/assets/placeholder.svg'} ratio="16/9" />
+            <Image
+              alt={deal.name}
+              src={deal.coverImage || '/assets/placeholder.svg'}
+              ratio="16/9"
+            />
           </Card>
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 5 }}>
           <Stack spacing={3}>
             <Box>
-              <Box sx={{ mb: 2, display: 'inline-block', bgcolor: 'error.main', color: 'common.white', px: 1.5, py: 0.5, borderRadius: 1, typography: 'subtitle2', fontWeight: 700 }}>
+              <Box
+                sx={{
+                  mb: 2,
+                  display: 'inline-block',
+                  bgcolor: 'error.main',
+                  color: 'common.white',
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  typography: 'subtitle2',
+                  fontWeight: 700,
+                }}
+              >
                 SAVE {fCurrency(deal.originalPrice - deal.price)}
               </Box>
-              <Typography variant="h4" sx={{ mb: 2 }}>{deal.name}</Typography>
+              <Typography variant="h4" sx={{ mb: 2 }}>
+                {deal.name}
+              </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {deal.description}
               </Typography>
@@ -138,7 +159,10 @@ export function DealDetailsView({ id }: Props) {
 
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography variant="h3">{fCurrency(deal.price)}</Typography>
-              <Typography variant="h5" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
+              <Typography
+                variant="h5"
+                sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+              >
                 {fCurrency(deal.originalPrice)}
               </Typography>
             </Stack>
@@ -166,7 +190,12 @@ export function DealDetailsView({ id }: Props) {
                     sx={{ width: 48, height: 48, borderRadius: 1, objectFit: 'cover' }}
                   />
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle2" component={RouterLink} href={paths.product(product.id)} sx={{ color: 'text.primary', textDecoration: 'none' }}>
+                    <Typography
+                      variant="subtitle2"
+                      component={RouterLink}
+                      href={paths.product(product.id)}
+                      sx={{ color: 'text.primary', textDecoration: 'none' }}
+                    >
                       {product.name}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -184,7 +213,12 @@ export function DealDetailsView({ id }: Props) {
                     sx={{ width: 48, height: 48, borderRadius: 1, objectFit: 'cover' }}
                   />
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle2" component={RouterLink} href={paths.trainingModules.details(mod.id)} sx={{ color: 'text.primary', textDecoration: 'none' }}>
+                    <Typography
+                      variant="subtitle2"
+                      component={RouterLink}
+                      href={paths.trainingModules.details(mod.id)}
+                      sx={{ color: 'text.primary', textDecoration: 'none' }}
+                    >
                       Training: {mod.title}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -194,7 +228,6 @@ export function DealDetailsView({ id }: Props) {
                 </Stack>
               ))}
             </Stack>
-
           </Stack>
         </Grid>
       </Grid>

@@ -87,13 +87,16 @@ export function AccountWishlistView() {
     }
   }, [profileLoading, fetchWishlistProducts]);
 
-  const handleRemove = useCallback(async (productId: string) => {
-    const success = await removeFromWishlist(productId);
-    if (success) {
-      setProducts((prev) => prev.filter((p) => p.id !== productId));
-      refetch();
-    }
-  }, [removeFromWishlist, refetch]);
+  const handleRemove = useCallback(
+    async (productId: string) => {
+      const success = await removeFromWishlist(productId);
+      if (success) {
+        setProducts((prev) => prev.filter((p) => p.id !== productId));
+        refetch();
+      }
+    },
+    [removeFromWishlist, refetch]
+  );
 
   if (profileLoading || loading) {
     return (
@@ -118,12 +121,7 @@ export function AccountWishlistView() {
             Save items you love for later!
           </Typography>
 
-          <Button
-            component={RouterLink}
-            href={paths.products}
-            variant="contained"
-            sx={{ mt: 3 }}
-          >
+          <Button component={RouterLink} href={paths.products} variant="contained" sx={{ mt: 3 }}>
             Start Shopping
           </Button>
         </Box>
@@ -189,12 +187,7 @@ export function AccountWishlistView() {
                       Out of stock
                     </Typography>
                   ) : (
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      size="small"
-                      sx={{ mt: 2 }}
-                    >
+                    <Button fullWidth variant="contained" size="small" sx={{ mt: 2 }}>
                       Add to Cart
                     </Button>
                   )}

@@ -141,7 +141,9 @@ export function BlogForm({ currentPost }: Props) {
         <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={3}>
             <Card sx={{ p: 3 }}>
-              <Typography variant="subtitle2" sx={{ mb: 3 }}>Details</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 3 }}>
+                Details
+              </Typography>
               <Stack spacing={3}>
                 <Field.Text name="title" label="Post Title" />
                 <Field.Text name="description" label="Short Description" multiline rows={3} />
@@ -153,7 +155,9 @@ export function BlogForm({ currentPost }: Props) {
             </Card>
 
             <Card sx={{ p: 3 }}>
-              <Typography variant="subtitle2" sx={{ mb: 3 }}>Properties</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 3 }}>
+                Properties
+              </Typography>
               <Stack spacing={3}>
                 <Field.Autocomplete
                   name="tags"
@@ -183,7 +187,9 @@ export function BlogForm({ currentPost }: Props) {
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             <Card sx={{ p: 3 }}>
-              <Typography variant="subtitle2" sx={{ mb: 3 }}>Cover Image</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 3 }}>
+                Cover Image
+              </Typography>
               <Field.Upload
                 name="coverUrl"
                 maxSize={3145728}

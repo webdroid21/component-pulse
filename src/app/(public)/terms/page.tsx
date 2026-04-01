@@ -45,7 +45,9 @@ We reserve the right to update or modify these Terms at any time. Your continued
 export default function Page() {
   return (
     <Container sx={{ pt: 5, pb: 10 }}>
-      <Typography variant="h3" sx={{ mb: 5 }}>Terms of Service</Typography>
+      <Typography variant="h3" sx={{ mb: 5 }}>
+        Terms of Service
+      </Typography>
       <Markdown children={content} />
     </Container>
   );

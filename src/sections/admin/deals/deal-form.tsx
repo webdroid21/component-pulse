@@ -19,7 +19,12 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useProducts, useStorageUpload, useDealMutations, useTrainingModules } from 'src/hooks/firebase';
+import {
+  useProducts,
+  useStorageUpload,
+  useDealMutations,
+  useTrainingModules,
+} from 'src/hooks/firebase';
 
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaUtils } from 'src/components/hook-form';
@@ -33,7 +38,9 @@ export const NewDealSchema = zod.object({
   description: zod.string().min(1, { message: 'Description is required!' }),
   content: zod.string().min(1, { message: 'Content is required!' }),
   price: zod.number().min(0, { message: 'Price must be greater than or equal to 0!' }),
-  originalPrice: zod.number().min(0, { message: 'Original Price must be greater than or equal to 0!' }),
+  originalPrice: zod
+    .number()
+    .min(0, { message: 'Original Price must be greater than or equal to 0!' }),
   productIds: zod.array(zod.string()).min(0),
   trainingModuleIds: zod.array(zod.string()).min(0),
   isActive: zod.boolean(),
@@ -69,9 +76,7 @@ export function DealForm({ currentDeal }: Props) {
       trainingModuleIds: currentDeal?.trainingModuleIds || [],
       isActive: currentDeal?.isActive ?? true,
       coverImage: currentDeal?.coverImage || null,
-      endDate: currentDeal?.endDate
-        ? currentDeal.endDate.toDate().toISOString().split('T')[0]
-        : '',
+      endDate: currentDeal?.endDate ? currentDeal.endDate.toDate().toISOString().split('T')[0] : '',
     }),
     [currentDeal]
   );
@@ -196,12 +201,7 @@ export function DealForm({ currentDeal }: Props) {
               <Stack spacing={3}>
                 <Typography variant="subtitle2">Pricing</Typography>
 
-                <Field.Text
-                  name="price"
-                  label="Combo Price"
-                  placeholder="0.00"
-                  type="number"
-                />
+                <Field.Text name="price" label="Combo Price" placeholder="0.00" type="number" />
 
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
                   <Field.Text
@@ -232,8 +232,10 @@ export function DealForm({ currentDeal }: Props) {
                   multiple
                   freeSolo
                   disableCloseOnSelect
-                  options={productOptions.map(o => o.value)}
-                  getOptionLabel={(option) => productOptions.find((o) => o.value === option)?.label || option}
+                  options={productOptions.map((o) => o.value)}
+                  getOptionLabel={(option) =>
+                    productOptions.find((o) => o.value === option)?.label || option
+                  }
                 />
 
                 <Field.Autocomplete
@@ -243,8 +245,10 @@ export function DealForm({ currentDeal }: Props) {
                   multiple
                   freeSolo
                   disableCloseOnSelect
-                  options={moduleOptions.map(o => o.value)}
-                  getOptionLabel={(option) => moduleOptions.find((o) => o.value === option)?.label || option}
+                  options={moduleOptions.map((o) => o.value)}
+                  getOptionLabel={(option) =>
+                    moduleOptions.find((o) => o.value === option)?.label || option
+                  }
                 />
               </Stack>
             </Card>

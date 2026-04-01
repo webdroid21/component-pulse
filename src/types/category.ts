@@ -21,7 +21,10 @@ export type Category = {
   updatedAt: Timestamp;
 };
 
-export type CategoryFormData = Omit<Category, 'id' | 'createdAt' | 'updatedAt' | 'slug' | 'productCount'>;
+export type CategoryFormData = Omit<
+  Category,
+  'id' | 'createdAt' | 'updatedAt' | 'slug' | 'productCount'
+>;
 
 export type CategoryWithChildren = Category & {
   children?: Category[];

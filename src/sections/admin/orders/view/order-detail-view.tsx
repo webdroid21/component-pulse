@@ -28,7 +28,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useOrder, useOrderMutations, useUpdatePaymentStatus, useNotificationMutations } from 'src/hooks/firebase';
+import {
+  useOrder,
+  useOrderMutations,
+  useUpdatePaymentStatus,
+  useNotificationMutations,
+} from 'src/hooks/firebase';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
@@ -54,25 +59,62 @@ const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
 type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 type TimelineDotColor = 'grey' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
 
-const STATUS_CONFIG: Record<OrderStatus, {
-  label: string;
-  chipColor: ChipColor;
-  dotColor: TimelineDotColor;
-  icon: string;
-}> = {
-  pending: { label: 'Pending', chipColor: 'warning', dotColor: 'warning', icon: 'solar:clock-circle-bold' },
-  confirmed: { label: 'Confirmed', chipColor: 'info', dotColor: 'info', icon: 'solar:check-circle-bold' },
+const STATUS_CONFIG: Record<
+  OrderStatus,
+  {
+    label: string;
+    chipColor: ChipColor;
+    dotColor: TimelineDotColor;
+    icon: string;
+  }
+> = {
+  pending: {
+    label: 'Pending',
+    chipColor: 'warning',
+    dotColor: 'warning',
+    icon: 'solar:clock-circle-bold',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    chipColor: 'info',
+    dotColor: 'info',
+    icon: 'solar:check-circle-bold',
+  },
   processing: { label: 'Processing', chipColor: 'info', dotColor: 'info', icon: 'solar:box-bold' },
-  ready_for_pickup: { label: 'Ready for Pickup', chipColor: 'secondary', dotColor: 'secondary', icon: 'solar:bag-check-bold' },
-  out_for_delivery: { label: 'Out for Delivery', chipColor: 'primary', dotColor: 'primary', icon: 'solar:delivery-bold' },
-  delivered: { label: 'Delivered', chipColor: 'success', dotColor: 'success', icon: 'solar:verified-check-bold' },
-  cancelled: { label: 'Cancelled', chipColor: 'error', dotColor: 'error', icon: 'solar:close-circle-bold' },
-  refunded: { label: 'Refunded', chipColor: 'default', dotColor: 'grey', icon: 'solar:undo-left-bold' },
+  ready_for_pickup: {
+    label: 'Ready for Pickup',
+    chipColor: 'secondary',
+    dotColor: 'secondary',
+    icon: 'solar:bag-check-bold',
+  },
+  out_for_delivery: {
+    label: 'Out for Delivery',
+    chipColor: 'primary',
+    dotColor: 'primary',
+    icon: 'solar:delivery-bold',
+  },
+  delivered: {
+    label: 'Delivered',
+    chipColor: 'success',
+    dotColor: 'success',
+    icon: 'solar:verified-check-bold',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    chipColor: 'error',
+    dotColor: 'error',
+    icon: 'solar:close-circle-bold',
+  },
+  refunded: {
+    label: 'Refunded',
+    chipColor: 'default',
+    dotColor: 'grey',
+    icon: 'solar:undo-left-bold',
+  },
 };
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  flutterwave: 'Card (Flutterwave)',
-  mobile_money: 'Mobile Money',
+  pesapal: 'Online Payment (Pesapal)',
   cash_on_delivery: 'Cash on Delivery',
 };
 
@@ -126,7 +168,7 @@ export function OrderDetailView({ orderId }: Props) {
             orderNumber: order.orderNumber,
             newStatus,
             statusNote,
-            items: order.items.map(item => ({ id: item.productId, name: item.productName }))
+            items: order.items.map((item) => ({ id: item.productId, name: item.productName })),
           }),
         });
       } catch (err) {
@@ -173,7 +215,11 @@ export function OrderDetailView({ orderId }: Props) {
     return (
       <DashboardContent>
         <Card sx={{ p: 3, textAlign: 'center' }}>
-          <Iconify icon="solar:file-corrupted-bold" width={64} sx={{ color: 'text.disabled', mb: 2 }} />
+          <Iconify
+            icon="solar:file-corrupted-bold"
+            width={64}
+            sx={{ color: 'text.disabled', mb: 2 }}
+          />
           <Typography variant="h6" sx={{ mb: 1 }}>
             Order not found
           </Typography>
@@ -193,7 +239,14 @@ export function OrderDetailView({ orderId }: Props) {
   return (
     <DashboardContent>
       {/* Header */}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }} flexWrap="wrap" gap={2}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ mb: 3 }}
+        flexWrap="wrap"
+        gap={2}
+      >
         <Box>
           <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 0.5 }}>
             <Typography variant="h4">Order #{order.orderNumber}</Typography>
@@ -257,9 +310,7 @@ export function OrderDetailView({ orderId }: Props) {
                       <Typography variant="body2">
                         {fCurrency(item.unitPrice)} × {item.quantity}
                       </Typography>
-                      <Typography variant="subtitle2">
-                        {fCurrency(item.totalPrice)}
-                      </Typography>
+                      <Typography variant="subtitle2">{fCurrency(item.totalPrice)}</Typography>
                     </Box>
                   </Stack>
                 ))}
@@ -344,7 +395,13 @@ export function OrderDetailView({ orderId }: Props) {
                     variant="contained"
                     onClick={handleStatusUpdate}
                     disabled={!newStatus || updating}
-                    startIcon={updating ? <CircularProgress size={20} /> : <Iconify icon="solar:check-circle-bold" />}
+                    startIcon={
+                      updating ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <Iconify icon="solar:check-circle-bold" />
+                      )
+                    }
                   >
                     {updating ? 'Updating...' : 'Update Status & Notify Customer'}
                   </Button>
@@ -412,9 +469,7 @@ export function OrderDetailView({ orderId }: Props) {
               <Typography variant="h6" sx={{ mb: 2 }}>
                 Shipping Address
               </Typography>
-              <Typography variant="body2">
-                {order.shippingAddress.fullName}
-              </Typography>
+              <Typography variant="body2">{order.shippingAddress.fullName}</Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {order.shippingAddress.addressLine1}
                 {order.shippingAddress.addressLine2 && <>, {order.shippingAddress.addressLine2}</>}
@@ -458,8 +513,16 @@ export function OrderDetailView({ orderId }: Props) {
                   </Typography>
                   <Chip
                     size="small"
-                    label={order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-                    color={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'failed' ? 'error' : 'warning'}
+                    label={
+                      order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)
+                    }
+                    color={
+                      order.paymentStatus === 'paid'
+                        ? 'success'
+                        : order.paymentStatus === 'failed'
+                          ? 'error'
+                          : 'warning'
+                    }
                   />
                 </Stack>
                 {order.paymentReference && (
@@ -473,30 +536,37 @@ export function OrderDetailView({ orderId }: Props) {
                   </Stack>
                 )}
 
-                {order.paymentMethod === 'cash_on_delivery' && order.paymentStatus === 'pending' && (
-                  <>
-                    <Divider sx={{ borderStyle: 'dashed' }} />
-                    <Stack spacing={1.5}>
-                      <Typography variant="subtitle2">Mark as Paid</Typography>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="Payment Ref/Receipt No. (Optional)"
-                        value={paymentReference}
-                        onChange={(e) => setPaymentReference(e.target.value)}
-                      />
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={handlePaymentUpdate}
-                        disabled={updatingPayment}
-                        startIcon={updatingPayment ? <CircularProgress size={16} /> : <Iconify icon="solar:check-circle-bold" />}
-                      >
-                        Confirm Payment
-                      </Button>
-                    </Stack>
-                  </>
-                )}
+                {order.paymentMethod === 'cash_on_delivery' &&
+                  order.paymentStatus === 'pending' && (
+                    <>
+                      <Divider sx={{ borderStyle: 'dashed' }} />
+                      <Stack spacing={1.5}>
+                        <Typography variant="subtitle2">Mark as Paid</Typography>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Payment Ref/Receipt No. (Optional)"
+                          value={paymentReference}
+                          onChange={(e) => setPaymentReference(e.target.value)}
+                        />
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={handlePaymentUpdate}
+                          disabled={updatingPayment}
+                          startIcon={
+                            updatingPayment ? (
+                              <CircularProgress size={16} />
+                            ) : (
+                              <Iconify icon="solar:check-circle-bold" />
+                            )
+                          }
+                        >
+                          Confirm Payment
+                        </Button>
+                      </Stack>
+                    </>
+                  )}
               </Stack>
             </Card>
 

@@ -51,12 +51,15 @@ export function ProductListView() {
     }
   }, [deleteId, deleteProduct, refetch]);
 
-  const handleToggleStatus = useCallback(async (product: Product) => {
-    const success = await toggleProductStatus(product.id, !product.isActive);
-    if (success) {
-      refetch();
-    }
-  }, [toggleProductStatus, refetch]);
+  const handleToggleStatus = useCallback(
+    async (product: Product) => {
+      const success = await toggleProductStatus(product.id, !product.isActive);
+      if (success) {
+        refetch();
+      }
+    },
+    [toggleProductStatus, refetch]
+  );
 
   return (
     <DashboardContent>
@@ -154,9 +157,10 @@ export function ProductListView() {
                       <Typography
                         variant="body2"
                         sx={{
-                          color: product.stock <= (product.lowStockThreshold || 5)
-                            ? 'error.main'
-                            : 'text.primary',
+                          color:
+                            product.stock <= (product.lowStockThreshold || 5)
+                              ? 'error.main'
+                              : 'text.primary',
                         }}
                       >
                         {product.stock}
@@ -176,10 +180,7 @@ export function ProductListView() {
                       >
                         <Iconify icon="solar:pen-bold" />
                       </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => setDeleteId(product.id)}
-                      >
+                      <IconButton color="error" onClick={() => setDeleteId(product.id)}>
                         <Iconify icon="solar:trash-bin-trash-bold" />
                       </IconButton>
                     </TableCell>

@@ -29,13 +29,7 @@ const _socials = [
   { value: 'linkedin', label: 'Linkedin' },
 ];
 
-export function PostDetailsHero({
-  sx,
-  title,
-  coverUrl,
-  createdAt,
-  ...other
-}: Props) {
+export function PostDetailsHero({ sx, title, coverUrl, createdAt, ...other }: Props) {
   const smUp = useMediaQuery((theme) => theme.breakpoints.up('sm'));
 
   return (
@@ -86,10 +80,7 @@ export function PostDetailsHero({
               pb: { xs: 3, md: 8 },
             }}
           >
-            <Avatar
-              alt="ComponentPulse"
-              sx={{ width: 64, height: 64, mr: 2 }}
-            />
+            <Avatar alt="ComponentPulse" sx={{ width: 64, height: 64, mr: 2 }} />
 
             <ListItemText
               sx={{ color: 'common.white' }}

@@ -79,11 +79,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 defaultMode={themeConfig.defaultMode}
               >
                 <CheckoutProvider>
-                <MotionLazy>
-                  <ProgressBar />
-                  <SettingsDrawer defaultSettings={defaultSettings} />
-                  {children}
-                </MotionLazy>
+                  <MotionLazy>
+                    <ProgressBar />
+                    <SettingsDrawer defaultSettings={defaultSettings} />
+                    {children}
+                  </MotionLazy>
                 </CheckoutProvider>
               </ThemeProvider>
             </AppRouterCacheProvider>

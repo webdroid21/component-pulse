@@ -38,11 +38,7 @@ export function CheckoutSuccessView() {
               mb: 3,
             }}
           >
-            <Iconify
-              icon="solar:check-circle-bold"
-              width={60}
-              sx={{ color: 'success.main' }}
-            />
+            <Iconify icon="solar:check-circle-bold" width={60} sx={{ color: 'success.main' }} />
           </Box>
 
           <Typography variant="h4" sx={{ mb: 2 }}>
@@ -50,7 +46,8 @@ export function CheckoutSuccessView() {
           </Typography>
 
           <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
-            Thank you for your order. We&apos;ve received your order and will begin processing it soon.
+            Thank you for your order. We&apos;ve received your order and will begin processing it
+            soon.
           </Typography>
 
           {orderNumber && (

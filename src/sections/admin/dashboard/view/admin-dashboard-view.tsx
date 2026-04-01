@@ -129,7 +129,12 @@ export function AdminDashboardView() {
       }
     });
 
-    return { totalRevenue: total, completedRevenue: completed, pendingRevenue: pending, cancelledRevenue: cancelled };
+    return {
+      totalRevenue: total,
+      completedRevenue: completed,
+      pendingRevenue: pending,
+      cancelledRevenue: cancelled,
+    };
   }, [filteredOrders]);
 
   // ── Aggregated metrics ──────────────────────────────────────────────
@@ -195,10 +200,7 @@ export function AdminDashboardView() {
   );
 
   // ── Stock breakdown ──────────────────────────────────────────────────
-  const outOfStockProducts = useMemo(
-    () => products.filter((p) => (p.stock ?? 0) <= 0),
-    [products]
-  );
+  const outOfStockProducts = useMemo(() => products.filter((p) => (p.stock ?? 0) <= 0), [products]);
   const criticalStockProducts = useMemo(
     () =>
       products.filter((p) => {
@@ -224,7 +226,9 @@ export function AdminDashboardView() {
   const yearlySalesData = useMemo(() => {
     const years = Array.from(
       new Set(orders.map((o) => String(tsToDate(o.createdAt).getFullYear())))
-    ).sort((a, b) => Number(b) - Number(a)).slice(0, 3);
+    )
+      .sort((a, b) => Number(b) - Number(a))
+      .slice(0, 3);
 
     if (years.length === 0) years.push(String(selectedYear));
 
@@ -261,13 +265,27 @@ export function AdminDashboardView() {
         map[cat] = (map[cat] ?? 0) + item.totalPrice;
       });
     });
-    const entries = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const entries = Object.entries(map)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
     return entries.map(([label, value]) => ({ label, value: Math.round(value) }));
   }, [filteredOrders]);
 
   // ── Sparkline placeholders ──────────────────────────────────────────
-  const MONTHS_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
+  const MONTHS_LABELS = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
 
   // ── Report handlers ─────────────────────────────────────────────────
   const handleRevenueReport = () => {
@@ -486,11 +504,10 @@ export function AdminDashboardView() {
   return (
     <DashboardContent maxWidth="lg">
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h4">
-          Welcome back, {user?.displayName || 'Admin'} 👋
-        </Typography>
+        <Typography variant="h4">Welcome back, {user?.displayName || 'Admin'} 👋</Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-          Here&apos;s what&apos;s happening with your store. Click any card to view a detailed report.
+          Here&apos;s what&apos;s happening with your store. Click any card to view a detailed
+          report.
         </Typography>
       </Box>
 
@@ -814,7 +831,17 @@ export function AdminDashboardView() {
           <DashboardRevenueChart
             title="Revenue & Orders Trend"
             subheader="Monthly breakdown by year"
-            data={yearlySalesData.length > 0 ? yearlySalesData : [{ year: String(selectedYear), revenue: revenueByMonth, orders: Array(12).fill(0) }]}
+            data={
+              yearlySalesData.length > 0
+                ? yearlySalesData
+                : [
+                    {
+                      year: String(selectedYear),
+                      revenue: revenueByMonth,
+                      orders: Array(12).fill(0),
+                    },
+                  ]
+            }
           />
         </Grid>
 
@@ -848,19 +875,19 @@ export function AdminDashboardView() {
             title="Products by Category"
             subheader={`${totalProducts} products across ${totalCategories} categories`}
             total={totalProducts}
-            series={categories.slice(0, 6).map((cat) => ({
-              label: cat.name,
-              value: products.filter((p) => p.categoryId === cat.id).length,
-            })).filter((s) => s.value > 0)}
+            series={categories
+              .slice(0, 6)
+              .map((cat) => ({
+                label: cat.name,
+                value: products.filter((p) => p.categoryId === cat.id).length,
+              }))
+              .filter((s) => s.value > 0)}
           />
         </Grid>
 
         {/* ── Stock Management Table ── */}
         <Grid size={{ xs: 12 }}>
-          <DashboardStockTable
-            products={products}
-            title="Stock Management"
-          />
+          <DashboardStockTable products={products} title="Stock Management" />
         </Grid>
       </Grid>
 

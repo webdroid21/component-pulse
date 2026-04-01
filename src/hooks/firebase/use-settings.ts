@@ -3,12 +3,7 @@
 import type { Timestamp } from 'firebase/firestore';
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 import { FIRESTORE } from 'src/lib/firebase';
 
@@ -22,27 +17,27 @@ export type StoreSettings = {
   storeAddress: string;
   storeLogo?: string;
   storeFavicon?: string;
-  
+
   // Business
   currency: string;
   currencySymbol: string;
   taxRate: number;
   taxIncluded: boolean;
-  
+
   // Shipping
   freeShippingThreshold: number;
   defaultShippingFee: number;
-  
+
   // Orders
   minOrderAmount: number;
   maxOrderAmount: number;
   orderPrefix: string;
-  
+
   // Notifications
   orderNotificationEmail: string;
   lowStockThreshold: number;
   lowStockNotification: boolean;
-  
+
   // Social
   socialLinks: {
     facebook?: string;
@@ -51,12 +46,12 @@ export type StoreSettings = {
     whatsapp?: string;
     tiktok?: string;
   };
-  
+
   // SEO
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
-  
+
   // Meta
   updatedAt?: Timestamp;
   updatedBy?: string;
@@ -67,7 +62,7 @@ const COLLECTION = 'settings';
 
 const DEFAULT_SETTINGS: StoreSettings = {
   storeName: 'Component Pulse',
-  storeEmail: 'info@componentpulse.com',
+  storeEmail: 'info@componentpulseug.com',
   storePhone: '+256 700 000 000',
   storeAddress: 'Kampala, Uganda',
   currency: 'UGX',
@@ -79,7 +74,7 @@ const DEFAULT_SETTINGS: StoreSettings = {
   minOrderAmount: 10000,
   maxOrderAmount: 10000000,
   orderPrefix: 'CP',
-  orderNotificationEmail: 'orders@componentpulse.com',
+  orderNotificationEmail: 'orders@componentpulseug.com',
   lowStockThreshold: 10,
   lowStockNotification: true,
   socialLinks: {},
@@ -133,10 +128,14 @@ export function useSettingsMutations() {
       setError(null);
 
       const docRef = doc(FIRESTORE, COLLECTION, SETTINGS_DOC);
-      await setDoc(docRef, {
-        ...data,
-        updatedAt: serverTimestamp(),
-      }, { merge: true });
+      await setDoc(
+        docRef,
+        {
+          ...data,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
 
       return true;
     } catch (err) {

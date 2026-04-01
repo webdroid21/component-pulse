@@ -33,10 +33,11 @@ const MAIN_HERO_SLIDE = {
   id: 'main-hero',
   label: 'WELCOME TO',
   name: 'Component Pulse',
-  caption: 'Your trusted partner for premium electronic components, solar equipment, and DIY prototyping supplies in Uganda. Let\'s build the future together.',
+  caption:
+    "Your trusted partner for premium electronic components, solar equipment, and DIY prototyping supplies in Uganda. Let's build the future together.",
   coverUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
   link: paths.products,
-  buttonText: 'Shop now'
+  buttonText: 'Shop now',
 };
 
 export function HomeHero() {
@@ -45,12 +46,17 @@ export function HomeHero() {
   // Fetch 2 featured products to use as the additional slides
   const { products } = useProducts({ isFeatured: true, limit: 2 });
 
+  const isMobile = theme.breakpoints.down('md');
+
   const carousel = useCarousel(
     {
       loop: true,
       duration: 80,
     },
-    [Autoplay({ delay: 5000 }), Fade()]
+    // Only use Fade on desktop for better mobile performance
+    typeof window !== 'undefined' && window.innerWidth >= 900
+      ? [Autoplay({ delay: 5000 }), Fade()]
+      : [Autoplay({ delay: 5000 })]
   );
 
   // Combine the main static slide with the dynamic product slides
@@ -61,10 +67,12 @@ export function HomeHero() {
       label: 'HOT DEAL',
       name: product.name,
       caption: product.description || 'Explore this amazing product at Component Pulse today.',
-      coverUrl: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80',
+      coverUrl:
+        product.images?.[0]?.url ||
+        'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80',
       link: paths.product(product.slug || product.id),
-      buttonText: 'View Product'
-    }))
+      buttonText: 'View Product',
+    })),
   ];
 
   return (
@@ -126,6 +134,7 @@ export function HomeHero() {
           options={carousel.options}
           slotProps={{
             prevBtn: {
+              sx: { ml: -2},
               svgIcon: (
                 <path
                   fill="none"
@@ -138,6 +147,7 @@ export function HomeHero() {
               ),
             },
             nextBtn: {
+              sx: { mr: -2},
               svgIcon: (
                 <path
                   fill="none"
@@ -194,10 +204,12 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
         opacity: 0,
         minHeight: { xs: '70vh', md: 720 },
         transition: theme.transitions.create(['opacity'], {
-          easing: theme.transitions.easing.easeIn,
-          duration: theme.transitions.duration.complex,
+          easing: theme.transitions.easing.easeInOut,
+          duration: theme.transitions.duration.shorter,
         }),
         ...(selected && { opacity: 1 }),
+        // Performance optimization
+        willChange: selected ? 'auto' : 'opacity',
       })}
     >
       <Box
@@ -207,7 +219,7 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
           color: 'common.white',
           mx: { xs: 'auto', md: 'unset' },
           textAlign: { xs: 'center', md: 'unset' },
-          // Premium Glassmorphism
+          // Premium Glassmorphism - Optimized for performance
           p: { xs: 3, md: 5 },
           borderRadius: 3,
           backgroundColor: varAlpha(theme.vars.palette.background.defaultChannel, 0.08),
@@ -215,8 +227,34 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
           WebkitBackdropFilter: 'blur(20px)',
           border: `1px solid ${varAlpha(theme.vars.palette.common.whiteChannel, 0.1)}`,
           boxShadow: theme.customShadows.z24,
+          // Mobile: Include image inside the card
+          display: 'flex',
+          flexDirection: 'column',
+          gap: { xs: 3, md: 0 },
+          // Performance optimizations
+          willChange: selected ? 'auto' : 'opacity, transform',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
         })}
       >
+        {/* Image inside card on mobile only */}
+        <Box
+          component="img"
+          alt={slide.name}
+          src={slide.coverUrl}
+          loading="eager"
+          sx={(theme) => ({
+            display: { xs: 'block', md: 'none' },
+            width: '100%',
+            height: 240,
+            objectFit: 'cover',
+            borderRadius: 2,
+            mb: 2,
+            transform: 'translateZ(0)',
+            WebkitTransform: 'translateZ(0)',
+          })}
+        />
+
         <Label variant="filled" color="warning" sx={{ mb: 2 }}>
           {slide.label}
         </Label>
@@ -227,7 +265,7 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
           sx={(theme) => ({
             mb: 2,
             typography: { xs: 'h4', md: 'h3' },
-            ...(theme.mixins.maxLine({ line: 2 }) as any)
+            ...(theme.mixins.maxLine({ line: 2 }) as any),
           })}
         >
           {slide.name}
@@ -247,7 +285,7 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
               lineHeight: 'inherit !important',
               color: 'inherit !important',
               display: 'inline !important',
-            }
+            },
           })}
         >
           <Markdown children={slide.caption} />
@@ -265,16 +303,21 @@ export function CarouselItem({ slide, selected }: CarouselItemProps) {
         </Button>
       </Box>
 
+      {/* Image outside card on desktop only */}
       <Box
         component="img"
         alt={slide.name}
         src={slide.coverUrl}
+        loading="eager"
         sx={(theme) => ({
-          width: { xs: 280, md: 480 },
-          height: { xs: 280, md: 480 },
+          display: { xs: 'none', md: 'block' },
+          width: 480,
+          height: 480,
           objectFit: 'cover',
           borderRadius: 4,
           filter: `drop-shadow(0 20px 40px ${varAlpha(theme.vars.palette.common.blackChannel, 0.8)})`,
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
         })}
       />
     </Box>

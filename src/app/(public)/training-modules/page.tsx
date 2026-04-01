@@ -3,9 +3,9 @@ import { TrainingModuleListView } from 'src/sections/training-modules/view/train
 // ----------------------------------------------------------------------
 
 export const metadata = {
-    title: 'Training Modules | ComponentPulse',
+  title: 'Training Modules | ComponentPulse',
 };
 
 export default function TrainingModulesPage() {
-    return <TrainingModuleListView />;
+  return <TrainingModuleListView />;
 }

@@ -49,7 +49,10 @@ const STATUS_OPTIONS: { value: OrderStatus | ''; label: string }[] = [
   { value: 'refunded', label: 'Refunded' },
 ];
 
-const STATUS_COLORS: Record<OrderStatus, 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'> = {
+const STATUS_COLORS: Record<
+  OrderStatus,
+  'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
+> = {
   pending: 'warning',
   confirmed: 'info',
   processing: 'info',
@@ -77,12 +80,15 @@ export function OrderListView() {
     router.push(paths.admin.orders.details(orderId));
   };
 
-  const handleStatusChange = useCallback(async (order: Order, newStatus: OrderStatus) => {
-    const success = await updateOrderStatus(order.id, newStatus);
-    if (success) {
-      refetch();
-    }
-  }, [updateOrderStatus, refetch]);
+  const handleStatusChange = useCallback(
+    async (order: Order, newStatus: OrderStatus) => {
+      const success = await updateOrderStatus(order.id, newStatus);
+      if (success) {
+        refetch();
+      }
+    },
+    [updateOrderStatus, refetch]
+  );
 
   return (
     <DashboardContent>

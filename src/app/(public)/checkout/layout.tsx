@@ -7,10 +7,5 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-
-  return (
-    <AuthGuard>
-      {children}
-    </AuthGuard>
-  );
+  return <AuthGuard>{children}</AuthGuard>;
 }

@@ -22,125 +22,147 @@ import { useCheckoutContext } from 'src/sections/checkout/context';
 // ----------------------------------------------------------------------
 
 type Props = {
-    product: Product;
+  product: Product;
 };
 
 export function ProductListItem({ product }: Props) {
-    const checkout = useCheckoutContext();
+  const checkout = useCheckoutContext();
 
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        checkout.onAddToCart({
-            id: product.id,
-            name: product.name,
-            price: product.salePrice || product.price,
-            coverUrl: product.images?.[0]?.url || '',
-            quantity: 1,
-            available: product.stock || 10,
-        });
-    };
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    checkout.onAddToCart({
+      id: product.id,
+      name: product.name,
+      price: product.salePrice || product.price,
+      coverUrl: product.images?.[0]?.url || '',
+      quantity: 1,
+      available: product.stock || 10,
+    });
+  };
 
-    const isSale = product.salePrice && product.salePrice < product.price;
+  const isSale = product.salePrice && product.salePrice < product.price;
 
-    return (
-        <Box
-            display="flex"
-            sx={{
-                position: 'relative',
-                '&:hover .add-to-cart': {
-                    opacity: 1,
-                },
-            }}
-        >
-            {(isSale || product.stock === 0) && (
-                <Box gap={1} display="flex" sx={{ position: 'absolute', top: 8, left: 8, zIndex: 9 }}>
-                    {product.stock === 0 && <Label color="error">OUT OF STOCK</Label>}
-                    {isSale && product.stock > 0 && <Label color="error">SALE</Label>}
-                </Box>
-            )}
-
-            {product.stock > 0 && (
-                <Fab
-                    onClick={handleAddToCart}
-                    className="add-to-cart"
-                    color="primary"
-                    size="small"
-                    sx={{
-                        top: 8,
-                        right: 8,
-                        zIndex: 9,
-                        opacity: 0,
-                        position: 'absolute',
-                        transition: (theme) =>
-                            theme.transitions.create('opacity', {
-                                easing: theme.transitions.easing.easeIn,
-                                duration: theme.transitions.duration.shortest,
-                            }),
-                    }}
-                >
-                    <Iconify icon="solar:cart-plus-bold" />
-                </Fab>
-            )}
-
-            <Link component={RouterLink} href={paths.product(product.slug || product.id)}>
-                <Box
-                    component="img"
-                    alt={product.name}
-                    src={product.images?.[0]?.url || '/assets/placeholder.svg'}
-                    sx={{
-                        mr: 2.5,
-                        width: 160,
-                        height: 160,
-                        objectFit: 'cover',
-                        flexShrink: 0,
-                        borderRadius: 1.5,
-                        bgcolor: 'background.neutral',
-                    }}
-                />
-            </Link>
-
-            <Stack spacing={1} sx={{ minWidth: 0, flexGrow: 1 }}>
-                <Stack spacing={0.5}>
-                    <Typography variant="caption" sx={{ color: 'text.disabled', textTransform: 'uppercase' }}>
-                        {product.categoryName || 'Category'}
-                    </Typography>
-
-                    <Link component={RouterLink} href={paths.product(product.slug || product.id)} color="inherit" variant="h6">
-                        {product.name}
-                    </Link>
-                </Stack>
-
-                <Typography variant="body2" sx={{ color: 'text.secondary', display: '-webkit-box', overflow: 'hidden', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>
-                    {product.description || 'No description available for this product.'}
-                </Typography>
-
-                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mt: 'auto !important' }}>
-                    <Stack direction="row" spacing={1} sx={{ typography: 'h6' }}>
-                        {isSale ? (
-                            <>
-                                <Box component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
-                                    {fCurrency(product.price)}
-                                </Box>
-                                <Box component="span" sx={{ color: 'error.main' }}>
-                                    {fCurrency(product.salePrice)}
-                                </Box>
-                            </>
-                        ) : (
-                            <Box component="span">{fCurrency(product.price)}</Box>
-                        )}
-                    </Stack>
-
-                    <Button
-                        component={RouterLink}
-                        href={paths.product(product.slug || product.id)}
-                        variant="outlined"
-                        size="small"
-                        color="inherit"
-                    >
-                        Read More
-                    </Button>
-                </Stack>
-            </Stack>
+  return (
+    <Box
+      display="flex"
+      sx={{
+        position: 'relative',
+        '&:hover .add-to-cart': {
+          opacity: 1,
+        },
+      }}
+    >
+      {(isSale || product.stock === 0) && (
+        <Box gap={1} display="flex" sx={{ position: 'absolute', top: 8, left: 8, zIndex: 9 }}>
+          {product.stock === 0 && <Label color="error">OUT OF STOCK</Label>}
+          {isSale && product.stock > 0 && <Label color="error">SALE</Label>}
         </Box>
-    );
+      )}
+
+      {product.stock > 0 && (
+        <Fab
+          onClick={handleAddToCart}
+          className="add-to-cart"
+          color="primary"
+          size="small"
+          sx={{
+            top: 8,
+            right: 8,
+            zIndex: 9,
+            opacity: 0,
+            position: 'absolute',
+            transition: (theme) =>
+              theme.transitions.create('opacity', {
+                easing: theme.transitions.easing.easeIn,
+                duration: theme.transitions.duration.shortest,
+              }),
+          }}
+        >
+          <Iconify icon="solar:cart-plus-bold" />
+        </Fab>
+      )}
+
+      <Link component={RouterLink} href={paths.product(product.slug || product.id)}>
+        <Box
+          component="img"
+          alt={product.name}
+          src={product.images?.[0]?.url || '/assets/placeholder.svg'}
+          sx={{
+            mr: 2.5,
+            width: 160,
+            height: 160,
+            objectFit: 'cover',
+            flexShrink: 0,
+            borderRadius: 1.5,
+            bgcolor: 'background.neutral',
+          }}
+        />
+      </Link>
+
+      <Stack spacing={1} sx={{ minWidth: 0, flexGrow: 1 }}>
+        <Stack spacing={0.5}>
+          <Typography variant="caption" sx={{ color: 'text.disabled', textTransform: 'uppercase' }}>
+            {product.categoryName || 'Category'}
+          </Typography>
+
+          <Link
+            component={RouterLink}
+            href={paths.product(product.slug || product.id)}
+            color="inherit"
+            variant="h6"
+          >
+            {product.name}
+          </Link>
+        </Stack>
+
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            display: '-webkit-box',
+            overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
+          }}
+        >
+          {product.description || 'No description available for this product.'}
+        </Typography>
+
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mt: 'auto !important' }}
+        >
+          <Stack direction="row" spacing={1} sx={{ typography: 'h6' }}>
+            {isSale ? (
+              <>
+                <Box
+                  component="span"
+                  sx={{ color: 'text.disabled', textDecoration: 'line-through' }}
+                >
+                  {fCurrency(product.price)}
+                </Box>
+                <Box component="span" sx={{ color: 'error.main' }}>
+                  {fCurrency(product.salePrice)}
+                </Box>
+              </>
+            ) : (
+              <Box component="span">{fCurrency(product.price)}</Box>
+            )}
+          </Stack>
+
+          <Button
+            component={RouterLink}
+            href={paths.product(product.slug || product.id)}
+            variant="outlined"
+            size="small"
+            color="inherit"
+          >
+            Read More
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
+  );
 }

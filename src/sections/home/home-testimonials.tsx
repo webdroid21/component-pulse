@@ -27,7 +27,12 @@ import { FIRESTORE } from 'src/lib/firebase';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
-import { Carousel, useCarousel, CarouselDotButtons, CarouselArrowBasicButtons } from 'src/components/carousel';
+import {
+  Carousel,
+  useCarousel,
+  CarouselDotButtons,
+  CarouselArrowBasicButtons,
+} from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
 
@@ -37,42 +42,48 @@ const TESTIMONIALS = [
     role: 'Solar Installer',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
     rating: 5,
-    content: 'ComponentPulse has been my go-to supplier for all solar equipment. Their quality is unmatched and delivery is always on time. Highly recommend for anyone in the solar business!',
+    content:
+      'ComponentPulse has been my go-to supplier for all solar equipment. Their quality is unmatched and delivery is always on time. Highly recommend for anyone in the solar business!',
   },
   {
     name: 'Sarah Namukasa',
     role: 'Electrical Contractor',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80',
     rating: 5,
-    content: "The best prices in Kampala! I've compared with many suppliers and ComponentPulse consistently offers better deals without compromising on quality. Their customer service is excellent too.",
+    content:
+      "The best prices in Kampala! I've compared with many suppliers and ComponentPulse consistently offers better deals without compromising on quality. Their customer service is excellent too.",
   },
   {
     name: 'James Okello',
     role: 'Home Owner',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80',
     rating: 5,
-    content: 'Bought my entire home solar system from here. The technical team helped me choose the right components and even provided installation guidance. My electricity bills are now zero!',
+    content:
+      'Bought my entire home solar system from here. The technical team helped me choose the right components and even provided installation guidance. My electricity bills are now zero!',
   },
   {
     name: 'Grace Akello',
     role: 'Business Owner',
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80',
     rating: 5,
-    content: 'As a business owner, reliable power is crucial. ComponentPulse supplied our backup power system and it has been working flawlessly for over 2 years now.',
+    content:
+      'As a business owner, reliable power is crucial. ComponentPulse supplied our backup power system and it has been working flawlessly for over 2 years now.',
   },
   {
     name: 'David Mugisha',
     role: 'IT Technician',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80',
     rating: 5,
-    content: 'Great selection of electronic components. Found everything I needed for my projects. The staff is knowledgeable and helped me find compatible parts.',
+    content:
+      'Great selection of electronic components. Found everything I needed for my projects. The staff is knowledgeable and helped me find compatible parts.',
   },
   {
     name: 'Patricia Nakato',
     role: 'Farm Manager',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80',
     rating: 5,
-    content: 'Installed solar pumps for our irrigation system. ComponentPulse provided excellent products and after-sales support. Our farm productivity has increased significantly.',
+    content:
+      'Installed solar pumps for our irrigation system. ComponentPulse provided excellent products and after-sales support. Our farm productivity has increased significantly.',
   },
 ];
 
@@ -219,7 +230,9 @@ export function HomeTestimonials() {
   });
 
   return (
-    <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: 'grey.900', color: 'common.white', overflow: 'hidden' }}>
+    <Box
+      sx={{ py: { xs: 6, md: 10 }, bgcolor: 'grey.900', color: 'common.white', overflow: 'hidden' }}
+    >
       <Container maxWidth="lg">
         <m.div
           initial={{ opacity: 0, y: 20 }}
@@ -234,7 +247,10 @@ export function HomeTestimonials() {
             <Typography variant="h3" sx={{ mt: 1, mb: 1.5, color: 'common.white' }}>
               What Our Customers Say
             </Typography>
-            <Typography variant="body1" sx={{ color: 'grey.400', maxWidth: 500, mx: 'auto', mb: 4 }}>
+            <Typography
+              variant="body1"
+              sx={{ color: 'grey.400', maxWidth: 500, mx: 'auto', mb: 4 }}
+            >
               Here&apos;s what our satisfied customers have to say about us.
             </Typography>
 
@@ -291,12 +307,7 @@ export function HomeTestimonials() {
                 <Field.Rating name="rating" />
               </Stack>
 
-              <Field.Text
-                name="content"
-                label="Review"
-                multiline
-                rows={4}
-              />
+              <Field.Text name="content" label="Review" multiline rows={4} />
             </Stack>
           </DialogContent>
           <DialogActions>

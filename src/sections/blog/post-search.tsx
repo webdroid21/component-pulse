@@ -46,7 +46,6 @@ export function PostSearch({ redirectPath, sx }: Props) {
     );
   }, [searchQuery, posts]);
 
-
   const handleChange = useCallback(
     (item: IPostItem | null) => {
       setSelectedItem(item);

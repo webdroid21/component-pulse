@@ -25,14 +25,18 @@ export function AboutStory() {
                 Our Mission
               </Typography>
               <Typography variant="body1" sx={{ color: 'text.secondary', mb: 5, mt: 1 }}>
-                To democratize access to high-quality electronic components and embedded systems knowledge across Uganda and East Africa, empowering innovators, students, and professionals to build the technology solutions of tomorrow.
+                To democratize access to high-quality electronic components and embedded systems
+                knowledge across Uganda and East Africa, empowering innovators, students, and
+                professionals to build the technology solutions of tomorrow.
               </Typography>
 
               <Typography variant="overline" sx={{ color: 'primary.main', fontWeight: 700 }}>
                 Our Vision
               </Typography>
               <Typography variant="body1" sx={{ color: 'text.secondary', mt: 1 }}>
-                To become the leading hub for embedded systems education and components supply in East Africa, fostering a thriving ecosystem of innovation and technological advancement.
+                To become the leading hub for embedded systems education and components supply in
+                East Africa, fostering a thriving ecosystem of innovation and technological
+                advancement.
               </Typography>
             </m.div>
           </Grid>

@@ -33,7 +33,9 @@ export function useStorageUpload(basePath: string = 'uploads') {
         const timestamp = Date.now();
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const fileName = `${timestamp}-${safeName}`;
-        const filePath = customPath ? `${basePath}/${customPath}/${fileName}` : `${basePath}/${fileName}`;
+        const filePath = customPath
+          ? `${basePath}/${customPath}/${fileName}`
+          : `${basePath}/${fileName}`;
 
         const storageRef = ref(STORAGE, filePath);
 

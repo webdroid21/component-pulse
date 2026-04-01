@@ -9,12 +9,18 @@ import Typography from '@mui/material/Typography';
 // ----------------------------------------------------------------------
 
 const BRANDS = [
-  { name: 'JA Solar', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/JA_Solar_logo.svg/200px-JA_Solar_logo.svg.png' },
+  {
+    name: 'JA Solar',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/JA_Solar_logo.svg/200px-JA_Solar_logo.svg.png',
+  },
   { name: 'Growatt', logo: 'https://en.growatt.com/static/images/logo.png' },
   { name: 'Felicity Solar', logo: 'https://felicitysolar.com/wp-content/uploads/2021/01/logo.png' },
   { name: 'Must Energy', logo: 'https://www.must-energy.com/images/logo.png' },
   { name: 'Victron Energy', logo: 'https://www.victronenergy.com/media/pg/VE_logo.png' },
-  { name: 'LONGi', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/LONGi_Green_Energy_logo.svg/200px-LONGi_Green_Energy_logo.svg.png' },
+  {
+    name: 'LONGi',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/LONGi_Green_Energy_logo.svg/200px-LONGi_Green_Energy_logo.svg.png',
+  },
 ];
 
 export function HomeBrands() {

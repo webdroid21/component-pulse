@@ -56,7 +56,11 @@ export function DealEditView({ id }: Props) {
         />
 
         <Box sx={{ mt: 5, textAlign: 'center' }}>
-          <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+          <Iconify
+            icon="solar:box-bold-duotone"
+            width={80}
+            sx={{ color: 'text.disabled', mb: 2 }}
+          />
           <Typography variant="h5" sx={{ mb: 1 }}>
             Deal not found
           </Typography>

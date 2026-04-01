@@ -18,11 +18,7 @@ export function CartIcon() {
   const totalItems = checkout?.state?.totalItems || 0;
 
   return (
-    <IconButton
-      component={RouterLink}
-      href={paths.cart}
-      sx={{ position: 'relative' }}
-    >
+    <IconButton component={RouterLink} href={paths.cart} sx={{ position: 'relative' }}>
       <Badge
         badgeContent={totalItems}
         color="error"

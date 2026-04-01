@@ -96,7 +96,14 @@ export function useProducts(filters?: ProductFilters) {
     } finally {
       setLoading(false);
     }
-  }, [filters?.categoryId, filters?.isActive, filters?.isFeatured, filters?.search, filters?.inStock, filters?.limit]);
+  }, [
+    filters?.categoryId,
+    filters?.isActive,
+    filters?.isFeatured,
+    filters?.search,
+    filters?.inStock,
+    filters?.limit,
+  ]);
 
   useEffect(() => {
     fetchProducts();
@@ -141,7 +148,6 @@ export function useProduct(productId: string | null) {
         } else {
           setError('Product not found');
         }
-
       } catch (err) {
         console.error('Error fetching product:', err);
         setError('Failed to fetch product');
@@ -183,7 +189,10 @@ export function useProductMutations() {
     }
   };
 
-  const updateProduct = async (productId: string, data: Partial<ProductFormData>): Promise<boolean> => {
+  const updateProduct = async (
+    productId: string,
+    data: Partial<ProductFormData>
+  ): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);
@@ -225,7 +234,8 @@ export function useProductMutations() {
     }
   };
 
-  const toggleProductStatus = async (productId: string, isActive: boolean): Promise<boolean> => updateProduct(productId, { isActive });
+  const toggleProductStatus = async (productId: string, isActive: boolean): Promise<boolean> =>
+    updateProduct(productId, { isActive });
 
   return {
     loading,

@@ -100,22 +100,9 @@ export function SettingsView() {
             <CardContent>
               <Stack spacing={3}>
                 <CardHeader title="Store Information" sx={{ p: 0 }} />
-                <TextField
-                  label="Store Name"
-                  {...register('storeName')}
-                  fullWidth
-                />
-                <TextField
-                  label="Store Email"
-                  type="email"
-                  {...register('storeEmail')}
-                  fullWidth
-                />
-                <TextField
-                  label="Store Phone"
-                  {...register('storePhone')}
-                  fullWidth
-                />
+                <TextField label="Store Name" {...register('storeName')} fullWidth />
+                <TextField label="Store Email" type="email" {...register('storeEmail')} fullWidth />
+                <TextField label="Store Phone" {...register('storePhone')} fullWidth />
                 <TextField
                   label="Store Address"
                   {...register('storeAddress')}
@@ -132,19 +119,27 @@ export function SettingsView() {
             <CardContent>
               <Stack spacing={3}>
                 <CardHeader title="Currency & Tax" sx={{ p: 0 }} />
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
-                  <TextField
-                    label="Currency Code"
-                    {...register('currency')}
-                    placeholder="UGX"
-                  />
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gap: 3,
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  }}
+                >
+                  <TextField label="Currency Code" {...register('currency')} placeholder="UGX" />
                   <TextField
                     label="Currency Symbol"
                     {...register('currencySymbol')}
                     placeholder="UGX"
                   />
                 </Box>
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gap: 3,
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  }}
+                >
                   <TextField
                     label="Tax Rate"
                     type="number"
@@ -167,7 +162,13 @@ export function SettingsView() {
                 <Divider />
 
                 <CardHeader title="Order Settings" sx={{ p: 0 }} />
-                <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gap: 3,
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  }}
+                >
                   <TextField
                     label="Minimum Order Amount"
                     type="number"

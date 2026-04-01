@@ -64,7 +64,7 @@ export function ProductShopView() {
   const [page, setPage] = useState(1);
 
   const [filters, setFilters] = useState({
-    categories: initialCategory ? [initialCategory] : [] as string[],
+    categories: initialCategory ? [initialCategory] : ([] as string[]),
     priceRange: [0, 10000000],
     inStock: false,
     onSale: false,
@@ -83,7 +83,7 @@ export function ProductShopView() {
     }
 
     if (cat !== null) {
-      setFilters(prev => {
+      setFilters((prev) => {
         if (!prev.categories.includes(cat)) {
           stateUpdated = true;
           return { ...prev, categories: [cat] };
@@ -91,7 +91,7 @@ export function ProductShopView() {
         return prev;
       });
     } else if (filters.categories.length > 0 && !cat) {
-      setFilters(prev => {
+      setFilters((prev) => {
         stateUpdated = true;
         return { ...prev, categories: [] };
       });
@@ -134,8 +134,8 @@ export function ProductShopView() {
     // Category filter
     if (filters.categories.length > 0) {
       // Find IDs of selected categories (handles both slugs from URL and IDs from filters)
-      const selectedCategoryIds = filters.categories.map(slugOrId => {
-        const match = categories.find(c => c.slug === slugOrId || c.id === slugOrId);
+      const selectedCategoryIds = filters.categories.map((slugOrId) => {
+        const match = categories.find((c) => c.slug === slugOrId || c.id === slugOrId);
         return match ? match.id : slugOrId;
       });
 
@@ -202,50 +202,55 @@ export function ProductShopView() {
         >
           {loading
             ? Array.from({ length: 8 }).map((_, index) => (
-              <Card key={index}>
-                <Skeleton variant="rectangular" height={220} />
-                <CardContent>
-                  <Skeleton variant="text" width="40%" height={16} />
-                  <Skeleton variant="text" width="80%" height={24} />
-                  <Skeleton variant="text" width="50%" height={28} sx={{ mt: 1 }} />
-                </CardContent>
-              </Card>
-            ))
+                <Card key={index}>
+                  <Skeleton variant="rectangular" height={220} />
+                  <CardContent>
+                    <Skeleton variant="text" width="40%" height={16} />
+                    <Skeleton variant="text" width="80%" height={24} />
+                    <Skeleton variant="text" width="50%" height={28} sx={{ mt: 1 }} />
+                  </CardContent>
+                </Card>
+              ))
             : paginatedProducts.map((product, index) => (
-              <m.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <ProductItem product={product} />
-              </m.div>
-            ))}
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <ProductItem product={product} />
+                </m.div>
+              ))}
         </Box>
       ) : (
         <Stack spacing={4}>
           {loading
             ? Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} sx={{ display: 'flex', p: 2, alignItems: 'center' }}>
-                <Skeleton variant="rectangular" width={160} height={160} sx={{ borderRadius: 1.5, mr: 2.5 }} />
-                <Box sx={{ flexGrow: 1 }}>
-                  <Skeleton variant="text" width="30%" height={20} />
-                  <Skeleton variant="text" width="80%" height={32} sx={{ my: 1 }} />
-                  <Skeleton variant="text" width="90%" height={20} />
-                  <Skeleton variant="text" width="40%" height={32} sx={{ mt: 2 }} />
-                </Box>
-              </Card>
-            ))
+                <Card key={index} sx={{ display: 'flex', p: 2, alignItems: 'center' }}>
+                  <Skeleton
+                    variant="rectangular"
+                    width={160}
+                    height={160}
+                    sx={{ borderRadius: 1.5, mr: 2.5 }}
+                  />
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Skeleton variant="text" width="30%" height={20} />
+                    <Skeleton variant="text" width="80%" height={32} sx={{ my: 1 }} />
+                    <Skeleton variant="text" width="90%" height={20} />
+                    <Skeleton variant="text" width="40%" height={32} sx={{ mt: 2 }} />
+                  </Box>
+                </Card>
+              ))
             : paginatedProducts.map((product, index) => (
-              <m.div
-                key={product.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <ProductListItem product={product} />
-              </m.div>
-            ))}
+                <m.div
+                  key={product.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <ProductListItem product={product} />
+                </m.div>
+              ))}
         </Stack>
       )}
 
@@ -291,7 +296,8 @@ export function ProductShopView() {
               Looking for a better value?
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8 }}>
-              Check out our special Combo Deals and save more on bundled products and training modules.
+              Check out our special Combo Deals and save more on bundled products and training
+              modules.
             </Typography>
           </Box>
           <Button
@@ -404,7 +410,11 @@ export function ProductShopView() {
             {/* Empty state */}
             {!loading && filteredProducts.length === 0 && (
               <Box sx={{ textAlign: 'center', py: 10 }}>
-                <Iconify icon="solar:box-bold-duotone" width={80} sx={{ color: 'text.disabled', mb: 2 }} />
+                <Iconify
+                  icon="solar:box-bold-duotone"
+                  width={80}
+                  sx={{ color: 'text.disabled', mb: 2 }}
+                />
                 <Typography variant="h5" sx={{ mb: 1 }}>
                   No products found
                 </Typography>

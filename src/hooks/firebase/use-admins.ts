@@ -135,9 +135,11 @@ export function useAdminMutations() {
     }
   };
 
-  const updateAdminRole = async (adminId: string, role: AdminRole): Promise<boolean> => updateAdmin(adminId, { role });
+  const updateAdminRole = async (adminId: string, role: AdminRole): Promise<boolean> =>
+    updateAdmin(adminId, { role });
 
-  const toggleAdminStatus = async (adminId: string, isActive: boolean): Promise<boolean> => updateAdmin(adminId, { isActive });
+  const toggleAdminStatus = async (adminId: string, isActive: boolean): Promise<boolean> =>
+    updateAdmin(adminId, { isActive });
 
   const deleteAdmin = async (adminId: string): Promise<boolean> => {
     try {

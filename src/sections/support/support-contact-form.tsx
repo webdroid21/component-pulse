@@ -24,145 +24,147 @@ import { useAuthContext } from 'src/auth/hooks';
 export type SupportContactSchemaType = zod.infer<typeof SupportContactSchema>;
 
 export const SupportContactSchema = zod.object({
-    contactName: zod.string().min(1, { message: 'Name is required' }),
-    contactEmail: zod
-        .string()
-        .min(1, { message: 'Email is required' })
-        .email({ message: 'Email must be a valid email address' }),
-    subject: zod.string().min(1, { message: 'Subject is required' }),
-    message: zod.string().min(1, { message: 'Message is required' }),
+  contactName: zod.string().min(1, { message: 'Name is required' }),
+  contactEmail: zod
+    .string()
+    .min(1, { message: 'Email is required' })
+    .email({ message: 'Email must be a valid email address' }),
+  subject: zod.string().min(1, { message: 'Subject is required' }),
+  message: zod.string().min(1, { message: 'Message is required' }),
 });
 
 // ----------------------------------------------------------------------
 
 export function SupportContactForm() {
-    const { user } = useAuthContext();
-    const { createTicket, loading: isSubmitting } = useTicketMutations();
-    const { createNotification } = useNotificationMutations();
+  const { user } = useAuthContext();
+  const { createTicket, loading: isSubmitting } = useTicketMutations();
+  const { createNotification } = useNotificationMutations();
 
-    const [openSuccess, setOpenSuccess] = useState(false);
-    const [openError, setOpenError] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
 
-    const defaultValues = {
-        contactName: user?.displayName || '',
-        contactEmail: user?.email || '',
-        subject: '',
-        message: '',
-    };
+  const defaultValues = {
+    contactName: user?.displayName || '',
+    contactEmail: user?.email || '',
+    subject: '',
+    message: '',
+  };
 
-    const methods = useForm<SupportContactSchemaType>({
-        resolver: zodResolver(SupportContactSchema),
-        defaultValues,
-    });
+  const methods = useForm<SupportContactSchemaType>({
+    resolver: zodResolver(SupportContactSchema),
+    defaultValues,
+  });
 
-    const {
-        reset,
-        handleSubmit,
-        formState: { isSubmitting: rhfSubmitting },
-    } = methods;
+  const {
+    reset,
+    handleSubmit,
+    formState: { isSubmitting: rhfSubmitting },
+  } = methods;
 
-    const onSubmit = handleSubmit(async (data) => {
-        try {
-            await createTicket(
-                {
-                    subject: data.subject,
-                    contactName: data.contactName,
-                    contactEmail: data.contactEmail,
-                    userId: user?.uid || null,
-                },
-                data.message
-            );
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await createTicket(
+        {
+          subject: data.subject,
+          contactName: data.contactName,
+          contactEmail: data.contactEmail,
+          userId: user?.uid || null,
+        },
+        data.message
+      );
 
-            // Notify admins that a new ticket arrived
-            await createNotification({
-                userId: 'admin',
-                type: 'mail',
-                category: 'New Support Ticket',
-                title: `<p><strong>${data.contactName}</strong> submitted a new support ticket: <em>${data.subject}</em></p>`,
-                avatarUrl: null,
-                link: '/admin/tickets',
-            });
+      // Notify admins that a new ticket arrived
+      await createNotification({
+        userId: 'admin',
+        type: 'mail',
+        category: 'New Support Ticket',
+        title: `<p><strong>${data.contactName}</strong> submitted a new support ticket: <em>${data.subject}</em></p>`,
+        avatarUrl: null,
+        link: '/admin/tickets',
+      });
 
-            // Send confirmation email to the user
-            await fetch('/api/support/send-confirmation', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contactEmail: data.contactEmail,
-                    contactName: data.contactName,
-                    subject: data.subject,
-                }),
-            });
+      // Send confirmation email to the user
+      await fetch('/api/support/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contactEmail: data.contactEmail,
+          contactName: data.contactName,
+          subject: data.subject,
+        }),
+      });
 
-            reset();
-            setOpenSuccess(true);
-        } catch (error) {
-            console.error('Error submitting ticket:', error);
-            setOpenError(true);
-        }
-    });
+      reset();
+      setOpenSuccess(true);
+    } catch (error) {
+      console.error('Error submitting ticket:', error);
+      setOpenError(true);
+    }
+  });
 
-    return (
-        <Card sx={{ p: { xs: 3, md: 5 }, mb: { xs: 10, md: 15 } }}>
-            <Box sx={{ textAlign: 'center', mb: 5 }}>
-                <Typography variant="h3" sx={{ mb: 2 }}>
-                    Send Us A Message
-                </Typography>
-                <Typography sx={{ color: 'text.secondary' }}>
-                    Have a specific question or issue? Fill out the form below and our team will get back to you!
-                </Typography>
-            </Box>
+  return (
+    <Card sx={{ p: { xs: 3, md: 5 }, mb: { xs: 10, md: 15 } }}>
+      <Box sx={{ textAlign: 'center', mb: 5 }}>
+        <Typography variant="h3" sx={{ mb: 2 }}>
+          Send Us A Message
+        </Typography>
+        <Typography sx={{ color: 'text.secondary' }}>
+          Have a specific question or issue? Fill out the form below and our team will get back to
+          you!
+        </Typography>
+      </Box>
 
-            {!user && (
-                <Alert severity="info" sx={{ mb: 4 }}>
-                    Did you know? If you <strong>create an account</strong> or <strong>sign in</strong>, you can track the status of your Contact Support Tickets directly from your dashboard!
-                </Alert>
-            )}
+      {!user && (
+        <Alert severity="info" sx={{ mb: 4 }}>
+          Did you know? If you <strong>create an account</strong> or <strong>sign in</strong>, you
+          can track the status of your Contact Support Tickets directly from your dashboard!
+        </Alert>
+      )}
 
-            <Form methods={methods} onSubmit={onSubmit}>
-                <Stack spacing={3}>
-                    <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
-                        <Field.Text name="contactName" label="Full Name" />
-                        <Field.Text name="contactEmail" label="Email Address" />
-                    </Box>
+      <Form methods={methods} onSubmit={onSubmit}>
+        <Stack spacing={3}>
+          <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
+            <Field.Text name="contactName" label="Full Name" />
+            <Field.Text name="contactEmail" label="Email Address" />
+          </Box>
 
-                    <Field.Text name="subject" label="Subject" />
+          <Field.Text name="subject" label="Subject" />
 
-                    <Field.Text name="message" label="Message" multiline rows={4} />
+          <Field.Text name="message" label="Message" multiline rows={4} />
 
-                    <LoadingButton
-                        fullWidth
-                        size="large"
-                        type="submit"
-                        variant="contained"
-                        loading={isSubmitting || rhfSubmitting}
-                    >
-                        Submit Message
-                    </LoadingButton>
-                </Stack>
-            </Form>
+          <LoadingButton
+            fullWidth
+            size="large"
+            type="submit"
+            variant="contained"
+            loading={isSubmitting || rhfSubmitting}
+          >
+            Submit Message
+          </LoadingButton>
+        </Stack>
+      </Form>
 
-            <Snackbar
-                open={openSuccess}
-                autoHideDuration={6000}
-                onClose={() => setOpenSuccess(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert severity="success" onClose={() => setOpenSuccess(false)}>
-                    Message sent successfully! Our team will reply shortly.
-                </Alert>
-            </Snackbar>
+      <Snackbar
+        open={openSuccess}
+        autoHideDuration={6000}
+        onClose={() => setOpenSuccess(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="success" onClose={() => setOpenSuccess(false)}>
+          Message sent successfully! Our team will reply shortly.
+        </Alert>
+      </Snackbar>
 
-            <Snackbar
-                open={openError}
-                autoHideDuration={6000}
-                onClose={() => setOpenError(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert severity="error" onClose={() => setOpenError(false)}>
-                    Failed to send message. Please try again.
-                </Alert>
-            </Snackbar>
-        </Card>
-    );
+      <Snackbar
+        open={openError}
+        autoHideDuration={6000}
+        onClose={() => setOpenError(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity="error" onClose={() => setOpenError(false)}>
+          Failed to send message. Please try again.
+        </Alert>
+      </Snackbar>
+    </Card>
+  );
 }

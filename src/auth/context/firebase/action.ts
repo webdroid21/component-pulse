@@ -1,6 +1,15 @@
 'use client';
 
-import { doc, setDoc, getDoc, getDocs, collection, serverTimestamp, query, limit } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  serverTimestamp,
+  query,
+  limit,
+} from 'firebase/firestore';
 import {
   signOut as _signOut,
   signInWithPopup as _signInWithPopup,
@@ -180,7 +189,6 @@ export const signInWithGoogle = async (): Promise<void> => {
       } catch (emailErr) {
         console.error('Failed to dispatch welcome email:', emailErr);
       }
-
     } else {
       // Update last login
       await setDoc(
@@ -205,7 +213,6 @@ export const signInWithGoogle = async (): Promise<void> => {
     } catch (alertErr) {
       console.error('Failed to dispatch login alert:', alertErr);
     }
-
   } catch (error) {
     console.error('Error during Google sign in:', error);
     throw error;
@@ -278,7 +285,9 @@ export const signUp = async ({
       });
       if (!resp.ok) throw new Error('API config missing');
     } catch (apiErr) {
-      console.warn('Falling back to default Firebase Auth templates (add FIREBASE_ADMIN keys to remove this)');
+      console.warn(
+        'Falling back to default Firebase Auth templates (add FIREBASE_ADMIN keys to remove this)'
+      );
       await _sendEmailVerification(newUser.user);
     }
 

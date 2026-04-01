@@ -43,10 +43,12 @@ export function ProductFilters({
   onResetFilters,
   categories,
 }: Props) {
-
   // Accept both slug and id for matching to sync perfectly with URL
   const isCategorySelected = (category: { id: string; slug?: string }) => {
-      return filters.categories.includes(category.id) || (category.slug && filters.categories.includes(category.slug));
+    return (
+      filters.categories.includes(category.id) ||
+      (category.slug && filters.categories.includes(category.slug))
+    );
   };
 
   const handleCategoryChange = (category: { id: string; slug?: string }) => {
@@ -60,9 +62,9 @@ export function ProductFilters({
     let newCategories = [...filters.categories];
 
     if (isSelected) {
-        newCategories = newCategories.filter(c => c !== category.id && c !== category.slug);
+      newCategories = newCategories.filter((c) => c !== category.id && c !== category.slug);
     } else {
-        newCategories.push(identifier);
+      newCategories.push(identifier);
     }
 
     onFilterChange('categories', newCategories);
@@ -88,7 +90,7 @@ export function ProductFilters({
                 typography: 'body2',
                 ...(isCategorySelected(category) && {
                   fontWeight: 'fontWeightBold',
-                  color: 'primary.main'
+                  color: 'primary.main',
                 }),
               }}
             >

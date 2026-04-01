@@ -136,7 +136,10 @@ export function useCategoryMutations() {
     }
   };
 
-  const updateCategory = async (categoryId: string, data: Partial<CategoryFormData>): Promise<boolean> => {
+  const updateCategory = async (
+    categoryId: string,
+    data: Partial<CategoryFormData>
+  ): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);

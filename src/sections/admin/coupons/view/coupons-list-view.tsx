@@ -75,7 +75,9 @@ export function CouponsListView() {
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset, watch } = useForm<FormValues>({ defaultValues: DEFAULT_VALUES });
+  const { control, handleSubmit, reset, watch } = useForm<FormValues>({
+    defaultValues: DEFAULT_VALUES,
+  });
   const couponType = watch('type');
 
   const openCreate = () => {
@@ -93,9 +95,7 @@ export function CouponsListView() {
       minOrderAmount: coupon.minOrderAmount || 0,
       maxUses: coupon.maxUses || 0,
       isActive: coupon.isActive,
-      expiresAt: coupon.expiresAt
-        ? coupon.expiresAt.toDate().toISOString().split('T')[0]
-        : '',
+      expiresAt: coupon.expiresAt ? coupon.expiresAt.toDate().toISOString().split('T')[0] : '',
       description: coupon.description || '',
     });
     setDialogOpen(true);
@@ -215,9 +215,13 @@ export function CouponsListView() {
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        {coupon.minOrderAmount
-                          ? fCurrency(coupon.minOrderAmount)
-                          : <Typography variant="caption" sx={{ color: 'text.disabled' }}>None</Typography>}
+                        {coupon.minOrderAmount ? (
+                          fCurrency(coupon.minOrderAmount)
+                        ) : (
+                          <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                            None
+                          </Typography>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2">
@@ -234,7 +238,9 @@ export function CouponsListView() {
                             {fDateTime(coupon.expiresAt.toDate())}
                           </Typography>
                         ) : (
-                          <Typography variant="caption" sx={{ color: 'text.disabled' }}>Never</Typography>
+                          <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                            Never
+                          </Typography>
                         )}
                       </TableCell>
                       <TableCell>
@@ -286,7 +292,9 @@ export function CouponsListView() {
                     fullWidth
                     required
                     error={!!fieldState.error}
-                    helperText={fieldState.error?.message || 'Customers will enter this at checkout'}
+                    helperText={
+                      fieldState.error?.message || 'Customers will enter this at checkout'
+                    }
                     inputProps={{ style: { textTransform: 'uppercase', letterSpacing: 2 } }}
                     onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                   />

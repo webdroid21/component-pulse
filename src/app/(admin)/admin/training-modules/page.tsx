@@ -7,5 +7,5 @@ import { TrainingModuleListView } from 'src/sections/admin/training-modules/view
 export const metadata = { title: `Training Modules | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
-    return <TrainingModuleListView />;
+  return <TrainingModuleListView />;
 }
